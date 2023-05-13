@@ -129,7 +129,7 @@ class TabView extends View<TabViewController> {
       contentColorState: contentColorState,
       icon: icon,
       iconState: iconState,
-      iconSize: iconSize,
+      size: iconSize,
       iconSizeState: iconSizeState,
       iconSpace: iconSpace,
       iconTint: iconTint,
@@ -260,7 +260,7 @@ class TabViewController extends ViewController {
     ValueState? iconState,
     Color? iconTint,
     ValueState<Color>? iconTintState,
-    double? iconSize,
+    double? size,
     ValueState<double>? iconSizeState,
     double? iconSpace,
     bool? inline,
@@ -280,7 +280,7 @@ class TabViewController extends ViewController {
     this.iconState = iconState ?? this.iconState;
     _iconTint = iconTint ?? _iconTint;
     this.iconTintState = iconTintState ?? this.iconTintState;
-    _iconSize = iconSize ?? _iconSize;
+    _iconSize = size ?? _iconSize;
     this.iconSizeState = iconSizeState ?? this.iconSizeState;
     this.iconSpace = iconSpace ?? this.iconSpace;
     this.inline = inline ?? this.inline;

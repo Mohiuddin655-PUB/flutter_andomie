@@ -1,11 +1,11 @@
 name: flutter_andomie
 description: Collection of widget with advanced style and controlling system.
-version: 0.0.6
+version: 0.0.7
 repository: https://github.com/P-YMR/flutter_andomie.git
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
 environment:
-  sdk: '>=2.19.6 <3.0.0'
+  sdk: '>=2.19.6 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
@@ -13,6 +13,7 @@ dependencies:
     sdk: flutter
 
   flutter_svg: ^1.1.6
+  cached_network_image: ^3.2.3
 
 dev_dependencies:
   flutter_test:

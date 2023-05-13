@@ -100,7 +100,7 @@ class IconView extends View<IconViewController> {
       fit: fit,
       icon: icon,
       iconState: iconState,
-      iconSize: size,
+      size: size,
       iconSizeState: sizeState,
       iconTint: tint,
       iconTintState: tintState,
@@ -243,7 +243,7 @@ class IconViewController extends ViewController {
     BoxFit? fit,
     dynamic icon,
     ValueState<dynamic>? iconState,
-    double? iconSize,
+    double? size,
     ValueState<double>? iconSizeState,
     Color? iconTint,
     ValueState<Color>? iconTintState,
@@ -255,7 +255,7 @@ class IconViewController extends ViewController {
     this.fit = fit ?? this.fit;
     _icon = icon ?? _icon;
     this.iconState = iconState ?? this.iconState;
-    _iconSize = iconSize ?? _iconSize;
+    _iconSize = size ?? _iconSize;
     _iconTint = iconTint ?? _iconTint;
     tintState = iconTintState ?? tintState;
     this.tintMode = tintMode ?? this.tintMode;
