@@ -9,42 +9,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'index.dart';
+import 'core.dart';
 
 part 'views/avatar_view.dart';
-
 part 'views/expendable_text_view.dart';
-
 part 'views/expensive_scroll_view.dart';
-
 part 'views/flexible_view.dart';
-
 part 'views/icon_view.dart';
-
 part 'views/image_view.dart';
-
 part 'views/linear_layout.dart';
-
 part 'views/material_image_view.dart';
-
 part 'views/notifier_view.dart';
-
 part 'views/recycler_view.dart';
-
 part 'views/slide_image_view.dart';
-
 part 'views/stack_layout.dart';
-
 part 'views/tab_layout.dart';
-
 part 'views/tab_view.dart';
-
 part 'views/text_view.dart';
-
 part 'views/thumbnail_view.dart';
-
 part 'views/view.dart';
-
 part 'views/view_pager.dart';
-
 part 'views/widget_wrapper.dart';
