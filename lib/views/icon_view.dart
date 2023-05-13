@@ -178,11 +178,16 @@ class RawIcon extends StatelessWidget {
       case IconType.svg:
         return SvgPicture.asset(
           icon,
-          color: tint,
           width: size,
           height: size,
           fit: fit ?? BoxFit.contain,
-          colorBlendMode: tintMode,
+          colorFilter: ColorFilter.mode(
+            tint ?? const Color(0xFF808080),
+            tintMode,
+          ),
+          theme: SvgTheme(
+            currentColor: tint ?? const Color(0xFF808080),
+          ),
         );
       case IconType.png:
         return Image.asset(
