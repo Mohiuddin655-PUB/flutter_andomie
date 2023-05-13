@@ -1,7 +1,8 @@
 name: flutter_andomie
-description: A new Flutter project.
-version: 0.0.1
-homepage:
+description: Collection of widget with advanced style and controlling system.
+version: 0.0.5
+repository: https://github.com/P-YMR/flutter_andomie.git
+homepage: https://github.com/P-YMR/flutter_andomie.git
 
 environment:
   sdk: '>=2.19.6 <3.0.0'
