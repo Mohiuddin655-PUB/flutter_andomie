@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'repositories.dart';
 
 class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
   DataRepositoryImpl({
@@ -10,7 +10,7 @@ class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
     T entity, [
     R? Function(R parent)? source,
   ]) {
-    return remote.create(
+    return remote.insert(
       data: entity,
       source: source,
     );

@@ -1,4 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
+part of 'models.dart';
 
 class Credential {
   final OAuthCredential? credential;

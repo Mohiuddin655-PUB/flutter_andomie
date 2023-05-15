@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class AuthDataSource {
   Future<bool> isSignIn();

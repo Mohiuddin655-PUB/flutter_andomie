@@ -1,6 +1,4 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
-
-import '../index.dart';
+part of 'controllers.dart';
 
 class DataController<T extends Entity> extends Cubit<Response<T>> {
   final DataHandler<T> handler;

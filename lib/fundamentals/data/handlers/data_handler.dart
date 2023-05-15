@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'handlers.dart';
 
 class DataHandlerImpl<T extends Entity> extends DataHandler<T> {
   const DataHandlerImpl({

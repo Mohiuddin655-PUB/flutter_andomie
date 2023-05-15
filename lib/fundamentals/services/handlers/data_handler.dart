@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'handlers.dart';
 
 abstract class DataHandler<T extends Entity> {
   final DataRepository<T> repository;

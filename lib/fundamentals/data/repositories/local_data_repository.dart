@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'repositories.dart';
 
 class LocalDataRepositoryImpl<T extends Entity> extends LocalDataRepository<T> {
   final LocalDataSource<T> local;

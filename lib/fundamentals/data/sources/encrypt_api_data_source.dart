@@ -1,11 +1,4 @@
-import 'dart:async';
-import 'dart:convert';
-import 'dart:core';
-
-import 'package:encrypt/encrypt.dart' as crypto;
-import 'package:flutter/foundation.dart';
-
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class EncryptApiDataSourceImpl<T extends Entity>
     extends ApiDataSourceImpl<T> {
@@ -25,7 +18,7 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   }
 
   @override
-  Future<Response<T>> create<R>({
+  Future<Response<T>> insert<R>({
     required T data,
     R? Function(R parent)? source,
   }) async {

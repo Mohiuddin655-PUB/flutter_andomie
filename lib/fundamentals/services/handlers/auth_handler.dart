@@ -1,6 +1,12 @@
-part of 'repositories.dart';
+part of 'handlers.dart';
 
-abstract class AuthRepository {
+abstract class AuthHandler {
+  final AuthRepository repository;
+
+  const AuthHandler({
+    required this.repository,
+  });
+
   String? get uid;
 
   User? get user;

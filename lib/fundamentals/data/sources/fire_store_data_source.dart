@@ -1,10 +1,4 @@
-import 'dart:async';
-import 'dart:core';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   final String path;
@@ -30,7 +24,7 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   String get uid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
-  Future<Response<T>> create<R>({
+  Future<Response<T>> insert<R>({
     required T data,
     R? Function(R parent)? source,
   }) async {

@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'models.dart';
 
 class Model extends Entity {
   Model({

@@ -1,8 +1,16 @@
-part of 'sources.dart';
+part of 'handlers.dart';
 
-abstract class DataSource<T extends Entity> {
-  Future<Response<T>> insert<R>({
-    required T data,
+abstract class UserHandler<T extends UserEntity> {
+  final DataRepository<T> repository;
+  final LocalDataRepository<T> localDataRepository;
+
+  const UserHandler({
+    required this.repository,
+    required this.localDataRepository,
+  });
+
+  Future<Response<T>> create<R>(
+    T entity, {
     R? Function(R parent)? source,
   });
 
@@ -14,36 +22,30 @@ abstract class DataSource<T extends Entity> {
 
   Future<Response<T>> delete<R>(
     String id, {
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   });
 
   Future<Response<T>> get<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
     R? Function(R parent)? source,
   });
 
   Future<Response<T>> gets<R>({
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
     R? Function(R parent)? source,
   });
 
   Future<Response<T>> getUpdates<R>({
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   });
 
   Stream<Response<T>> live<R>(
     String id, {
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   });
 
   Stream<Response<T>> lives<R>({
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   });
-
-  T build(dynamic source);
 }

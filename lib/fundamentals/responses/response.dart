@@ -1,3 +1,5 @@
+part of 'responses.dart';
+
 class Response<T> {
   final bool isCancel;
   final bool isSuccessful;
@@ -41,11 +43,12 @@ class Response<T> {
     return Response<T>(
       isCancel: isCancel ?? this.isCancel,
       isLoading: isLoading ?? this.isLoading,
-      isSuccessful: isSuccessful ?? result != null
-          ? true
-          : message != null
+      isSuccessful: isSuccessful ??
+          (result != null
               ? true
-              : this.isSuccessful,
+              : message != null
+                  ? true
+                  : this.isSuccessful),
       isFailed: isFailed ?? this.isFailed,
       data: data ?? this.data,
       result: result ?? this.result,

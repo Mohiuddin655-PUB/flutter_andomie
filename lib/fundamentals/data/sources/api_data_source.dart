@@ -1,9 +1,4 @@
-import 'dart:async';
-import 'dart:core';
-
-import 'package:dio/dio.dart' as dio;
-
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class ApiDataSourceImpl<T extends Entity> extends DataSource<T> {
   final Api api;
@@ -35,7 +30,7 @@ abstract class ApiDataSourceImpl<T extends Entity> extends DataSource<T> {
   }
 
   @override
-  Future<Response<T>> create<R>({
+  Future<Response<T>> insert<R>({
     required T data,
     R? Function(R parent)? source,
   }) async {

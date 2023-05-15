@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class LocalDataSource<T extends Entity> {
   final String path;

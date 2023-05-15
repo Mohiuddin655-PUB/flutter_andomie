@@ -1,3 +1,5 @@
+part of 'entities.dart';
+
 abstract class Entity {
   final String id;
   final int timeMills;

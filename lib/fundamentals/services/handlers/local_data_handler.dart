@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'handlers.dart';
 
 abstract class LocalDataHandler<T extends Entity> {
   final LocalDataRepository<T> repository;
@@ -11,17 +11,17 @@ abstract class LocalDataHandler<T extends Entity> {
 
   Future<bool?> exists({required String id});
 
-  Future<Response<void>> insert({required T data});
+  Future<Response<T>> insert({required T data});
 
-  Future<Response<void>> inserts({required List<T> data});
+  Future<Response<T>> inserts({required List<T> data});
 
-  Future<Response<void>> delete({required String id});
+  Future<Response<T>> delete({required String id});
 
-  Future<Response<void>> update({required T data});
+  Future<Response<T>> update({required T data});
 
   Future<Response<T>> get({required String id});
 
   Future<Response<T>> gets();
 
-  Future<Response<void>> clear();
+  Future<Response<T>> clear();
 }

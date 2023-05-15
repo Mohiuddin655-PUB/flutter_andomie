@@ -1,6 +1,4 @@
-import 'package:firebase_auth/firebase_auth.dart';
-
-import '../../index.dart';
+part of 'repositories.dart';
 
 class AuthRepositoryImpl extends AuthRepository {
   final AuthDataSource authDataSource;
@@ -10,16 +8,40 @@ class AuthRepositoryImpl extends AuthRepository {
   });
 
   @override
+  String? get uid => authDataSource.uid;
+
+  @override
+  User? get user => authDataSource.user;
+
+  @override
   Future<bool> isSignIn() => authDataSource.isSignIn();
 
   @override
   Future<Response> signOut() => authDataSource.signOut();
 
   @override
-  String? get uid => authDataSource.uid;
+  Future<Response<Credential>> signInWithFacebook() {
+    return authDataSource.signInWithFacebook();
+  }
 
   @override
-  User? get user => authDataSource.user;
+  Future<Response<Credential>> signInWithGoogle() {
+    return authDataSource.signInWithGoogle();
+  }
+
+  @override
+  Future<Response<bool>> signInWithBiometric() {
+    return authDataSource.signInWithBiometric();
+  }
+
+  @override
+  Future<Response<UserCredential>> signInWithEmailNPassword({
+    required String email,
+    required String password,
+  }) {
+    return authDataSource.signInWithEmailNPassword(
+        email: email, password: password);
+  }
 
   @override
   Future<Response<UserCredential>> signUpWithCredential({
@@ -35,29 +57,5 @@ class AuthRepositoryImpl extends AuthRepository {
   }) {
     return authDataSource.signUpWithEmailNPassword(
         email: email, password: password);
-  }
-
-  @override
-  Future<Response<UserCredential>> signInWithEmailNPassword({
-    required String email,
-    required String password,
-  }) {
-    return authDataSource.signInWithEmailNPassword(
-        email: email, password: password);
-  }
-
-  @override
-  Future<Response<Credential>> signInWithFacebook() {
-    return authDataSource.signInWithFacebook();
-  }
-
-  @override
-  Future<Response<Credential>> signInWithGoogle() {
-    return authDataSource.signInWithGoogle();
-  }
-
-  @override
-  Future<Response<bool>> signInWithBiometric() {
-    return authDataSource.signInWithBiometric();
   }
 }

@@ -1,9 +1,4 @@
-import 'dart:async';
-
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
-
-import '../../index.dart';
+part of 'sources.dart';
 
 abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   final String path;
@@ -29,7 +24,7 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   String get uid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
-  Future<Response<T>> create<R>({
+  Future<Response<T>> insert<R>({
     required T data,
     String? id,
     R? Function(R parent)? source,

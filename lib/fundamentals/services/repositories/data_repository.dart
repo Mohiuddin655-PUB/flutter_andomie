@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'repositories.dart';
 
 abstract class DataRepository<T extends Entity> {
   final DataSource<T> remote;

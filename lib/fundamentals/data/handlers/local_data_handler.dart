@@ -1,4 +1,4 @@
-import '../../index.dart';
+part of 'handlers.dart';
 
 class LocalDataHandlerImpl<T extends Entity> extends LocalDataHandler<T> {
   LocalDataHandlerImpl({
@@ -16,22 +16,22 @@ class LocalDataHandlerImpl<T extends Entity> extends LocalDataHandler<T> {
   }
 
   @override
-  Future<Response<void>> insert({required T data}) {
+  Future<Response<T>> insert({required T data}) {
     return repository.insert(data: data);
   }
 
   @override
-  Future<Response<void>> inserts({required List<T> data}) {
+  Future<Response<T>> inserts({required List<T> data}) {
     return repository.inserts(data: data);
   }
 
   @override
-  Future<Response<void>> update({required T data}) {
+  Future<Response<T>> update({required T data}) {
     return repository.update(data: data);
   }
 
   @override
-  Future<Response<void>> delete({required String id}) {
+  Future<Response<T>> delete({required String id}) {
     return repository.delete(id: id);
   }
 
@@ -46,7 +46,7 @@ class LocalDataHandlerImpl<T extends Entity> extends LocalDataHandler<T> {
   }
 
   @override
-  Future<Response<void>> clear() {
+  Future<Response<T>> clear() {
     return repository.clear();
   }
 }
