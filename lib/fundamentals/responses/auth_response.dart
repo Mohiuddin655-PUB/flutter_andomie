@@ -39,17 +39,20 @@ class AuthResponse {
     String? error,
     AuthStatus? status,
   }) {
+    var successful = (user != null || firebaseUser != null ||
+        message != null)
+        ? true
+        : this.isSuccessful;
     return AuthResponse(
       isCancel: isCancel ?? this.isCancel,
       isLoading: isLoading ?? this.isLoading,
       isLoggedIn: isLoggedIn ?? this.isLoggedIn,
-      isSuccessful:
-          isSuccessful ?? (message != null ? true : this.isSuccessful),
+      isSuccessful: isSuccessful ?? successful,
       isFailed: isFailed ?? this.isFailed,
       firebaseUser: firebaseUser ?? this.firebaseUser,
       user: user ?? this.user,
       message:
-          message ?? (isSuccessful ?? false ? "Successful!" : this.message),
+      message ?? (isSuccessful ?? false ? "Successful!" : this.message),
       error: error ?? this.error,
       status: status ??
           (firebaseUser != null

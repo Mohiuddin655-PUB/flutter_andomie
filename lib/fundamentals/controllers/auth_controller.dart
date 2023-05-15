@@ -57,7 +57,11 @@ class AuthController extends Cubit<AuthResponse> {
           );
           final userResponse = await userHandler.create(user);
           if (userResponse.isSuccessful || userResponse.snapshot != null) {
-            emit(state.copy(user: user, firebaseUser: response.data?.user));
+            emit(state.copy(
+              isLoggedIn: true,
+              user: user,
+              firebaseUser: response.data?.user,
+            ));
           } else {
             emit(state.copy(error: userResponse.message));
           }
@@ -102,7 +106,11 @@ class AuthController extends Cubit<AuthResponse> {
           );
           final userResponse = await userHandler.create(user);
           if (userResponse.isSuccessful || userResponse.snapshot != null) {
-            emit(state.copy(user: user, firebaseUser: result));
+            emit(state.copy(
+              isLoggedIn: true,
+              user: user,
+              firebaseUser: result,
+            ));
           } else {
             emit(state.copy(error: userResponse.message));
           }
@@ -137,7 +145,11 @@ class AuthController extends Cubit<AuthResponse> {
         );
         final userResponse = await userHandler.create(user);
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(user: user, firebaseUser: currentData));
+          emit(state.copy(
+            isLoggedIn: true,
+            user: user,
+            firebaseUser: currentData,
+          ));
         } else {
           emit(state.copy(error: userResponse.message));
         }
@@ -171,7 +183,11 @@ class AuthController extends Cubit<AuthResponse> {
         );
         final userResponse = await userHandler.create(user);
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(user: user, firebaseUser: currentData));
+          emit(state.copy(
+            isLoggedIn: true,
+            user: user,
+            firebaseUser: currentData,
+          ));
         } else {
           emit(state.copy(error: userResponse.message));
         }
@@ -200,7 +216,11 @@ class AuthController extends Cubit<AuthResponse> {
           password: password,
         );
         if (loginResponse.isSuccessful) {
-          emit(state.copy(firebaseUser: loginResponse.data?.user, user: user));
+          emit(state.copy(
+            isLoggedIn: true,
+            firebaseUser: loginResponse.data?.user,
+            user: user,
+          ));
         } else {
           emit(state.copy(error: loginResponse.message));
         }
@@ -221,7 +241,7 @@ class AuthController extends Cubit<AuthResponse> {
     if (response.isSuccessful) {
       final userResponse = await userHandler.delete(uid);
       if (userResponse.isSuccessful || userResponse.snapshot != null) {
-        emit(state.copy(firebaseUser: null));
+        emit(const AuthResponse(isSuccessful: true));
       } else {
         emit(state.copy(error: userResponse.message));
       }
