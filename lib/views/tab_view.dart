@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class TabView extends View<TabViewController> {
+class TabView extends YMRView<TabViewController> {
   final Color? contentColor;
   final ValueState<Color>? contentColorState;
   final dynamic icon;
@@ -253,7 +253,7 @@ class TabViewController extends ViewController {
 
   @override
   TabViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Color? contentColor,
     ValueState<Color>? contentColorState,
     dynamic icon,

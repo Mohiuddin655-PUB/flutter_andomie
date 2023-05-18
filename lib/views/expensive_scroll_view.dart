@@ -15,7 +15,7 @@ enum ScrollingType {
   const ScrollingType({this.physics});
 }
 
-class ExpensiveScrollView extends View<ExpensiveScrollViewController> {
+class ExpensiveScrollView extends YMRView<ExpensiveScrollViewController> {
   final Axis? orientation;
   final ScrollingType? scrollingType;
 
@@ -109,7 +109,7 @@ class ExpensiveScrollView extends View<ExpensiveScrollViewController> {
   }
 
   @override
-  Widget rebuild(
+  Widget build(
     BuildContext context,
     ExpensiveScrollViewController controller,
     Widget parent,
@@ -128,7 +128,7 @@ class ExpensiveScrollViewController extends ViewController {
 
   @override
   ExpensiveScrollViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Axis? orientation,
     ScrollingType? scrollingType,
   }) {

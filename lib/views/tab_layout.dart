@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class TabLayout extends View<TabLayoutController> {
+class TabLayout extends YMRView<TabLayoutController> {
   final TabController tabController;
   final ViewPagerController? pagerController;
 
@@ -163,7 +163,7 @@ class TabLayout extends View<TabLayoutController> {
     return controller.attach(
       this,
       pagerController: pagerController,
-      tabs: tabs,
+      items: tabs,
       tabContentColor: tabContentColor,
       tabContentColorState: tabContentColorState,
       tabIconSize: tabIconSize,
@@ -313,9 +313,9 @@ class TabLayoutController extends ViewController {
 
   @override
   TabLayoutController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     ViewPagerController? pagerController,
-    List<TabItem>? tabs,
+    List<TabItem>? items,
     double? tabIconSize,
     ValueState<double>? tabIconSizeState,
     double? tabIconSpace,
@@ -352,7 +352,7 @@ class TabLayoutController extends ViewController {
   }) {
     super.attach(view);
     this.pagerController = pagerController ?? this.pagerController;
-    this.tabs = tabs ?? this.tabs;
+    this.tabs = items ?? this.tabs;
 
     //TAB ICON PROPERTIES
     this.tabIconSize = tabIconSize ?? this.tabIconSize;

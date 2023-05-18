@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class TextView<T extends TextViewController> extends View<T> {
+class TextView<T extends TextViewController> extends YMRView<T> {
   final int? maxCharacters;
   final int? maxLines;
 
@@ -62,6 +62,8 @@ class TextView<T extends TextViewController> extends View<T> {
     super.paddingBottom,
     super.paddingStart,
     super.paddingEnd,
+    super.position,
+    super.positionType,
     super.borderSize,
     super.borderHorizontal,
     super.borderVertical,
@@ -373,7 +375,7 @@ class TextViewController extends ViewController {
 
   @override
   TextViewController attach(
-    View view, {
+    YMRView view, {
     int? maxCharacters,
     int? maxLines,
     double? letterSpacing,

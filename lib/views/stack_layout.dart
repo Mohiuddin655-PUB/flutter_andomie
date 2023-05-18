@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class StackLayout extends View<StackLayoutController> {
+class StackLayout extends YMRView<StackLayoutController> {
   final Alignment? layoutGravity;
 
   final List<Widget>? children;
@@ -114,7 +114,7 @@ class StackLayoutController extends ViewController {
 
   @override
   StackLayoutController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Alignment? layoutGravity,
     List<Widget>? children,
   }) {

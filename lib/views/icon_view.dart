@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class IconView extends View<IconViewController> {
+class IconView extends YMRView<IconViewController> {
   final BoxFit? fit;
   final dynamic icon;
   final ValueState<dynamic>? iconState;
@@ -111,10 +111,10 @@ class IconView extends View<IconViewController> {
   }
 
   @override
-  ViewRoot get root => super.root.modify(observer: false, background: false);
+  ViewProperties get properties => super.properties.modify(observer: false, background: false);
 
   @override
-  Widget rebuild(
+  Widget build(
     BuildContext context,
     IconViewController controller,
     Widget parent,
@@ -244,7 +244,7 @@ class IconViewController extends ViewController {
 
   @override
   IconViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     BoxFit? fit,
     dynamic icon,
     ValueState<dynamic>? iconState,

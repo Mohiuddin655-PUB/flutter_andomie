@@ -11,7 +11,7 @@ typedef SIVChangedHandler<T> = Function(
   T item,
 );
 
-class SlideImageView<T> extends View<SlideImageViewController<T>> {
+class SlideImageView<T> extends YMRView<SlideImageViewController<T>> {
   final double? frameRatio;
   final Color? itemBackground;
   final BoxFit? itemScaleType;
@@ -86,7 +86,7 @@ class SlideImageView<T> extends View<SlideImageViewController<T>> {
       itemBackground: itemBackground,
       itemScaleType: itemScaleType,
       itemType: itemType,
-      tabs: items,
+      items: items,
       placeholder: placeholder,
       placeholderType: placeholderType,
       selectionIndex: selectionIndex,
@@ -172,7 +172,7 @@ class _SIVChildState<T> extends State<_SIVChild<T>> {
               }
             },
           ),
-          View(
+          YMRView(
             visibility: controller.counterVisibility,
             positionType: controller.counterPosition,
             child: controller.counterBuilder != null
@@ -230,7 +230,7 @@ class SlideImageViewController<T> extends ViewController {
 
   @override
   SlideImageViewController<T> attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     SIVChangedHandler<T>? changedHandler,
     SIVCounterBuilder<T>? counterBuilder,
     ViewPositionType? counterPosition,
@@ -239,7 +239,7 @@ class SlideImageViewController<T> extends ViewController {
     Color? itemBackground,
     BoxFit? itemScaleType,
     ImageType? itemType,
-    List<T>? tabs,
+    List<T>? items,
     dynamic placeholder,
     ImageType? placeholderType,
     int? selectionIndex,
@@ -253,7 +253,7 @@ class SlideImageViewController<T> extends ViewController {
     this.itemBackground = itemBackground ?? this.itemBackground;
     this.itemScaleType = itemScaleType ?? this.itemScaleType;
     this.itemType = itemType ?? this.itemType;
-    this.items = tabs ?? this.items;
+    this.items = items ?? this.items;
     this.placeholder = placeholder ?? this.placeholder;
     this.placeholderType = placeholderType ?? this.placeholderType;
     this.selectionIndex = selectionIndex ?? this.selectionIndex;

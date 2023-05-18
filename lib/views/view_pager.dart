@@ -2,7 +2,7 @@ part of '../widgets.dart';
 
 typedef OnPageChangeListener = void Function(int index);
 
-class ViewPager extends View<ViewPagerController> {
+class ViewPager extends YMRView<ViewPagerController> {
   final OnPageChangeListener? onPageChange;
   final List<Widget> items;
 
@@ -119,7 +119,7 @@ class ViewPagerController extends ViewController {
 
   @override
   ViewPagerController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     List<Widget>? items,
     OnPageChangeListener? onPageChange,
   }) {

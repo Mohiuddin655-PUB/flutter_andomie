@@ -14,11 +14,14 @@ typedef OnViewModifyBuilder<T extends ViewController> = Widget Function(
 typedef OnViewNotifyBuilder = void Function(VoidCallback fn);
 typedef OnViewNotifyListener<T extends ViewController> = Function(T controller);
 
-class View<T extends ViewController> extends StatefulWidget {
+class YMRView<T extends ViewController> extends StatefulWidget {
   final T? controller;
 
   final int? flex;
   final bool? activated, enabled, visibility;
+
+  final int? animation;
+  final Curve? animationType;
 
   final double? dimensionRatio;
   final double? width, widthMax, widthMin;
@@ -66,13 +69,15 @@ class View<T extends ViewController> extends StatefulWidget {
   final OnViewNotifyListener<T>? onDoubleClickHandle;
   final OnViewNotifyListener<T>? onLongClickHandle;
 
-  const View({
+  const YMRView({
     Key? key,
     this.controller,
     this.flex,
     this.activated,
     this.enabled,
     this.visibility,
+    this.animation,
+    this.animationType,
     this.dimensionRatio,
     this.width,
     this.widthMax,
@@ -150,19 +155,21 @@ class View<T extends ViewController> extends StatefulWidget {
 
   T initController(T controller) => controller.attach(this) as T;
 
+  Widget root(BuildContext context, T controller, Widget parent) => parent;
+
+  Widget build(BuildContext context, T controller, Widget parent) => parent;
+
   Widget? attach(BuildContext context, T controller) => controller.child;
 
-  Widget rebuild(BuildContext context, T controller, Widget parent) => parent;
-
-  ViewRoot get root => const ViewRoot();
+  ViewProperties get properties => const ViewProperties();
 
   void onDispose() {}
 
   @override
-  State<View<T>> createState() => _ViewState<T>();
+  State<YMRView<T>> createState() => _YMRViewState<T>();
 }
 
-class _ViewState<T extends ViewController> extends State<View<T>> {
+class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
   late T controller;
 
   @override
@@ -175,7 +182,7 @@ class _ViewState<T extends ViewController> extends State<View<T>> {
   }
 
   @override
-  void didUpdateWidget(covariant View<T> oldWidget) {
+  void didUpdateWidget(covariant YMRView<T> oldWidget) {
     controller = widget.initController(controller);
     super.didUpdateWidget(oldWidget);
   }
@@ -188,24 +195,28 @@ class _ViewState<T extends ViewController> extends State<View<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return _ViewPosition(
-      controller: controller,
-      attachView: _ViewFlex(
+    return widget.root(
+      context,
+      controller,
+      _ViewPosition(
         controller: controller,
-        attachView: _ViewDimension(
+        attachView: _ViewFlex(
           controller: controller,
-          attachView: _ViewListener(
+          attachView: _ViewDimension(
             controller: controller,
-            attachView: _ViewChild(
+            attachView: _ViewListener(
               controller: controller,
-              attach: widget.attach(context, controller),
-              builder: (context, view) {
-                return widget.rebuild(
-                  context,
-                  controller,
-                  view,
-                );
-              },
+              attachView: _ViewChild(
+                controller: controller,
+                attach: widget.attach(context, controller),
+                builder: (context, view) {
+                  return widget.build(
+                    context,
+                    controller,
+                    view,
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -527,7 +538,7 @@ class ViewController {
   ViewController({
     this.activated = false,
     this.enabled = true,
-    this.root = const ViewRoot(),
+    this.root = const ViewProperties(),
     this.visibility = true,
     this.flex = 0,
     double? dimensionRatio,
@@ -537,6 +548,8 @@ class ViewController {
     double? height,
     double? heightMax,
     double? heightMin,
+    this.animation = 0,
+    this.animationType = Curves.linear,
     this.margin = 0,
     this.marginHorizontal,
     this.marginVertical,
@@ -554,7 +567,7 @@ class ViewController {
     this.border = 0,
     this.borderHorizontal,
     this.borderVertical,
-    double? borderTop1,
+    double? borderTop,
     double? borderBottom,
     double? borderStart,
     double? borderEnd,
@@ -625,7 +638,7 @@ class ViewController {
         _borderEnd = borderEnd,
         _borderStart = borderStart,
         _borderBottom = borderBottom,
-        _borderTop = borderTop1,
+        _borderTop = borderTop,
         _dimensionRatio = dimensionRatio,
         _onClick = onClick,
         _onDoubleClick = onDoubleClick,
@@ -635,6 +648,8 @@ class ViewController {
     required bool? activated,
     required bool? enabled,
     required bool? visibility,
+    required int? animation,
+    required Curve? animationType,
     required int? flex,
     required double? dimensionRatio,
     required double? width,
@@ -697,7 +712,7 @@ class ViewController {
     required ViewShadowType? shadowType,
     required ViewPosition? position,
     required ViewPositionType? positionType,
-    required ViewRoot? root,
+    required ViewProperties? root,
     required ViewShape? shape,
     required Widget? child,
     required OnViewClickListener? onClick,
@@ -711,6 +726,10 @@ class ViewController {
     this.activated = activated ?? this.activated;
     this.enabled = enabled ?? this.enabled;
     this.visibility = visibility ?? this.visibility;
+
+    // ANIMATION PROPERTIES
+    this.animation = animation ?? this.animation;
+    this.animationType = animationType ?? this.animationType;
 
     // VIEW SIZE PROPERTIES
     this.flex = flex ?? this.flex;
@@ -807,6 +826,8 @@ class ViewController {
     bool? activated,
     bool? enabled,
     bool? visibility,
+    int? animation,
+    Curve? animationType,
     int? flex,
     double? dimensionRatio,
     double? width,
@@ -870,7 +891,7 @@ class ViewController {
     ViewPosition? position,
     ViewPositionType? positionType,
     ViewShape? shape,
-    ViewRoot? root,
+    ViewProperties? root,
     Widget? child,
     OnViewClickListener? onClick,
     OnViewClickListener? onDoubleClick,
@@ -878,89 +899,94 @@ class ViewController {
     OnViewNotifyListener? onClickNotify,
     OnViewNotifyListener? onDoubleClickNotify,
     OnViewNotifyListener? onLongClickNotify,
-  }) =>
-      properties(
-        activated: activated,
-        enabled: enabled,
-        visibility: visibility,
-        flex: flex,
-        dimensionRatio: dimensionRatio,
-        width: width,
-        widthMax: widthMax,
-        widthMin: widthMin,
-        height: height,
-        heightMax: heightMax,
-        heightMin: heightMin,
-        margin: margin,
-        marginHorizontal: marginHorizontal,
-        marginVertical: marginVertical,
-        marginTop: marginTop,
-        marginBottom: marginBottom,
-        marginStart: marginStart,
-        marginEnd: marginEnd,
-        padding: padding,
-        paddingHorizontal: paddingHorizontal,
-        paddingVertical: paddingVertical,
-        paddingTop: paddingTop,
-        paddingBottom: paddingBottom,
-        paddingStart: paddingStart,
-        paddingEnd: paddingEnd,
-        border: border,
-        borderHorizontal: borderHorizontal,
-        borderVertical: borderVertical,
-        borderTop: borderTop,
-        borderBottom: borderBottom,
-        borderStart: borderStart,
-        borderEnd: borderEnd,
-        borderRadius: borderRadius,
-        borderRadiusBL: borderRadiusBL,
-        borderRadiusBR: borderRadiusBR,
-        borderRadiusTL: borderRadiusTL,
-        borderRadiusTR: borderRadiusTR,
-        shadow: shadow,
-        shadowBlurRadius: shadowBlurRadius,
-        shadowSpreadRadius: shadowSpreadRadius,
-        shadowHorizontal: shadowHorizontal,
-        shadowVertical: shadowVertical,
-        shadowStart: shadowStart,
-        shadowEnd: shadowEnd,
-        shadowTop: shadowTop,
-        shadowBottom: shadowBottom,
-        background: background,
-        foreground: foreground,
-        borderColor: borderColor,
-        shadowColor: shadowColor,
-        gravity: gravity,
-        transformGravity: transformGravity,
-        backgroundBlendMode: backgroundBlendMode,
-        foregroundBlendMode: foregroundBlendMode,
-        backgroundImage: backgroundImage,
-        foregroundImage: foregroundImage,
-        backgroundGradient: backgroundGradient,
-        foregroundGradient: foregroundGradient,
-        borderGradient: borderGradient,
-        transform: transform,
-        shadowBlurStyle: shadowBlurStyle,
-        clipBehavior: clipBehavior,
-        shadowType: shadowType,
-        position: position,
-        positionType: positionType,
-        shape: shape,
-        root: root,
-        child: child,
-        onClick: onClick,
-        onDoubleClick: onDoubleClick,
-        onLongClick: onLongClick,
-        onClickHandle: onClickNotify,
-        onDoubleClickHandle: onDoubleClickNotify,
-        onLongClickHandle: onLongClickNotify,
-      );
+  }) {
+    return properties(
+      activated: activated,
+      enabled: enabled,
+      visibility: visibility,
+      animation: animation,
+      animationType: animationType,
+      flex: flex,
+      dimensionRatio: dimensionRatio,
+      width: width,
+      widthMax: widthMax,
+      widthMin: widthMin,
+      height: height,
+      heightMax: heightMax,
+      heightMin: heightMin,
+      margin: margin,
+      marginHorizontal: marginHorizontal,
+      marginVertical: marginVertical,
+      marginTop: marginTop,
+      marginBottom: marginBottom,
+      marginStart: marginStart,
+      marginEnd: marginEnd,
+      padding: padding,
+      paddingHorizontal: paddingHorizontal,
+      paddingVertical: paddingVertical,
+      paddingTop: paddingTop,
+      paddingBottom: paddingBottom,
+      paddingStart: paddingStart,
+      paddingEnd: paddingEnd,
+      border: border,
+      borderHorizontal: borderHorizontal,
+      borderVertical: borderVertical,
+      borderTop: borderTop,
+      borderBottom: borderBottom,
+      borderStart: borderStart,
+      borderEnd: borderEnd,
+      borderRadius: borderRadius,
+      borderRadiusBL: borderRadiusBL,
+      borderRadiusBR: borderRadiusBR,
+      borderRadiusTL: borderRadiusTL,
+      borderRadiusTR: borderRadiusTR,
+      shadow: shadow,
+      shadowBlurRadius: shadowBlurRadius,
+      shadowSpreadRadius: shadowSpreadRadius,
+      shadowHorizontal: shadowHorizontal,
+      shadowVertical: shadowVertical,
+      shadowStart: shadowStart,
+      shadowEnd: shadowEnd,
+      shadowTop: shadowTop,
+      shadowBottom: shadowBottom,
+      background: background,
+      foreground: foreground,
+      borderColor: borderColor,
+      shadowColor: shadowColor,
+      gravity: gravity,
+      transformGravity: transformGravity,
+      backgroundBlendMode: backgroundBlendMode,
+      foregroundBlendMode: foregroundBlendMode,
+      backgroundImage: backgroundImage,
+      foregroundImage: foregroundImage,
+      backgroundGradient: backgroundGradient,
+      foregroundGradient: foregroundGradient,
+      borderGradient: borderGradient,
+      transform: transform,
+      shadowBlurStyle: shadowBlurStyle,
+      clipBehavior: clipBehavior,
+      shadowType: shadowType,
+      position: position,
+      positionType: positionType,
+      shape: shape,
+      root: root,
+      child: child,
+      onClick: onClick,
+      onDoubleClick: onDoubleClick,
+      onLongClick: onLongClick,
+      onClickHandle: onClickNotify,
+      onDoubleClickHandle: onDoubleClickNotify,
+      onLongClickHandle: onLongClickNotify,
+    );
+  }
 
   @mustCallSuper
-  ViewController attach(View view) => properties(
+  ViewController attach(YMRView view) => properties(
         activated: view.activated,
         enabled: view.enabled,
         visibility: view.visibility,
+        animation: view.animation,
+        animationType: view.animationType,
         flex: view.flex,
         dimensionRatio: view.dimensionRatio,
         width: view.width,
@@ -1024,7 +1050,7 @@ class ViewController {
         position: view.position,
         positionType: view.positionType,
         shape: view.shape,
-        root: view.root,
+        root: view.properties,
         child: view.child,
         onClick: view.onClick,
         onDoubleClick: view.onDoubleClick,
@@ -1045,6 +1071,24 @@ class ViewController {
 
   void setAlignment(Alignment? value) {
     gravity = value;
+    notify;
+  }
+
+  int animation = 0;
+
+  bool get animationEnabled => animation > 0;
+
+  void setAnimation(int value) {
+    animation = value;
+    notify;
+  }
+
+  Duration get animationDuration => Duration(microseconds: animation);
+
+  Curve animationType;
+
+  void setAnimationType(Curve value) {
+    animationType = value;
     notify;
   }
 
@@ -1569,7 +1613,7 @@ class ViewController {
     notify;
   }
 
-  ViewRoot root = const ViewRoot();
+  ViewProperties root = const ViewProperties();
 
   ViewShape shape = ViewShape.rectangular;
 
@@ -1700,12 +1744,12 @@ class ViewController {
   void onNotify() => notify;
 }
 
-class ViewRoot {
+class ViewProperties {
   final bool position, flex, ratio, observer;
   final bool view, constraints, margin, padding;
   final bool decoration, shadow, shape, radius, border, background;
 
-  const ViewRoot({
+  const ViewProperties({
     this.position = true,
     this.flex = true,
     this.ratio = true,
@@ -1722,7 +1766,7 @@ class ViewRoot {
     this.background = true,
   });
 
-  ViewRoot modify({
+  ViewProperties modify({
     bool? position,
     bool? flex,
     bool? ratio,
@@ -1738,7 +1782,7 @@ class ViewRoot {
     bool? border,
     bool? background,
   }) {
-    return ViewRoot(
+    return ViewProperties(
       position: position ?? this.position,
       flex: flex ?? this.flex,
       ratio: ratio ?? this.ratio,

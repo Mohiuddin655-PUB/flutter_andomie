@@ -31,7 +31,7 @@ enum ImageType {
   }
 }
 
-class ImageView<T extends ImageViewController> extends View<T> {
+class ImageView<T extends ImageViewController> extends YMRView<T> {
   final bool? cacheMode;
   final dynamic image;
   final ImageType? imageType;
@@ -157,7 +157,7 @@ class ImageViewController extends ViewController {
 
   @override
   ImageViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     bool? cacheMode,
     dynamic image,
     ImageType? imageType,

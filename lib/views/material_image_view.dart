@@ -31,7 +31,7 @@ enum MIVLayer {
 }
 
 class MaterialImageView<T extends Object>
-    extends View<MaterialImageViewController<T>> {
+    extends YMRView<MaterialImageViewController<T>> {
   final double? frameRatio;
   final MIVFrameRatioBuilder? frameRatioBuilder;
   final Color? itemBackground;
@@ -89,11 +89,11 @@ class MaterialImageView<T extends Object>
     return controller.attach(
       this,
       frameRatio: frameRatio,
-      frameRatioBuilder: frameRatioBuilder,
+      frameBuilder: frameRatioBuilder,
       itemBackground: itemBackground,
       itemSpace: itemSpace,
       itemType: itemType,
-      tabs: items,
+      items: items,
       placeholder: placeholder,
       placeholderType: placeholderType,
     );
@@ -106,27 +106,27 @@ class MaterialImageView<T extends Object>
   ) {
     switch (controller.layer) {
       case MIVLayer.singleLayer:
-        return _X1<T>(controller: controller);
+        return _MIVSingleLayer<T>(controller: controller);
       case MIVLayer.doubleLayer:
-        return _X2<T>(controller: controller);
+        return _MIVDoubleLayer<T>(controller: controller);
       case MIVLayer.tripleLayer:
-        return _X3<T>(controller: controller);
+        return _MIVTripleLayer<T>(controller: controller);
       case MIVLayer.fourthLayer:
-        return _X4<T>(controller: controller);
+        return _MIVFourthLayer<T>(controller: controller);
       case MIVLayer.fifthLayer:
-        return _X5<T>(controller: controller);
+        return _MIVFifthLayer<T>(controller: controller);
       case MIVLayer.sixthLayer:
-        return _X6<T>(controller: controller);
+        return _MIVSixthLayer<T>(controller: controller);
       case MIVLayer.multipleLayer:
-        return _Xx<T>(controller: controller);
+        return _MIVMultiLayer<T>(controller: controller);
     }
   }
 }
 
-class _X1<T> extends StatelessWidget {
+class _MIVSingleLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X1({
+  const _MIVSingleLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -134,12 +134,12 @@ class _X1<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return controller.isRational
-        ? _Image(
+        ? _MIVBuilder(
             controller: controller,
             image: controller.items[0],
             dimension: controller.ratio,
           )
-        : _Image(
+        : _MIVBuilder(
             controller: controller,
             image: controller.items[0],
             maxHeight: 500,
@@ -148,10 +148,10 @@ class _X1<T> extends StatelessWidget {
   }
 }
 
-class _X2<T> extends StatelessWidget {
+class _MIVDoubleLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X2({
+  const _MIVDoubleLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -163,7 +163,7 @@ class _X2<T> extends StatelessWidget {
       child: Flex(
         direction: Axis.horizontal,
         children: [
-          _Image(
+          _MIVBuilder(
             controller: controller,
             image: controller.items[0],
             flexible: true,
@@ -171,7 +171,7 @@ class _X2<T> extends StatelessWidget {
           SizedBox(
             width: controller.spaceBetween,
           ),
-          _Image(
+          _MIVBuilder(
             controller: controller,
             image: controller.items[1],
             flexible: true,
@@ -182,10 +182,10 @@ class _X2<T> extends StatelessWidget {
   }
 }
 
-class _X3<T> extends StatelessWidget {
+class _MIVTripleLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X3({
+  const _MIVTripleLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -197,7 +197,7 @@ class _X3<T> extends StatelessWidget {
       child: Flex(
         direction: Axis.horizontal,
         children: [
-          _Image(
+          _MIVBuilder(
             controller: controller,
             image: controller.items[0],
             dimension: 0.8,
@@ -209,7 +209,7 @@ class _X3<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.vertical,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[1],
                   flexible: true,
@@ -217,7 +217,7 @@ class _X3<T> extends StatelessWidget {
                 SizedBox(
                   height: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[2],
                   flexible: true,
@@ -231,10 +231,10 @@ class _X3<T> extends StatelessWidget {
   }
 }
 
-class _X4<T> extends StatelessWidget {
+class _MIVFourthLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X4({
+  const _MIVFourthLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -250,7 +250,7 @@ class _X4<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   dimension: 1,
                   image: controller.items[0],
@@ -258,7 +258,7 @@ class _X4<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   dimension: 1,
                   image: controller.items[1],
@@ -273,7 +273,7 @@ class _X4<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   dimension: 1,
                   image: controller.items[2],
@@ -281,7 +281,7 @@ class _X4<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   dimension: 1,
                   image: controller.items[3],
@@ -295,10 +295,10 @@ class _X4<T> extends StatelessWidget {
   }
 }
 
-class _X5<T> extends StatelessWidget {
+class _MIVFifthLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X5({
+  const _MIVFifthLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -314,7 +314,7 @@ class _X5<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[0],
                   flexible: true,
@@ -322,7 +322,7 @@ class _X5<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[1],
                   flexible: true,
@@ -337,7 +337,7 @@ class _X5<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[2],
                   flexible: true,
@@ -345,7 +345,7 @@ class _X5<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[3],
                   flexible: true,
@@ -353,7 +353,7 @@ class _X5<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[4],
                   flexible: true,
@@ -367,10 +367,10 @@ class _X5<T> extends StatelessWidget {
   }
 }
 
-class _X6<T> extends StatelessWidget {
+class _MIVSixthLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _X6({
+  const _MIVSixthLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -386,7 +386,7 @@ class _X6<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[0],
                   flexible: true,
@@ -394,7 +394,7 @@ class _X6<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[1],
                   flexible: true,
@@ -402,7 +402,7 @@ class _X6<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[2],
                   flexible: true,
@@ -417,7 +417,7 @@ class _X6<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[3],
                   flexible: true,
@@ -425,7 +425,7 @@ class _X6<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[4],
                   flexible: true,
@@ -433,7 +433,7 @@ class _X6<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[5],
                   flexible: true,
@@ -447,10 +447,10 @@ class _X6<T> extends StatelessWidget {
   }
 }
 
-class _Xx<T> extends StatelessWidget {
+class _MIVMultiLayer<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
 
-  const _Xx({
+  const _MIVMultiLayer({
     Key? key,
     required this.controller,
   }) : super(key: key);
@@ -466,7 +466,7 @@ class _Xx<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[0],
                   flexible: true,
@@ -474,7 +474,7 @@ class _Xx<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[1],
                   flexible: true,
@@ -482,7 +482,7 @@ class _Xx<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[2],
                   flexible: true,
@@ -497,7 +497,7 @@ class _Xx<T> extends StatelessWidget {
             child: Flex(
               direction: Axis.horizontal,
               children: [
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[3],
                   flexible: true,
@@ -505,7 +505,7 @@ class _Xx<T> extends StatelessWidget {
                 SizedBox(
                   width: controller.spaceBetween,
                 ),
-                _Image(
+                _MIVBuilder(
                   controller: controller,
                   image: controller.items[4],
                   flexible: true,
@@ -520,7 +520,7 @@ class _Xx<T> extends StatelessWidget {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        _Image(
+                        _MIVBuilder(
                           controller: controller,
                           image: controller.items[5],
                         ),
@@ -547,14 +547,14 @@ class _Xx<T> extends StatelessWidget {
   }
 }
 
-class _Image<T> extends StatelessWidget {
+class _MIVBuilder<T> extends StatelessWidget {
   final MaterialImageViewController<T> controller;
   final double? maxHeight;
   final T image;
   final double? dimension;
   final bool flexible, resizable;
 
-  const _Image({
+  const _MIVBuilder({
     Key? key,
     required this.controller,
     required this.image,
@@ -594,23 +594,23 @@ class MaterialImageViewController<T> extends ViewController {
 
   @override
   MaterialImageViewController<T> attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     double? frameRatio,
-    MIVFrameRatioBuilder? frameRatioBuilder,
+    MIVFrameRatioBuilder? frameBuilder,
     Color? itemBackground,
     double? itemSpace,
     ImageType? itemType,
-    List<T>? tabs,
+    List<T>? items,
     dynamic placeholder,
     ImageType? placeholderType,
   }) {
     super.attach(view);
     this.frameRatio = frameRatio ?? this.frameRatio;
-    this.frameRatioBuilder = frameRatioBuilder ?? this.frameRatioBuilder;
+    this.frameRatioBuilder = frameBuilder ?? this.frameRatioBuilder;
     this.itemBackground = itemBackground ?? this.itemBackground;
     this.spaceBetween = itemSpace ?? this.spaceBetween;
     this.imageType = itemType ?? this.imageType;
-    this.items = tabs ?? this.items;
+    this.items = items ?? this.items;
     this.placeholder = placeholder ?? this.placeholder;
     this.placeholderType = placeholderType ?? this.placeholderType;
     return this;

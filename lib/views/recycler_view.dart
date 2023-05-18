@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class RecyclerView<T> extends View<RecyclerViewController<T>> {
+class RecyclerView<T> extends YMRView<RecyclerViewController<T>> {
   final List<T> items;
   final Axis direction;
   final int? itemCount;
@@ -105,7 +105,7 @@ class RecyclerView<T> extends View<RecyclerViewController<T>> {
   ) {
     return controller.attach(
       this,
-      tabs: items,
+      items: items,
       direction: direction,
       itemCount: itemCount,
       snapCount: snapCount,
@@ -520,9 +520,9 @@ class RecyclerViewController<T> extends ViewController {
 
   @override
   RecyclerViewController<T> attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Axis? direction,
-    List<T>? tabs,
+    List<T>? items,
     int? itemCount,
     int? snapCount,
     RecyclerLayoutType? layoutType,
@@ -532,7 +532,7 @@ class RecyclerViewController<T> extends ViewController {
   }) {
     super.attach(view);
     _itemCount = itemCount ?? _itemCount;
-    this.items = tabs ?? this.items;
+    this.items = items ?? this.items;
     this.direction = direction ?? this.direction;
     this.layoutType = layoutType ?? this.layoutType;
     this.snapCount = snapCount ?? this.snapCount;

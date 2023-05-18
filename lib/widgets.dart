@@ -20,6 +20,8 @@ part 'views/expensive_scroll_view.dart';
 
 part 'views/flexible_view.dart';
 
+part 'views/frame_view.dart';
+
 part 'views/icon_view.dart';
 
 part 'views/image_view.dart';

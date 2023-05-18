@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class AvatarView extends View<AvatarViewController> {
+class AvatarView extends YMRView<AvatarViewController> {
   final String? url;
   final dynamic placeholder;
   final double? size;
@@ -81,7 +81,7 @@ class AvatarView extends View<AvatarViewController> {
   }
 
   @override
-  Widget rebuild(
+  Widget build(
     BuildContext context,
     AvatarViewController controller,
     Widget parent,
@@ -150,7 +150,7 @@ class AvatarViewController extends ViewController {
 
   @override
   AvatarViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     String? url,
     dynamic placeholder,
     double? size,

@@ -61,7 +61,7 @@ enum LayoutScrollingType {
   const LayoutScrollingType({this.physics});
 }
 
-class LinearLayout extends View<LinearLayoutController> {
+class LinearLayout extends YMRView<LinearLayoutController> {
   final Axis? orientation;
   final bool? scrollable;
   final LayoutGravity? layoutGravity;
@@ -76,6 +76,8 @@ class LinearLayout extends View<LinearLayoutController> {
   const LinearLayout({
     Key? key,
     super.controller,
+    super.animation,
+    super.animationType,
     super.flex,
     super.activated,
     super.enabled,
@@ -182,7 +184,7 @@ class LinearLayout extends View<LinearLayoutController> {
   }
 
   @override
-  Widget rebuild(
+  Widget build(
     BuildContext context,
     LinearLayoutController controller,
     Widget parent,
@@ -227,7 +229,7 @@ class LinearLayoutController extends ViewController {
 
   @override
   LinearLayoutController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Axis? orientation,
     LayoutGravity? layoutGravity,
     MainAxisAlignment? mainGravity,

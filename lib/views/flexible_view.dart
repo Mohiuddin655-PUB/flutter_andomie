@@ -20,7 +20,7 @@ enum FlexPosition {
 
 enum FlexVisibleType { front, back }
 
-class FlexibleView extends View<FlexibleViewController> {
+class FlexibleView extends YMRView<FlexibleViewController> {
   final Widget? flexible;
   final FlexPosition flexPosition;
   final FlexVisibleType type;
@@ -116,7 +116,7 @@ class FlexibleViewController extends ViewController {
 
   @override
   FlexibleViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     Widget? flexible,
     FlexPosition? flexPosition,
     FlexVisibleType? visibleType,

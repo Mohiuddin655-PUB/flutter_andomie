@@ -1,6 +1,6 @@
 part of '../widgets.dart';
 
-class ThumbnailView extends View<ThumbnailViewController> {
+class ThumbnailView extends YMRView<ThumbnailViewController> {
   final dynamic placeholder;
   final ImageType? placeholderType;
   final String? url;
@@ -96,7 +96,7 @@ class ThumbnailViewController extends ViewController {
 
   @override
   ThumbnailViewController attach(
-    View<ViewController> view, {
+    YMRView<ViewController> view, {
     dynamic placeholder,
     ImageType? placeholderType,
     BoxFit? scaleType,
