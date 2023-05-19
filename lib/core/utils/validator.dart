@@ -1,6 +1,4 @@
-import 'dart:core';
-
-import '../index.dart';
+part of '../../utils.dart';
 
 class Validator {
   const Validator._();
@@ -31,9 +29,10 @@ class Validator {
   }
 
   static bool isChecked(dynamic checker, List<dynamic>? list) {
-    return Validator.isValidString(checker) &&
-        Validator.isValidList(list) &&
-        (list ?? []).contains(checker);
+    return checker != null &&
+        list != null &&
+        list.isNotEmpty &&
+        list.contains(checker);
   }
 
   static bool isDigit(String? value) {
@@ -46,6 +45,28 @@ class Validator {
 
   static bool isNumeric(String? value) {
     return value != null && double.tryParse(value) != null;
+  }
+
+  static bool isValidDay(dynamic day) {
+    int current = Converter.toInt(day);
+    return (current >= 1) && (current <= 31);
+  }
+
+  static bool isValidMonth(dynamic month) {
+    int current = Converter.toInt(month);
+    return (current >= 1) && (current <= 12);
+  }
+
+  static bool isValidYear(dynamic year, int requireAge) {
+    int current = Converter.toInt(year);
+    int currentYear = DateProvider.currentYear;
+    return (current > 1900) &&
+        (current < currentYear) &&
+        ((currentYear - current) >= requireAge);
+  }
+
+  static bool isValidPath(String? path) {
+    return path != null && path.isNotEmpty && Regs.path.hasMatch(path);
   }
 
   static bool isValidPhone(String? phone) {
@@ -66,6 +87,29 @@ class Validator {
     return isValidPassword(password) && equals(password, retypePassword);
   }
 
+  static bool isValidDigit(String? value) {
+    return value != null &&
+        value.isNotEmpty &&
+        equals(value, Converter.toNumeric(value, true));
+  }
+
+  static bool isValidDigitWithLetter(String? value) {
+    return value != null &&
+        value.isNotEmpty &&
+        equals(value, Converter.toDigitWithLetter(value));
+  }
+
+  static bool isValidDigitWithPlus(String value) {
+    return isValidString(value) &&
+        equals(value, Converter.toDigitWithPlus(value));
+  }
+
+  static bool isValidLetter(String? value) {
+    return value != null &&
+        value.isNotEmpty &&
+        equals(value, Converter.toLetter(value));
+  }
+
   static bool isValidList(List<dynamic>? list) {
     return list != null && list.isNotEmpty;
   }
@@ -79,30 +123,42 @@ class Validator {
   }
 
   static bool isInstance<T>(dynamic value, T instance) {
-    return value is T;
+    return value != null && value.runtimeType == instance.runtimeType;
   }
 
-  static bool isValidString(String? value, {int maxLength = 0, RegExp? regs}) {
+  static bool isValidString(
+    String? value, {
+    int maxLength = 0,
+    int minLength = 0,
+    RegExp? regs,
+  }) {
     bool a = value != null &&
         value.isNotEmpty &&
         !equals(value.toLowerCase(), 'null');
     bool b = maxLength <= 0 ? a : a && value.length <= maxLength;
-    bool c = regs != null ? regs.hasMatch(value ?? '') : b;
-    return c;
+    bool c = b && value.length >= minLength;
+    bool d = regs != null ? regs.hasMatch(value ?? '') : c;
+    return d;
   }
 
-  static bool isValidStrings(List<String> values) {
+  static bool isValidStrings(
+    List<String> values, {
+    int maxLength = 0,
+    int minLength = 0,
+    RegExp? regs,
+  }) {
     List<bool> list = [];
     for (String value in values) {
-      if (Validator.isValidString(value)) {
+      if (Validator.isValidString(
+        value,
+        maxLength: maxLength,
+        minLength: minLength,
+        regs: regs,
+      )) {
         list.add(true);
       }
     }
     return list.length == values.length;
-  }
-
-  static bool isValidVerificationCode(String? code) {
-    return code != null && code.isNotEmpty && code.length == 6;
   }
 
   static bool isValidWebURL(String? url) {

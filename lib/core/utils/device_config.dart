@@ -1,5 +1,4 @@
-import 'dart:io';
-import 'dart:ui';
+part of '../../utils.dart';
 
 class DeviceConfig {
   final Device mobile, tab, laptop, desktop, tv;
