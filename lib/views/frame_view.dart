@@ -69,6 +69,7 @@ class FrameView<T extends Object> extends YMRView<FrameViewController<T>> {
     BuildContext context,
     FrameViewController<T> controller,
   ) {
+    controller.setContext(context);
     switch (controller.layer) {
       case FrameLayer.single:
         return _FrameLayerSingle<T>(controller: controller);
@@ -614,11 +615,11 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -626,7 +627,8 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
                 item: controller.items[0],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -637,11 +639,12 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -649,7 +652,8 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
                 item: controller.items[2],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -660,11 +664,12 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -672,7 +677,8 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
                 item: controller.items[4],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -683,11 +689,12 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -695,7 +702,8 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
                 item: controller.items[6],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               Expanded(
                 child: SizedBox(
@@ -765,11 +773,16 @@ class _FrameBuilder<T> extends StatelessWidget {
 }
 
 class FrameViewController<T> extends ViewController {
+  late Size size;
   FrameBuilder<T>? frameBuilder;
   Color? itemBackground;
   double spaceBetween = 4;
   ImageType? imageType;
   List<T> items = [];
+
+  void setContext(BuildContext context) {
+    this.size = MediaQuery.of(context).size;
+  }
 
   @override
   FrameViewController<T> attach(
@@ -792,6 +805,18 @@ class FrameViewController<T> extends ViewController {
   int get itemSize => items.length;
 
   FrameLayer get layer => FrameLayer.from(itemSize);
+
+  bool get isX {
+    return size.width < size.height;
+  }
+
+  double? get spaceX => isX ? null : spaceBetween;
+
+  double? get spaceY => isX ? spaceBetween : null;
+
+  Axis get x => isX ? Axis.horizontal : Axis.vertical;
+
+  Axis get y => isX ? Axis.vertical : Axis.horizontal;
 }
 
 enum FrameLayer {
