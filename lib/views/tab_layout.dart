@@ -230,7 +230,7 @@ class TabLayout extends YMRView<TabLayoutController> {
       physics: null,
       splashBorderRadius: null,
       splashFactory: null,
-      tabs: controller.tabs.map((e) {
+      tabs: controller.items.map((e) {
         return TabView(
           activated: e.index == tabController.index,
           contentColor: controller.tabContentColor,
@@ -271,7 +271,7 @@ class TabLayout extends YMRView<TabLayoutController> {
 class TabLayoutController extends ViewController {
   ViewPagerController pagerController = ViewPagerController();
 
-  List<TabItem> tabs = [];
+  List<TabItem> items = [];
 
   double tabMargin = 0;
   double? _tabMarginStart, _tabMarginEnd, _tabMarginTop, _tabMarginBottom;
@@ -352,7 +352,7 @@ class TabLayoutController extends ViewController {
   }) {
     super.attach(view);
     this.pagerController = pagerController ?? this.pagerController;
-    this.tabs = items ?? this.tabs;
+    this.items = items ?? this.items;
 
     //TAB ICON PROPERTIES
     this.tabIconSize = tabIconSize ?? this.tabIconSize;

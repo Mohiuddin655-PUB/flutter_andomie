@@ -1,43 +1,51 @@
 part of '../../utils.dart';
 
 enum Counter {
-  K,
-  KM,
-  KMB;
+  k,
+  km,
+  kmb;
 
-  static String toKCount(int value) {
-    if (value >= 1000) {
-      return "${value ~/ 1000}K";
+  static String toKCount(int value) => value.toKCount;
+
+  static String toKMCount(int value) => value.toKMCount;
+
+  static String toKMBCount(int value) => value.toKMBCount;
+}
+
+extension CounterExtension on int {
+  String get toKCount {
+    if (this >= 1000) {
+      return "${this ~/ 1000}K";
     }
 
-    return "$value";
+    return "$this";
   }
 
-  static String toKMCount(int value) {
-    if (value >= 1000 && value < 1000000) {
-      return "${value ~/ 1000}K";
+  String get toKMCount {
+    if (this >= 1000 && this < 1000000) {
+      return "${this ~/ 1000}K";
     }
 
-    if (value >= 1000000) {
-      return "${value ~/ 1000000}M";
+    if (this >= 1000000) {
+      return "${this ~/ 1000000}M";
     }
 
-    return "$value";
+    return "$this";
   }
 
-  static String toKMBCount(int value) {
-    if (value >= 1000 && value < 1000000) {
-      return "${value ~/ 1000}K";
+  String get toKMBCount {
+    if (this >= 1000 && this < 1000000) {
+      return "${this ~/ 1000}K";
     }
 
-    if (value >= 1000000 && value < 1000000000) {
-      return "${value ~/ 1000000}M";
+    if (this >= 1000000 && this < 1000000000) {
+      return "${this ~/ 1000000}M";
     }
 
-    if (value >= 1000000000) {
-      return "${value ~/ 1000000000}B";
+    if (this >= 1000000000) {
+      return "${this ~/ 1000000000}B";
     }
 
-    return "$value";
+    return "$this";
   }
 }

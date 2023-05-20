@@ -31,11 +31,15 @@ class DateProvider {
     return DateTime.fromMillisecondsSinceEpoch(timeMills).year;
   }
 
+  static String toDate(int? timeMills, DateFormats format) {
+    return timeMills.toDate(format);
+  }
+
   static DateTime toDateTime(int? timeMills) {
     return DateTime.fromMillisecondsSinceEpoch(timeMills ?? 0);
   }
 
-  static String toDate(
+  static String toDateFromUTC(
     int year,
     int month,
     int day, [
@@ -48,7 +52,7 @@ class DateProvider {
     }
   }
 
-  static int toMS(
+  static int toMSFromUTC(
     int year, [
     int month = 1,
     int day = 1,
@@ -66,30 +70,54 @@ class DateProvider {
     ).millisecond;
   }
 
-  static int toMS2(String? source) {
+  static int toMSFromSource(String? source) {
     return DateTime.tryParse(source ?? "")?.millisecond ?? 0;
+  }
+
+  static bool isToday(int? ms) => ms.isToday;
+
+  static bool isTomorrow(int? ms) => ms.isTomorrow;
+
+  static bool isYesterday(int? ms) => ms.isYesterday;
+
+  static String activeTime(int? ms) => ms.activeTime;
+
+  static String toLiveTime(
+    int? ms, [
+    DateFormats format = DateFormats.dateDMY,
+  ]) {
+    return ms.toLiveTime(format);
+  }
+
+  static String toNamingTime(int? ms, [DateFormats? format]) {
+    return ms.toNamingTime(format);
+  }
+
+  static String toPublishTime(
+    int ms, [
+    DateFormats timeFormat = DateFormats.timeHMa,
+    DateFormats dateFormat = DateFormats.dateDMY,
+  ]) {
+    return ms.toPublishTime(
+      timeFormat: timeFormat,
+      dateFormat: dateFormat,
+    );
   }
 }
 
-extension TimeMSHelper on int? {
-  int get value => this ?? 0;
+extension TimeExtension on int? {
+  int get _v => this ?? 0;
 
-  bool get isToday {
-    return DateTime.fromMillisecondsSinceEpoch(value).isToday;
-  }
+  bool get isToday => DateTime.fromMillisecondsSinceEpoch(_v).isToday;
 
-  bool get isTomorrow {
-    return DateTime.fromMillisecondsSinceEpoch(value).isTomorrow;
-  }
+  bool get isTomorrow => DateTime.fromMillisecondsSinceEpoch(_v).isTomorrow;
 
-  bool get isYesterday {
-    return DateTime.fromMillisecondsSinceEpoch(value).isYesterday;
-  }
+  bool get isYesterday => DateTime.fromMillisecondsSinceEpoch(_v).isYesterday;
 
   String get activeTime {
-    final time = DateTime.fromMillisecondsSinceEpoch(value);
+    final time = DateTime.fromMillisecondsSinceEpoch(_v);
     final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - value;
+    final int tempMS = currentMS - _v;
 
     double initTime;
     int day = TimeConstrains.dayMS.value;
@@ -110,9 +138,9 @@ extension TimeMSHelper on int? {
   }
 
   String toLiveTime([DateFormats format = DateFormats.dateDMY]) {
-    final time = DateTime.fromMillisecondsSinceEpoch(value);
+    final time = DateTime.fromMillisecondsSinceEpoch(_v);
     final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - value;
+    final int tempMS = currentMS - _v;
 
     final double secondCount = tempMS / TimeConstrains.secondMS.value;
     final double minuteCount = tempMS / TimeConstrains.minuteMS.value;
@@ -132,21 +160,20 @@ extension TimeMSHelper on int? {
   }
 
   String toDate(DateFormats format) {
-    return DateTime.fromMillisecondsSinceEpoch(value).toDate(format);
+    return DateTime.fromMillisecondsSinceEpoch(_v).toDate(format);
   }
 
   String toNamingTime([DateFormats? format]) {
-    return DateTime.fromMillisecondsSinceEpoch(value).modify(format);
+    return DateTime.fromMillisecondsSinceEpoch(_v).modify(format);
   }
 
-  String toPublishTime(
-    int ms, [
+  String toPublishTime({
     DateFormats timeFormat = DateFormats.timeHMa,
     DateFormats dateFormat = DateFormats.dateDMY,
-  ]) {
-    final time = DateTime.fromMillisecondsSinceEpoch(ms);
+  }) {
+    final time = DateTime.fromMillisecondsSinceEpoch(_v);
     final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - ms;
+    final int tempMS = currentMS - _v;
 
     int dayMS = TimeConstrains.dayMS.value;
     int hourMS = TimeConstrains.hourMS.value;
@@ -166,7 +193,9 @@ extension TimeMSHelper on int? {
   }
 }
 
-extension DateTimeHelper on DateTime {
+extension DateExtension on DateTime? {
+  DateTime get _v => this ?? DateTime.now();
+
   bool get isToday => isDay(DateTime.now());
 
   bool get isTomorrow {
@@ -178,7 +207,7 @@ extension DateTimeHelper on DateTime {
   }
 
   bool isDay(DateTime now) {
-    return now.day == day && now.month == month && now.year == year;
+    return now.day == _v.day && now.month == _v.month && now.year == _v.year;
   }
 
   String toDate([DateFormats format = DateFormats.dateDMY, String? local]) {
@@ -187,12 +216,12 @@ extension DateTimeHelper on DateTime {
     } else if (isYesterday) {
       return 'Yesterday';
     } else {
-      return DateFormat(format.value, local).format(this);
+      return DateFormat(format.value, local).format(_v);
     }
   }
 
   String modify(DateFormats? format, [String? local]) {
-    return DateFormat(format?.value, local).format(this);
+    return DateFormat(format?.value, local).format(_v);
   }
 }
 

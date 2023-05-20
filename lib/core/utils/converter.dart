@@ -113,15 +113,15 @@ class Converter {
     int counter,
     String singularName,
     String pluralName, [
-    Counter counterType = Counter.KMB,
+    Counter counterType = Counter.kmb,
   ]) {
     if (counter > 1) {
       switch (counterType) {
-        case Counter.K:
+        case Counter.k:
           return "${Counter.toKCount(counter)} $pluralName";
-        case Counter.KM:
+        case Counter.km:
           return "${Counter.toKMCount(counter)} $pluralName";
-        case Counter.KMB:
+        case Counter.kmb:
         default:
           return "${Counter.toKMBCount(counter)} $pluralName";
       }
@@ -134,7 +134,7 @@ class Converter {
     List<dynamic> list,
     String singularName,
     String pluralName, [
-    Counter counterType = Counter.KMB,
+    Counter counterType = Counter.kmb,
   ]) {
     return toKMB(list.length, singularName, pluralName, counterType);
   }

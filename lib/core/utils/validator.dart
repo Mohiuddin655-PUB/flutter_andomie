@@ -3,8 +3,8 @@ part of '../../utils.dart';
 class Validator {
   const Validator._();
 
-  static bool equals(dynamic value, dynamic compareValue) {
-    return value == compareValue;
+  static bool equals(Object? value, Object? compareValue) {
+    return value.equals(compareValue);
   }
 
   static bool isMatched(Object matcher, Object value) {
@@ -167,5 +167,11 @@ class Validator {
 
   static bool isRank(double rating, double min) {
     return rating >= min;
+  }
+}
+
+extension ValidatorObjectExtension on Object? {
+  bool equals(dynamic compareValue) {
+    return this == compareValue;
   }
 }
