@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_andomie/core.dart';
 import 'package:flutter_andomie/widgets.dart';
 
 void main() {
@@ -33,49 +34,32 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
   bool selected = false;
+  late TextViewController tvController;
+
+  @override
+  void initState() {
+    tvController = TextViewController();
+    var now = DateTime.now().subtract(const Duration(days: 1));
+    Timer.periodic(const Duration(seconds: 2), (timer) {
+      now = now.add(Duration(minutes: timer.tick * 5));
+      tvController.setText("Publish on ${now.liveTime}");
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: FrameView(
-          width: double.infinity,
-          height: double.infinity,
-          itemBackground: Colors.black.withOpacity(0.05),
-          items: const [
-            "Layer 1",
-            "Layer 2",
-            "Layer 3",
-            "Layer 4",
-            "Layer 5",
-            "Layer 6",
-            "Layer 7",
-            "Layer 8",
-            "Layer 9",
-          ],
-          frameBuilder: (context, layer, item) {
-            return TextView(
-              text: item,
-              gravity: Alignment.center,
-            );
-          },
+        child: TextView(
+          controller: tvController,
+          text: "Publish on 01 Jan, 2000",
+          textSize: 16,
+          gravity: Alignment.center,
+          textColor: Colors.black.withAlpha(100),
         ),
       ),
     );
-  }
-
-  Stream<List<String>> get items {
-    List<String> list = [""];
-    final controller = StreamController<List<String>>();
-    controller.add(list);
-    Timer.periodic(const Duration(seconds: 5), (timer) {
-      if (list.length == 9) {
-        list.clear();
-      }
-      list.add("");
-      controller.add(list);
-    });
-    return controller.stream;
   }
 }

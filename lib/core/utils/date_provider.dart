@@ -31,22 +31,41 @@ class DateProvider {
     return DateTime.fromMillisecondsSinceEpoch(timeMills).year;
   }
 
-  static String toDate(int? timeMills, DateFormats format) {
-    return timeMills.toDate(format);
-  }
-
-  static DateTime toDateTime(int? timeMills) {
-    return DateTime.fromMillisecondsSinceEpoch(timeMills ?? 0);
+  static String toDate(
+    int ms, {
+    String? format,
+    String? local,
+    TimeFormats? timeFormat,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String? separator,
+  }) {
+    return ms.toDate(
+      format: format,
+      local: local,
+      timeFormat: timeFormat,
+      dateFormat: dateFormat,
+      separator: separator,
+    );
   }
 
   static String toDateFromUTC(
     int year,
     int month,
     int day, [
-    DateFormats? format,
+    TimeFormats timeFormat = TimeFormats.none,
+    DateFormats dateFormat = DateFormats.none,
+    String? pattern,
+    String separator = "",
+    String? local,
   ]) {
-    if (year > 0 && month > 0 && day > 0) {
-      return DateTime.utc(year, month, day).modify(format);
+    if ((year + month + day) > 0) {
+      return DateTime.utc(year, month, day).toDate(
+        timeFormat: timeFormat,
+        dateFormat: dateFormat,
+        format: pattern,
+        separator: separator,
+        local: local,
+      );
     } else {
       return '';
     }
@@ -80,161 +99,52 @@ class DateProvider {
 
   static bool isYesterday(int? ms) => ms.isYesterday;
 
-  static String activeTime(int? ms) => ms.activeTime;
+  static String activeTime(int? ms) => ms.liveTime;
 
-  static String toLiveTime(
-    int? ms, [
-    DateFormats format = DateFormats.dateDMY,
-  ]) {
-    return ms.toLiveTime(format);
-  }
-
-  static String toNamingTime(int? ms, [DateFormats? format]) {
-    return ms.toNamingTime(format);
-  }
-
-  static String toPublishTime(
-    int ms, [
-    DateFormats timeFormat = DateFormats.timeHMa,
-    DateFormats dateFormat = DateFormats.dateDMY,
-  ]) {
-    return ms.toPublishTime(
+  static String toRealStatus(
+    int ms, {
+    TimeFormats timeFormat = TimeFormats.timeHMa,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String? pattern,
+    String separator = " at ",
+    String? local,
+    String Function(int value)? onPrepareBySecond,
+    String Function(int value)? onPrepareByMinute,
+    String Function(int value)? onPrepareByHour,
+    String Function(int value)? onPrepareByDay,
+  }) {
+    return ms.toLiveTime(
       timeFormat: timeFormat,
       dateFormat: dateFormat,
+      format: pattern,
+      separator: separator,
+      local: local,
+      onPrepareBySecond: onPrepareBySecond,
+      onPrepareByMinute: onPrepareByMinute,
+      onPrepareByHour: onPrepareByHour,
+      onPrepareByDay: onPrepareByDay,
     );
   }
 }
 
-extension TimeExtension on int? {
-  int get _v => this ?? 0;
-
-  bool get isToday => DateTime.fromMillisecondsSinceEpoch(_v).isToday;
-
-  bool get isTomorrow => DateTime.fromMillisecondsSinceEpoch(_v).isTomorrow;
-
-  bool get isYesterday => DateTime.fromMillisecondsSinceEpoch(_v).isYesterday;
-
-  String get activeTime {
-    final time = DateTime.fromMillisecondsSinceEpoch(_v);
-    final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - _v;
-
-    double initTime;
-    int day = TimeConstrains.dayMS.value;
-    int hour = TimeConstrains.hourMS.value;
-    int minute = TimeConstrains.minuteMS.value;
-
-    if (tempMS < minute) {
-      return "Now";
-    } else if (tempMS < hour) {
-      initTime = tempMS / minute;
-      return "${initTime.toInt()} minute ago";
-    } else if (tempMS < day) {
-      initTime = tempMS / hour;
-      return "${initTime.toInt()} hour ago";
-    } else {
-      return time.toDate();
-    }
-  }
-
-  String toLiveTime([DateFormats format = DateFormats.dateDMY]) {
-    final time = DateTime.fromMillisecondsSinceEpoch(_v);
-    final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - _v;
-
-    final double secondCount = tempMS / TimeConstrains.secondMS.value;
-    final double minuteCount = tempMS / TimeConstrains.minuteMS.value;
-    final double hourCount = tempMS / TimeConstrains.hourMS.value;
-
-    if (tempMS < TimeConstrains.secondMS.value) {
-      return "Now";
-    } else if (tempMS < TimeConstrains.minuteMS.value) {
-      return "$secondCount second ago";
-    } else if (tempMS < TimeConstrains.hourMS.value) {
-      return "$minuteCount minute ago";
-    } else if (tempMS < TimeConstrains.dayMS.value) {
-      return "$hourCount hour ago";
-    } else {
-      return time.toDate(format);
-    }
-  }
-
-  String toDate(DateFormats format) {
-    return DateTime.fromMillisecondsSinceEpoch(_v).toDate(format);
-  }
-
-  String toNamingTime([DateFormats? format]) {
-    return DateTime.fromMillisecondsSinceEpoch(_v).modify(format);
-  }
-
-  String toPublishTime({
-    DateFormats timeFormat = DateFormats.timeHMa,
-    DateFormats dateFormat = DateFormats.dateDMY,
-  }) {
-    final time = DateTime.fromMillisecondsSinceEpoch(_v);
-    final int currentMS = DateTime.now().microsecondsSinceEpoch;
-    final int tempMS = currentMS - _v;
-
-    int dayMS = TimeConstrains.dayMS.value;
-    int hourMS = TimeConstrains.hourMS.value;
-    int minuteMS = TimeConstrains.minuteMS.value;
-
-    final double minuteCount = tempMS / minuteMS;
-
-    if (tempMS < minuteMS) {
-      return "Now";
-    } else if (tempMS < hourMS) {
-      return "$minuteCount minute ago";
-    } else if (tempMS < dayMS && time.isYesterday) {
-      return 'Yesterday - ${time.modify(timeFormat)}';
-    } else {
-      return '${time.modify(dateFormat)} - ${time.modify(timeFormat)}';
-    }
-  }
-}
-
-extension DateExtension on DateTime? {
-  DateTime get _v => this ?? DateTime.now();
-
-  bool get isToday => isDay(DateTime.now());
-
-  bool get isTomorrow {
-    return isDay(DateTime.now().add(const Duration(days: 1)));
-  }
-
-  bool get isYesterday {
-    return isDay(DateTime.now().subtract(const Duration(days: 1)));
-  }
-
-  bool isDay(DateTime now) {
-    return now.day == _v.day && now.month == _v.month && now.year == _v.year;
-  }
-
-  String toDate([DateFormats format = DateFormats.dateDMY, String? local]) {
-    if (isToday) {
-      return 'Today';
-    } else if (isYesterday) {
-      return 'Yesterday';
-    } else {
-      return DateFormat(format.value, local).format(_v);
-    }
-  }
-
-  String modify(DateFormats? format, [String? local]) {
-    return DateFormat(format?.value, local).format(_v);
-  }
-}
-
-enum DateFormats {
+enum TimeFormats {
   hour("hh"),
   minute("mm"),
   second("ss"),
-  timeZone("TZD"),
+  zone("TZD"),
   timeMS("mm:ss"),
   timeHM("hh:mm"),
   timeHMa("hh:mm a"),
   timeHMSa("hh:mm:ss a"),
   timeHMSZone("hh:mm:ss TZD"),
+  none("");
+
+  final String value;
+
+  const TimeFormats(this.value);
+}
+
+enum DateFormats {
   day("dd"),
   dayFullName("EEEE"),
   dayShortName("EE"),
@@ -248,20 +158,191 @@ enum DateFormats {
   dateMDCY("MMMM dd, yyyy"),
   dateYMD("yyyy-MM-dd"),
   dateECDMCY("EEEE, dd MMMM, yyyy"),
-  dateECMDCY("EEEE, MMMM dd, yyyy");
+  dateECMDCY("EEEE, dd MMMM, yyyy"),
+  none("");
 
   final String value;
 
   const DateFormats(this.value);
 }
 
-enum TimeConstrains {
-  dayMS(86400000),
-  hourMS(3600000),
-  minuteMS(60000),
-  secondMS(1000);
+extension TimeFormatExtension on TimeFormats? {
+  String get use => this?.value ?? "";
 
-  final int value;
+  bool get isUsable => use.isNotEmpty;
+}
 
-  const TimeConstrains(this.value);
+extension DateFormatExtension on DateFormats? {
+  String get use => this?.value ?? "";
+
+  bool get isUsable => use.isNotEmpty;
+}
+
+extension TimeExtension on int? {
+  int get _v => this ?? 0;
+
+  bool get isToday => DateTime.fromMillisecondsSinceEpoch(_v).isToday;
+
+  bool get isTomorrow => DateTime.fromMillisecondsSinceEpoch(_v).isTomorrow;
+
+  bool get isYesterday => DateTime.fromMillisecondsSinceEpoch(_v).isYesterday;
+
+  String get liveTime => toLiveTime();
+
+  String toDate({
+    String? format,
+    String? local,
+    TimeFormats? timeFormat,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String? separator,
+  }) {
+    return DateTime.fromMillisecondsSinceEpoch(_v).toDate(
+      timeFormat: timeFormat,
+      dateFormat: dateFormat,
+      format: format,
+      separator: separator,
+      local: local,
+    );
+  }
+
+  String toLiveTime({
+    TimeFormats timeFormat = TimeFormats.timeHMa,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String? format,
+    String separator = " at ",
+    String? local,
+    String Function(int value)? onPrepareBySecond,
+    String Function(int value)? onPrepareByMinute,
+    String Function(int value)? onPrepareByHour,
+    String Function(int value)? onPrepareByDay,
+  }) {
+    return DateTime.fromMillisecondsSinceEpoch(_v).toLiveTime(
+      timeFormat: timeFormat,
+      dateFormat: dateFormat,
+      format: format,
+      separator: separator,
+      local: local,
+      onPrepareBySecond: onPrepareBySecond,
+      onPrepareByMinute: onPrepareByMinute,
+      onPrepareByHour: onPrepareByHour,
+      onPrepareByDay: onPrepareByDay,
+    );
+  }
+}
+
+extension DateExtension on DateTime? {
+  DateTime get _v => this ?? DateTime.now();
+
+  bool get isToday => isDay(DateTime.now());
+
+  bool get isNow => isDay(DateTime.now());
+
+  bool get isTomorrow {
+    return isDay(DateTime.now().add(const Duration(days: 1)));
+  }
+
+  bool get isYesterday {
+    return isDay(DateTime.now().subtract(const Duration(days: 1)));
+  }
+
+  String get liveTime => toLiveTime();
+
+  bool isDay(DateTime now) {
+    return now.day == _v.day && now.month == _v.month && now.year == _v.year;
+  }
+
+  String toDate({
+    String? format,
+    String? local,
+    TimeFormats? timeFormat,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String? separator,
+  }) {
+    if ((format ?? "").isEmpty) {
+      if (timeFormat.isUsable && dateFormat.isUsable) {
+        format = "${dateFormat.use}'${separator ?? ' '}'${timeFormat.use}";
+      } else if (timeFormat.isUsable) {
+        format = timeFormat.use;
+      } else {
+        format = dateFormat.use;
+      }
+    }
+    return DateFormat(format, local).format(_v);
+  }
+
+  String toLiveTime({
+    String? format,
+    String? local,
+    TimeFormats timeFormat = TimeFormats.timeHMa,
+    DateFormats dateFormat = DateFormats.dateDMCY,
+    String separator = " at ",
+    String Function(int value)? onPrepareBySecond,
+    String Function(int value)? onPrepareByMinute,
+    String Function(int value)? onPrepareByHour,
+    String Function(int value)? onPrepareByDay,
+  }) {
+    var time = _v;
+    var difference = DateTime.now().difference(time);
+    int days = difference.inDays;
+    int hours = difference.inHours;
+    int minutes = difference.inMinutes;
+    int seconds = difference.inSeconds;
+
+    if (days > 0) {
+      if (onPrepareByDay != null) {
+        return onPrepareByDay(days);
+      } else {
+        if (time.isYesterday) {
+          return "Yesterday$separator${time.toDate(
+            timeFormat: timeFormat,
+            local: local,
+          )}";
+        } else {
+          return time.toDate(
+            timeFormat: timeFormat,
+            dateFormat: dateFormat,
+            format: format,
+            separator: separator,
+            local: local,
+          );
+        }
+      }
+    } else {
+      if (hours > 0) {
+        if (hours < 12) {
+          return onPrepareByHour?.call(hours) ??
+              "$hours ${hours > 1 ? "hours" : "hour"} ago";
+        } else {
+          return "Today$separator${time.toDate(
+            timeFormat: timeFormat,
+            local: local,
+          )}";
+        }
+      } else {
+        if (minutes > 0) {
+          return onPrepareByMinute?.call(minutes) ??
+              "$minutes ${minutes > 1 ? "minutes" : "minute"} ago";
+        } else {
+          if (seconds > 0) {
+            return onPrepareBySecond?.call(seconds) ?? "Now";
+          } else {
+            if (time.isTomorrow) {
+              return "Tomorrow$separator${time.toDate(
+                timeFormat: timeFormat,
+                local: local,
+              )}";
+            } else {
+              return time.toDate(
+                timeFormat: timeFormat,
+                dateFormat: dateFormat,
+                format: format,
+                separator: separator,
+                local: local,
+              );
+            }
+          }
+        }
+      }
+    }
+  }
 }

@@ -124,7 +124,7 @@ class TextView<T extends TextViewController> extends YMRView<T> {
     this.fontFamily,
     this.fontStyle,
     this.fontWeight,
-    this.text,
+    required this.text,
     this.textAlign,
     this.textColor,
     this.textDecoration,
