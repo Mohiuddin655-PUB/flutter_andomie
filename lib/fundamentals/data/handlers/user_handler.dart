@@ -1,14 +1,14 @@
 part of 'handlers.dart';
 
-class UserHandlerImpl<T extends UserEntity> extends UserHandler {
+class UserHandlerImpl<T extends AuthInfo> extends UserHandler {
   const UserHandlerImpl({
     required super.repository,
     required super.localDataRepository,
   });
 
   @override
-  Future<Response<UserEntity>> create<R>(
-    UserEntity entity, {
+  Future<Response<AuthInfo>> create<R>(
+    AuthInfo entity, {
     R? Function(R parent)? source,
   }) async {
     try {
@@ -24,7 +24,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Future<Response<UserEntity>> delete<R>(
+  Future<Response<AuthInfo>> delete<R>(
     String id, {
     R? Function(R parent)? source,
   }) async {
@@ -41,7 +41,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Future<Response<UserEntity>> get<R>(
+  Future<Response<AuthInfo>> get<R>(
     String id, {
     bool fromCache = false,
     R? Function(R parent)? source,
@@ -58,7 +58,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Future<Response<UserEntity>> getUpdates<R>({
+  Future<Response<AuthInfo>> getUpdates<R>({
     R? Function(R parent)? source,
   }) async {
     try {
@@ -69,7 +69,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Future<Response<UserEntity>> gets<R>({
+  Future<Response<AuthInfo>> gets<R>({
     bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
@@ -85,7 +85,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Stream<Response<UserEntity>> live<R>(
+  Stream<Response<AuthInfo>> live<R>(
     String id, {
     R? Function(R parent)? source,
   }) {
@@ -97,7 +97,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Stream<Response<UserEntity>> lives<R>({
+  Stream<Response<AuthInfo>> lives<R>({
     R? Function(R parent)? source,
   }) {
     try {
@@ -108,7 +108,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
   }
 
   @override
-  Future<Response<UserEntity>> update<R>(
+  Future<Response<AuthInfo>> update<R>(
     String id,
     Map<String, dynamic> data, {
     R? Function(R parent)? source,
@@ -117,7 +117,7 @@ class UserHandlerImpl<T extends UserEntity> extends UserHandler {
       var response = await repository.update(id, data, source);
       if (response.isSuccessful) {
         final lr =
-            await localDataRepository.update(data: UserEntity.from(data));
+            await localDataRepository.update(data: AuthInfo.from(data));
         return lr.isSuccessful ? response : response.copy(message: lr.error);
       }
       return response;

@@ -125,7 +125,7 @@ class _FrameLayerDouble<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         _FrameBuilder(
           controller: controller,
@@ -133,7 +133,8 @@ class _FrameLayerDouble<T> extends StatelessWidget {
           item: controller.items[0],
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         _FrameBuilder(
           controller: controller,
@@ -156,19 +157,11 @@ class _FrameLayerTriple<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
-        _FrameBuilder(
-          controller: controller,
-          item: controller.items[0],
-          flexible: true,
-        ),
-        SizedBox(
-          height: controller.spaceBetween,
-        ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -176,7 +169,8 @@ class _FrameLayerTriple<T> extends StatelessWidget {
                 flexible: true,
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -185,6 +179,15 @@ class _FrameLayerTriple<T> extends StatelessWidget {
               ),
             ],
           ),
+        ),
+        SizedBox(
+          width: controller.spaceX,
+          height: controller.spaceY,
+        ),
+        _FrameBuilder(
+          controller: controller,
+          item: controller.items[0],
+          flexible: true,
         ),
       ],
     );
@@ -202,11 +205,11 @@ class _FrameLayerFourth<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -214,7 +217,8 @@ class _FrameLayerFourth<T> extends StatelessWidget {
                 item: controller.items[0],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -225,11 +229,12 @@ class _FrameLayerFourth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -237,7 +242,8 @@ class _FrameLayerFourth<T> extends StatelessWidget {
                 item: controller.items[2],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -263,7 +269,7 @@ class _FrameLayerFifth<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         _FrameBuilder(
           controller: controller,
@@ -271,11 +277,12 @@ class _FrameLayerFifth<T> extends StatelessWidget {
           flexible: true,
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -283,7 +290,8 @@ class _FrameLayerFifth<T> extends StatelessWidget {
                 item: controller.items[1],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -294,11 +302,12 @@ class _FrameLayerFifth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -306,7 +315,8 @@ class _FrameLayerFifth<T> extends StatelessWidget {
                 item: controller.items[3],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -332,11 +342,11 @@ class _FrameLayerSixth<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -344,7 +354,8 @@ class _FrameLayerSixth<T> extends StatelessWidget {
                 item: controller.items[0],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -355,11 +366,12 @@ class _FrameLayerSixth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -367,7 +379,8 @@ class _FrameLayerSixth<T> extends StatelessWidget {
                 item: controller.items[2],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -378,11 +391,12 @@ class _FrameLayerSixth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -390,7 +404,8 @@ class _FrameLayerSixth<T> extends StatelessWidget {
                 item: controller.items[4],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -416,7 +431,7 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         _FrameBuilder(
           controller: controller,
@@ -424,11 +439,12 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
           item: controller.items[0],
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -436,7 +452,8 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
                 item: controller.items[1],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -447,11 +464,12 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -459,7 +477,8 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
                 item: controller.items[3],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -470,11 +489,12 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -482,7 +502,8 @@ class _FrameLayerSeventh<T> extends StatelessWidget {
                 item: controller.items[5],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -508,11 +529,11 @@ class _FrameLayerEighth<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Flex(
-      direction: Axis.vertical,
+      direction: controller.y,
       children: [
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -520,7 +541,8 @@ class _FrameLayerEighth<T> extends StatelessWidget {
                 item: controller.items[0],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -531,11 +553,12 @@ class _FrameLayerEighth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -543,7 +566,8 @@ class _FrameLayerEighth<T> extends StatelessWidget {
                 item: controller.items[2],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -554,11 +578,12 @@ class _FrameLayerEighth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -566,7 +591,8 @@ class _FrameLayerEighth<T> extends StatelessWidget {
                 item: controller.items[4],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,
@@ -577,11 +603,12 @@ class _FrameLayerEighth<T> extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: controller.spaceBetween,
+          width: controller.spaceX,
+          height: controller.spaceY,
         ),
         Expanded(
           child: Flex(
-            direction: Axis.horizontal,
+            direction: controller.x,
             children: [
               _FrameBuilder(
                 controller: controller,
@@ -589,7 +616,8 @@ class _FrameLayerEighth<T> extends StatelessWidget {
                 item: controller.items[6],
               ),
               SizedBox(
-                width: controller.spaceBetween,
+                width: controller.spaceY,
+                height: controller.spaceX,
               ),
               _FrameBuilder(
                 controller: controller,

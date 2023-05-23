@@ -1,12 +1,14 @@
 part of 'controllers.dart';
 
-class AuthController extends Cubit<AuthResponse> {
+class DefaultAuthController extends Cubit<AuthResponse> {
   final AuthHandler handler;
   final UserHandler userHandler;
+  final String Function(String uid) createUid;
 
-  AuthController({
+  DefaultAuthController({
     required this.handler,
     required this.userHandler,
+    required this.createUid,
   }) : super(const AuthResponse());
 
   String get uid => user?.uid ?? "uid";
@@ -29,7 +31,7 @@ class AuthController extends Cubit<AuthResponse> {
     }
   }
 
-  Future<Response> signUpByEmail(UserEntity entity) async {
+  Future<Response> signUpByEmail(AuthInfo entity) async {
     const cubitResponse = Response();
     final email = entity.email;
     final password = entity.password;
@@ -49,7 +51,7 @@ class AuthController extends Cubit<AuthResponse> {
         final result = response.data?.user;
         if (result != null) {
           final user = entity.copy(
-            id: result.uid,
+            id: createUid(result.uid),
             email: result.email,
             phone: result.phoneNumber,
             name: result.displayName,
@@ -77,7 +79,7 @@ class AuthController extends Cubit<AuthResponse> {
     }
   }
 
-  Future<Response> signInByEmail(UserEntity entity) async {
+  Future<Response> signInByEmail(AuthInfo entity) async {
     const cubitResponse = Response();
     final email = entity.email;
     final password = entity.password;
@@ -97,7 +99,7 @@ class AuthController extends Cubit<AuthResponse> {
         final result = response.data?.user;
         if (result != null) {
           final user = entity.copy(
-            id: result.uid,
+            id: createUid(result.uid),
             email: result.email,
             name: result.displayName,
             phone: result.phoneNumber,
@@ -126,7 +128,7 @@ class AuthController extends Cubit<AuthResponse> {
     }
   }
 
-  Future<Response> signInByFacebook(UserEntity entity) async {
+  Future<Response> signInByFacebook(AuthInfo entity) async {
     emit(state.copy(isLoading: true));
     final response = await handler.signInWithFacebook();
     final result = response.data;
@@ -137,7 +139,7 @@ class AuthController extends Cubit<AuthResponse> {
       if (finalResponse.isSuccessful) {
         final currentData = finalResponse.data?.user;
         final user = entity.copy(
-          id: currentData?.uid ?? result.id,
+          id: createUid(currentData?.uid ?? result.id ?? uid),
           email: result.email,
           name: result.name,
           photo: result.photo,
@@ -164,7 +166,7 @@ class AuthController extends Cubit<AuthResponse> {
     }
   }
 
-  Future<Response> signInByGoogle(UserEntity entity) async {
+  Future<Response> signInByGoogle(AuthInfo entity) async {
     emit(state.copy(isLoading: true));
     final response = await handler.signInWithGoogle();
     final result = response.data;
@@ -175,7 +177,7 @@ class AuthController extends Cubit<AuthResponse> {
       if (finalResponse.isSuccessful) {
         final currentData = finalResponse.data?.user;
         final user = entity.copy(
-          id: currentData?.uid ?? result.id,
+          id: createUid(currentData?.uid ?? result.id ?? uid),
           name: result.name,
           photo: result.photo,
           email: result.email,
@@ -206,9 +208,10 @@ class AuthController extends Cubit<AuthResponse> {
     emit(state.copy(isLoading: true));
     final response = await handler.signInWithBiometric();
     if (response.isSuccessful) {
-      final userResponse = await userHandler.get(uid, fromCache: true);
+      final userResponse =
+          await userHandler.get(createUid(uid), fromCache: true);
       final user = userResponse.data;
-      if (userResponse.isSuccessful && user is UserEntity) {
+      if (userResponse.isSuccessful && user is AuthInfo) {
         final email = user.email;
         final password = user.password;
         final loginResponse = await handler.signInWithEmailNPassword(
@@ -239,7 +242,7 @@ class AuthController extends Cubit<AuthResponse> {
     emit(state.copy(isLoading: true));
     final response = await handler.signOut();
     if (response.isSuccessful) {
-      final userResponse = await userHandler.delete(uid);
+      final userResponse = await userHandler.delete(createUid(uid));
       if (userResponse.isSuccessful || userResponse.snapshot != null) {
         emit(const AuthResponse(isSuccessful: true));
       } else {

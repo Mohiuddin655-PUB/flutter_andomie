@@ -9,7 +9,7 @@ class AuthResponse {
   final String message;
   final String error;
   final User? firebaseUser;
-  final UserEntity? user;
+  final AuthInfo? user;
   final AuthStatus status;
   final Credential credential;
 
@@ -34,7 +34,7 @@ class AuthResponse {
     bool? isLoggedIn,
     bool? isFailed,
     User? firebaseUser,
-    UserEntity? user,
+    AuthInfo? user,
     String? message,
     String? error,
     AuthStatus? status,

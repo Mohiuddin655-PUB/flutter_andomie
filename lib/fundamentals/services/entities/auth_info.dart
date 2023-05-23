@@ -1,6 +1,6 @@
 part of 'entities.dart';
 
-class UserEntity extends Entity {
+class AuthInfo extends Entity {
   final String email;
   final String name;
   final String password;
@@ -8,7 +8,7 @@ class UserEntity extends Entity {
   final String photo;
   final String provider;
 
-  const UserEntity({
+  const AuthInfo({
     super.id = "",
     this.email = "",
     this.name = "",
@@ -18,7 +18,7 @@ class UserEntity extends Entity {
     this.provider = "",
   });
 
-  UserEntity copy({
+  AuthInfo copy({
     String? id,
     String? email,
     String? name,
@@ -27,7 +27,7 @@ class UserEntity extends Entity {
     String? photo,
     String? provider,
   }) {
-    return UserEntity(
+    return AuthInfo(
       id: id ?? this.id,
       email: email ?? this.email,
       name: name ?? this.name,
@@ -38,7 +38,7 @@ class UserEntity extends Entity {
     );
   }
 
-  factory UserEntity.from(dynamic data) {
+  factory AuthInfo.from(dynamic data) {
     dynamic id, email, name, password, phone, photo, provider;
     if (data is Map) {
       try {
@@ -49,7 +49,7 @@ class UserEntity extends Entity {
         phone = data['phone'];
         photo = data['photo'];
         provider = data['provider'];
-        return UserEntity(
+        return AuthInfo(
           id: id is String ? id : "",
           email: email is String ? email : "",
           name: name is String ? name : "",
@@ -62,7 +62,7 @@ class UserEntity extends Entity {
         log(e.toString());
       }
     }
-    return const UserEntity();
+    return const AuthInfo();
   }
 
   bool get isCurrentUid => id == AuthHelper.uid;

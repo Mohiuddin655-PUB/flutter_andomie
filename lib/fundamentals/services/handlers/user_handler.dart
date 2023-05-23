@@ -1,6 +1,6 @@
 part of 'handlers.dart';
 
-abstract class UserHandler<T extends UserEntity> {
+abstract class UserHandler<T extends AuthInfo> {
   final DataRepository<T> repository;
   final LocalDataRepository<T> localDataRepository;
 
