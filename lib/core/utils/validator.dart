@@ -77,7 +77,7 @@ class Validator {
     return email != null && email.isNotEmpty && Regs.email.hasMatch(email);
   }
 
-  static bool isValidPassword(String? password, [int minLength = 6]) {
+  static bool isValidPassword(String? password, [int minLength = 3]) {
     return password != null &&
         password.isNotEmpty &&
         password.length >= minLength;
