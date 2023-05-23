@@ -1,3 +1,3 @@
-## 0.2.1
+## 0.2.3
 
-* Date provider modified
+* Frame view loading bug fixed

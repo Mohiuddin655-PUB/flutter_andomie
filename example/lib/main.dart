@@ -48,23 +48,34 @@ class _HomeState extends State<Home> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: FrameView(
-          width: double.infinity,
-          height: double.infinity,
-          itemBackground: Colors.red,
-          items: [
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-            "",
-          ],
-        ),
+        child: StreamBuilder(
+            stream: items(),
+            builder: (context, snapshot) {
+              return SizedBox(
+                width: double.infinity,
+                height: double.infinity,
+                child: FrameView<String>(
+                  itemBackground: Colors.red,
+                  items: snapshot.data ?? [],
+                ),
+              );
+            }),
       ),
     );
   }
+}
+
+Stream<List<String>> items() {
+  var list = <String>[
+    "",
+  ];
+  var controller = StreamController<List<String>>();
+  Timer.periodic(const Duration(seconds: 1), (timer) {
+    if (list.length > 8) {
+      list.clear();
+    }
+    list.add("");
+    controller.add(list);
+  });
+  return controller.stream;
 }

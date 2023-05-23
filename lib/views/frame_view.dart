@@ -6,7 +6,8 @@ typedef FrameBuilder<T> = Widget Function(
   T item,
 );
 
-class FrameView<T extends Object> extends YMRView<FrameViewController<T>> {
+class FrameView<T> extends StatefulWidget {
+  final FrameViewController<T>? controller;
   final FrameBuilder<T>? frameBuilder;
 
   final Color? itemBackground;
@@ -15,31 +16,7 @@ class FrameView<T extends Object> extends YMRView<FrameViewController<T>> {
 
   const FrameView({
     Key? key,
-    super.controller,
-    super.width,
-    super.height,
-    super.flex,
-    super.background,
-    super.borderRadius,
-    super.borderRadiusTL,
-    super.borderRadiusTR,
-    super.borderRadiusBL,
-    super.borderRadiusBR,
-    super.padding,
-    super.paddingHorizontal,
-    super.paddingVertical,
-    super.paddingTop,
-    super.paddingBottom,
-    super.paddingStart,
-    super.paddingEnd,
-    super.margin,
-    super.marginHorizontal,
-    super.marginVertical,
-    super.marginTop,
-    super.marginBottom,
-    super.marginStart,
-    super.marginEnd,
-    super.visibility,
+    this.controller,
     this.frameBuilder,
     this.itemBackground,
     this.itemSpace,
@@ -47,28 +24,37 @@ class FrameView<T extends Object> extends YMRView<FrameViewController<T>> {
   }) : super(key: key);
 
   @override
-  FrameViewController<T> attachController() {
-    return FrameViewController<T>();
-  }
+  State<FrameView<T>> createState() => _FrameViewState<T>();
+}
+
+class _FrameViewState<T> extends State<FrameView<T>> {
+  late FrameViewController<T> controller;
 
   @override
-  FrameViewController<T> initController(
-    FrameViewController<T> controller,
-  ) {
-    return controller.attach(
-      this,
-      frameBuilder: frameBuilder,
-      itemBackground: itemBackground,
-      itemSpace: itemSpace,
-      items: items,
+  void initState() {
+    controller = widget.controller ?? FrameViewController<T>();
+    controller.attach(
+      frameBuilder: widget.frameBuilder,
+      itemBackground: widget.itemBackground,
+      itemSpace: widget.itemSpace,
+      items: widget.items,
     );
+    super.initState();
   }
 
   @override
-  Widget? attach(
-    BuildContext context,
-    FrameViewController<T> controller,
-  ) {
+  void didUpdateWidget(covariant FrameView<T> oldWidget) {
+    controller.attach(
+      frameBuilder: widget.frameBuilder,
+      itemBackground: widget.itemBackground,
+      itemSpace: widget.itemSpace,
+      items: widget.items,
+    );
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     controller.setContext(context);
     switch (controller.layer) {
       case FrameLayer.single:
@@ -744,15 +730,18 @@ class _FrameLayerMultiple<T> extends StatelessWidget {
                         controller: controller,
                         item: controller.items[7],
                       ),
-                      TextView(
+                      Container(
                         width: double.infinity,
                         height: double.infinity,
-                        gravity: Alignment.center,
-                        text: "+${controller.invisibleItemSize}",
-                        textColor: Colors.white,
-                        textSize: 24,
-                        fontWeight: FontWeight.bold,
-                        background: Colors.black.withOpacity(0.35),
+                        color: Colors.black.withOpacity(0.35),
+                        alignment: Alignment.center,
+                        child: RawText(
+                          textAlign: TextAlign.center,
+                          text: "+${controller.invisibleItemSize}",
+                          textColor: Colors.white,
+                          textSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
@@ -785,44 +774,53 @@ class _FrameBuilder<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return YMRView(
-      flex: flexible ? 1 : null,
-      width: double.infinity,
-      height: resizable ? null : double.infinity,
-      heightMax: maxHeight,
-      background: controller.itemBackground,
-      child: controller.frameBuilder?.call(
-        context,
-        controller.layer,
-        item,
-      ),
-    );
+    return flexible
+        ? Expanded(
+            child: Container(
+              width: double.infinity,
+              height: resizable ? null : double.infinity,
+              color: controller.itemBackground,
+              child: controller.frameBuilder?.call(
+                context,
+                controller.layer,
+                item,
+              ),
+            ),
+          )
+        : Container(
+            width: double.infinity,
+            height: resizable ? null : double.infinity,
+            color: controller.itemBackground,
+            child: controller.frameBuilder?.call(
+              context,
+              controller.layer,
+              item,
+            ),
+          );
   }
 }
 
-class FrameViewController<T> extends ViewController {
-  late Size size;
+class FrameViewController<T> {
+  Size size = Size.zero;
+  BuildContext? context;
   FrameBuilder<T>? frameBuilder;
   Color? itemBackground;
   double spaceBetween = 4;
-  ImageType? imageType;
   List<T> items = [];
 
-  void setContext(BuildContext context) {
+  void setContext(BuildContext context){
+    this.context = context;
     this.size = MediaQuery.of(context).size;
   }
 
-  @override
-  FrameViewController<T> attach(
-    YMRView<ViewController> view, {
+  FrameViewController<T> attach({
     FrameBuilder<T>? frameBuilder,
     Color? itemBackground,
     double? itemSpace,
     List<T>? items,
   }) {
-    super.attach(view);
-    this.frameBuilder = frameBuilder ?? this.frameBuilder;
-    this.itemBackground = itemBackground ?? this.itemBackground;
+    this.frameBuilder = frameBuilder;
+    this.itemBackground = itemBackground;
     this.spaceBetween = itemSpace ?? this.spaceBetween;
     this.items = items ?? this.items;
     return this;
