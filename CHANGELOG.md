@@ -1,3 +1,3 @@
-## 0.2.3
+## 0.2.4
 
-* Frame view loading bug fixed
+* Auth controller createUid not required mode activate

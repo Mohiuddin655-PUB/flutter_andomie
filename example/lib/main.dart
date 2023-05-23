@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:faker/faker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/widgets.dart';
 
@@ -55,8 +56,14 @@ class _HomeState extends State<Home> {
                 width: double.infinity,
                 height: double.infinity,
                 child: FrameView<String>(
-                  itemBackground: Colors.red,
                   items: snapshot.data ?? [],
+                  frameBuilder: (context, layer, item) {
+                    return ImageView(
+                      image: item,
+                      imageType: ImageType.network,
+                      scaleType: BoxFit.cover,
+                    );
+                  },
                 ),
               );
             }),
@@ -66,15 +73,20 @@ class _HomeState extends State<Home> {
 }
 
 Stream<List<String>> items() {
+  var faker = Faker(
+    provider: FakerDataProviderFa(
+
+    )
+  );
   var list = <String>[
-    "",
+    faker.image.image(random: true),
   ];
   var controller = StreamController<List<String>>();
-  Timer.periodic(const Duration(seconds: 1), (timer) {
+  Timer.periodic(const Duration(seconds: 3), (timer) {
     if (list.length > 8) {
       list.clear();
     }
-    list.add("");
+    list.add(faker.image.image(random: true));
     controller.add(list);
   });
   return controller.stream;

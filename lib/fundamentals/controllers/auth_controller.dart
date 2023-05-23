@@ -3,12 +3,12 @@ part of 'controllers.dart';
 class DefaultAuthController extends Cubit<AuthResponse> {
   final AuthHandler handler;
   final UserHandler userHandler;
-  final String Function(String uid) createUid;
+  final String Function(String uid)? createUid;
 
   DefaultAuthController({
     required this.handler,
     required this.userHandler,
-    required this.createUid,
+    this.createUid,
   }) : super(const AuthResponse());
 
   String get uid => user?.uid ?? "uid";
@@ -51,7 +51,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
         final result = response.data?.user;
         if (result != null) {
           final user = entity.copy(
-            id: createUid(result.uid),
+            id: createUid?.call(result.uid) ?? result.uid,
             email: result.email,
             phone: result.phoneNumber,
             name: result.displayName,
@@ -99,7 +99,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
         final result = response.data?.user;
         if (result != null) {
           final user = entity.copy(
-            id: createUid(result.uid),
+            id: createUid?.call(result.uid) ?? result.uid,
             email: result.email,
             name: result.displayName,
             phone: result.phoneNumber,
@@ -139,7 +139,9 @@ class DefaultAuthController extends Cubit<AuthResponse> {
       if (finalResponse.isSuccessful) {
         final currentData = finalResponse.data?.user;
         final user = entity.copy(
-          id: createUid(currentData?.uid ?? result.id ?? uid),
+          id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
+              currentData?.uid ??
+              result.id,
           email: result.email,
           name: result.name,
           photo: result.photo,
@@ -177,7 +179,9 @@ class DefaultAuthController extends Cubit<AuthResponse> {
       if (finalResponse.isSuccessful) {
         final currentData = finalResponse.data?.user;
         final user = entity.copy(
-          id: createUid(currentData?.uid ?? result.id ?? uid),
+          id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
+              currentData?.uid ??
+              result.id,
           name: result.name,
           photo: result.photo,
           email: result.email,
@@ -209,7 +213,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
     final response = await handler.signInWithBiometric();
     if (response.isSuccessful) {
       final userResponse =
-          await userHandler.get(createUid(uid), fromCache: true);
+          await userHandler.get(createUid?.call(uid) ?? uid, fromCache: true);
       final user = userResponse.data;
       if (userResponse.isSuccessful && user is AuthInfo) {
         final email = user.email;
@@ -242,7 +246,8 @@ class DefaultAuthController extends Cubit<AuthResponse> {
     emit(state.copy(isLoading: true));
     final response = await handler.signOut();
     if (response.isSuccessful) {
-      final userResponse = await userHandler.delete(createUid(uid));
+      final userResponse =
+          await userHandler.delete(createUid?.call(uid) ?? uid);
       if (userResponse.isSuccessful || userResponse.snapshot != null) {
         emit(const AuthResponse(isSuccessful: true));
       } else {
