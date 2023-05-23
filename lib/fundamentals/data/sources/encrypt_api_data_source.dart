@@ -18,8 +18,10 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   }
 
   @override
-  Future<Response<T>> insert<R>({
-    required T data,
+  Future<Response<T>> create<R>(
+    T data, {
+    bool cacheMode = false,
+    bool onlyCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -52,6 +54,8 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   Future<Response<T>> update<R>(
     String id,
     Map<String, dynamic> data, {
+    bool cacheMode = false,
+    bool forCache = false,
     R? Function(R parent)? source,
   }) async {
     Response<T> response = const Response();
@@ -85,8 +89,10 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool cacheMode = false,
+    bool fromCache = false,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) async {
     final response = Response<T>();
     try {
@@ -119,8 +125,9 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   @override
   Future<Response<T>> get<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) async {
     final response = Response<T>();
     try {
@@ -156,9 +163,10 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
 
   @override
   Future<Response<T>> gets<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
+    bool forUpdates = false,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) async {
     final response = Response<T>();
     try {
@@ -200,11 +208,11 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
 
   @override
   Future<Response<T>> getUpdates<R>({
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) {
     return gets(
-      onlyUpdatedData: true,
+      forUpdates: true,
       extra: extra,
       source: source,
     );

@@ -5,26 +5,26 @@ class Response<T> {
   final bool isSuccessful;
   final bool isLoading;
   final bool isFailed;
-  final String message;
-  final String error;
+  final String? message;
+  final String? error;
   final T? data;
   final List<T>? result;
   final dynamic snapshot;
   final Status status;
-  final String tag;
+  final String? tag;
 
   const Response({
     this.data,
     this.result,
-    this.message = '',
-    this.error = '',
+    this.message,
+    this.error,
     this.isCancel = false,
     this.isLoading = false,
     this.isSuccessful = false,
     this.isFailed = false,
     this.snapshot,
-    this.status = Status.noContent,
-    this.tag = "",
+    this.status = Status.notFound,
+    this.tag,
   });
 
   Response<T> copy({
@@ -73,6 +73,11 @@ class Response<T> {
   get statusCode => status.value;
 
   int get size => (result ?? []).length;
+
+  @override
+  String toString() {
+    return "Response (Loading: $isLoading, Successful : $isSuccessful, Failed : $isFailed, Cancel : $isCancel, Message : $message, Error : $error, StatusCode : $statusCode, Data : $data, Result : $result, Tag : $tag)";
+  }
 }
 
 enum Status {
@@ -85,6 +90,7 @@ enum Status {
   partialContent(206),
   multipleChoices(300),
   movedPermanently(301),
+  invalid(403),
   notFound(404),
   notAcceptable(406),
   requestTimeout(408);

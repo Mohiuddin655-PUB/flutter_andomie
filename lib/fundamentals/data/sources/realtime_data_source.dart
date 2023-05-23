@@ -1,6 +1,6 @@
 part of 'sources.dart';
 
-abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
+abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   final String path;
 
   RealtimeDataSourceImpl({required this.path});
@@ -24,14 +24,15 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   String get uid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
-  Future<Response<T>> insert<R>({
-    required T data,
-    String? id,
+  Future<Response<T>> create<R>(
+    T data, {
+    bool cacheMode = false,
+    bool onlyCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
-    if ((id ?? "").isNotEmpty) {
-      final ref = _source(source).child(id ?? "");
+    if (data.id.isNotEmpty) {
+      final ref = _source(source).child(data.id);
       return await ref.get().then((value) async {
         if (!value.exists) {
           await ref.set(data);
@@ -52,6 +53,8 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   Future<Response<T>> update<R>(
     String id,
     Map<String, dynamic> data, {
+    bool cacheMode = false,
+    bool forCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -66,7 +69,8 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool cacheMode = false,
+    bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -81,7 +85,7 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
   @override
   Future<Response<T>> get<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -99,8 +103,8 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
 
   @override
   Future<Response<T>> gets<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
+    bool forUpdates = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -125,7 +129,7 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends DataSource<T> {
     R? Function(R parent)? source,
   }) {
     return gets(
-      onlyUpdatedData: true,
+      forUpdates: true,
       source: source,
     );
   }

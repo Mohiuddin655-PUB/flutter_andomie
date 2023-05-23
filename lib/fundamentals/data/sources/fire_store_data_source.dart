@@ -1,9 +1,13 @@
 part of 'sources.dart';
 
-abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
+abstract class FireStoreDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   final String path;
+  final LocalDataHandler<T>? local;
 
-  FireStoreDataSourceImpl({required this.path});
+  FireStoreDataSourceImpl({
+    required this.path,
+    this.local,
+  });
 
   FirebaseFirestore? _db;
 
@@ -24,8 +28,10 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   String get uid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
-  Future<Response<T>> insert<R>({
-    required T data,
+  Future<Response<T>> create<R>(
+    T data, {
+    bool cacheMode = false,
+    bool onlyCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -51,6 +57,8 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   Future<Response<T>> update<R>(
     String id,
     Map<String, dynamic> data, {
+    bool cacheMode = false,
+    bool forCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -65,7 +73,8 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool cacheMode = false,
+    bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -80,7 +89,7 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
   @override
   Future<Response<T>> get<R>(
     String id, {
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
@@ -98,15 +107,15 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
 
   @override
   Future<Response<T>> gets<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
+    bool fromCache = false,
+    bool forUpdates = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
     try {
       final result = await _source(source).get();
       if (result.docs.isNotEmpty || result.docChanges.isNotEmpty) {
-        if (onlyUpdatedData) {
+        if (forUpdates) {
           List<T> list = result.docChanges.map((e) {
             return build(e.doc.data());
           }).toList();
@@ -131,7 +140,7 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends DataSource<T> {
     R? Function(R parent)? source,
   }) {
     return gets(
-      onlyUpdatedData: true,
+      forUpdates: true,
       source: source,
     );
   }

@@ -8,40 +8,47 @@ abstract class DataHandler<T extends Entity> {
   });
 
   Future<Response<T>> create<R>(
-    T entity, [
+    T data, {
+    bool cacheMode = false,
+    bool localMode = false,
     R? Function(R parent)? source,
-  ]);
+  });
 
   Future<Response<T>> update<R>(
-    String id,
-    Map<String, dynamic> data, [
+    T data, {
+    bool cacheMode = false,
+    bool localMode = false,
     R? Function(R parent)? source,
-  ]);
+  });
 
   Future<Response<T>> delete<R>(
-    String id, [
+    String id, {
+    bool cacheMode = false,
+    bool localMode = false,
     R? Function(R parent)? source,
-  ]);
+  });
 
   Future<Response<T>> get<R>(
-    String id, [
+    String id, {
+    bool localMode = false,
     R? Function(R parent)? source,
-  ]);
+  });
 
-  Future<Response<T>> gets<R>([
+  Future<Response<T>> gets<R>({
+    bool localMode = false,
     R? Function(R parent)? source,
-  ]);
+  });
 
-  Future<Response<T>> getUpdates<R>([
+  Future<Response<T>> getUpdates<R>({
     R? Function(R parent)? source,
-  ]);
+  });
 
   Stream<Response<T>> live<R>(
-    String id, [
+    String id, {
     R? Function(R parent)? source,
-  ]);
+  });
 
-  Stream<Response<T>> lives<R>([
+  Stream<Response<T>> lives<R>({
     R? Function(R parent)? source,
-  ]);
+  });
 }

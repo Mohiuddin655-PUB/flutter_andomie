@@ -1,6 +1,6 @@
 part of 'controllers.dart';
 
-class DefaultAuthController extends Cubit<AuthResponse> {
+class DefaultAuthController extends Cubit<Response<AuthInfo>> {
   final AuthHandler handler;
   final UserHandler userHandler;
   final String Function(String uid)? createUid;
@@ -9,7 +9,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
     required this.handler,
     required this.userHandler,
     this.createUid,
-  }) : super(const AuthResponse());
+  }) : super(const Response<AuthInfo>());
 
   String get uid => user?.uid ?? "uid";
 
@@ -59,11 +59,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
           );
           final userResponse = await userHandler.create(user);
           if (userResponse.isSuccessful || userResponse.snapshot != null) {
-            emit(state.copy(
-              isLoggedIn: true,
-              user: user,
-              firebaseUser: response.data?.user,
-            ));
+            emit(state.copy(data: user));
           } else {
             emit(state.copy(error: userResponse.message));
           }
@@ -79,16 +75,19 @@ class DefaultAuthController extends Cubit<AuthResponse> {
     }
   }
 
-  Future<Response> signInByEmail(AuthInfo entity) async {
-    const cubitResponse = Response();
+  void signInByEmail(AuthInfo entity) async {
     final email = entity.email;
     final password = entity.password;
     if (!Validator.isValidEmail(email)) {
-      emit(state.copy(error: "Email isn't valid!"));
-      return cubitResponse.copy(message: "Email isn't valid!");
+      emit(state.copy(
+        error: "Email isn't valid!",
+        status: Status.invalid,
+      ));
     } else if (!Validator.isValidPassword(password)) {
-      emit(state.copy(error: "Password isn't valid!"));
-      return cubitResponse.copy(message: "Password isn't valid!");
+      emit(state.copy(
+        error: "Password isn't valid!",
+        status: Status.invalid,
+      ));
     } else {
       try {
         emit(state.copy(isLoading: true));
@@ -96,34 +95,28 @@ class DefaultAuthController extends Cubit<AuthResponse> {
           email: email,
           password: password,
         );
-        final result = response.data?.user;
-        if (result != null) {
-          final user = entity.copy(
-            id: createUid?.call(result.uid) ?? result.uid,
-            email: result.email,
-            name: result.displayName,
-            phone: result.phoneNumber,
-            photo: result.photoURL,
-            provider: AuthProvider.email.name,
-          );
-          final userResponse = await userHandler.create(user);
-          if (userResponse.isSuccessful || userResponse.snapshot != null) {
-            emit(state.copy(
-              isLoggedIn: true,
-              user: user,
-              firebaseUser: result,
-            ));
-          } else {
-            emit(state.copy(error: userResponse.message));
+        if (response.isSuccessful) {
+          final result = response.data?.user;
+          if (result != null) {
+            final user = entity.copy(
+              id: createUid?.call(result.uid) ?? result.uid,
+              email: result.email,
+              name: result.displayName,
+              phone: result.phoneNumber,
+              photo: result.photoURL,
+              provider: AuthProvider.email.name,
+            );
+            userHandler.create(
+              user,
+              cacheMode: true,
+              forCache: true,
+            );
+            emit(state.copy(data: user));
           }
-          return userResponse.copy(data: user);
-        } else {
-          emit(state.copy(error: response.message));
-          return response;
         }
+        emit(state.copy(error: response.error));
       } catch (e) {
         emit(state.copy(error: e.toString()));
-        return cubitResponse.copy(message: e.toString());
       }
     }
   }
@@ -149,11 +142,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
         );
         final userResponse = await userHandler.create(user);
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(
-            isLoggedIn: true,
-            user: user,
-            firebaseUser: currentData,
-          ));
+          emit(state.copy(data: user));
         } else {
           emit(state.copy(error: userResponse.message));
         }
@@ -189,11 +178,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
         );
         final userResponse = await userHandler.create(user);
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(
-            isLoggedIn: true,
-            user: user,
-            firebaseUser: currentData,
-          ));
+          emit(state.copy(data: user));
         } else {
           emit(state.copy(error: userResponse.message));
         }
@@ -223,11 +208,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
           password: password,
         );
         if (loginResponse.isSuccessful) {
-          emit(state.copy(
-            isLoggedIn: true,
-            firebaseUser: loginResponse.data?.user,
-            user: user,
-          ));
+          emit(state.copy(data: user));
         } else {
           emit(state.copy(error: loginResponse.message));
         }
@@ -249,7 +230,7 @@ class DefaultAuthController extends Cubit<AuthResponse> {
       final userResponse =
           await userHandler.delete(createUid?.call(uid) ?? uid);
       if (userResponse.isSuccessful || userResponse.snapshot != null) {
-        emit(const AuthResponse(isSuccessful: true));
+        emit(state.copy(data: null));
       } else {
         emit(state.copy(error: userResponse.message));
       }

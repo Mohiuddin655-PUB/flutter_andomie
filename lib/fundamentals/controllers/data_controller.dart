@@ -55,7 +55,9 @@ class DataController<T extends Entity> extends Cubit<Response<T>> {
   ]) async {
     emit(state.copy(isLoading: true));
     try {
-      var result = await handler.gets(source);
+      var result = await handler.gets(
+        source: source,
+      );
       emit(state.copy(result: result.result));
     } catch (_) {
       emit(state.copy(error: "Something went wrong!"));
@@ -67,7 +69,9 @@ class DataController<T extends Entity> extends Cubit<Response<T>> {
   ]) async {
     emit(state.copy(isLoading: true));
     try {
-      var result = await handler.getUpdates(source);
+      var result = await handler.getUpdates(
+        source: source,
+      );
       emit(state.copy(result: result.result));
     } catch (_) {
       emit(state.copy(error: "Something went wrong!"));
