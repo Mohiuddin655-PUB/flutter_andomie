@@ -24,88 +24,58 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
   String get uid => FirebaseAuth.instance.currentUser?.uid ?? '';
 
   @override
-  Future<Response<T>> create<R>(
-    T data, {
-    bool cacheMode = false,
-    bool onlyCache = false,
+  Future<Response<T>> clear<R>({
     R? Function(R parent)? source,
-  }) async {
-    final response = Response<T>();
-    if (data.id.isNotEmpty) {
-      final ref = _source(source).child(data.id);
-      return await ref.get().then((value) async {
-        if (!value.exists) {
-          await ref.set(data);
-          return response.copy(data: data);
-        } else {
-          return response.copy(
-            snapshot: value,
-            message: 'Already inserted!',
-          );
-        }
-      });
-    } else {
-      return response.copy(error: "ID isn't valid!");
-    }
-  }
-
-  @override
-  Future<Response<T>> update<R>(
-    String id,
-    Map<String, dynamic> data, {
-    bool cacheMode = false,
-    bool forCache = false,
-    R? Function(R parent)? source,
-  }) async {
-    final response = Response<T>();
-    try {
-      await _source(source).child(id).update(data);
-      return response.copy(isSuccessful: true);
-    } catch (_) {
-      return response.copy(error: _.toString());
-    }
+  }) {
+    return Future.error("Currently not initialized!");
   }
 
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    bool cacheMode = false,
-    bool fromCache = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
     try {
       await _source(source).child(id).remove();
-      return response.copy(isSuccessful: true);
+      return response.attach(isSuccessful: true);
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
   Future<Response<T>> get<R>(
     String id, {
-    bool fromCache = false,
     R? Function(R parent)? source,
-  }) async {
+  })async {
     final response = Response<T>();
     try {
       final result = await _source(source).child(id).get();
       if (result.exists && result.value != null) {
-        return response.copy(data: build(result.value));
+        return response.attach(data: build(result.value));
       } else {
-        return response.copy(error: "Data not found!");
+        return response.attach(exception: "Data not found!");
       }
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
-  Future<Response<T>> gets<R>({
-    bool fromCache = false,
-    bool forUpdates = false,
+  Future<Response<T>> getUpdates<R>({
     R? Function(R parent)? source,
+  })  {
+    return gets(
+      forUpdates: true,
+      source: source,
+    );
+  }
+
+  @override
+  Future<Response<T>> gets<R>({
+    R? Function(R parent)? source,
+    bool forUpdates = false,
   }) async {
     final response = Response<T>();
     try {
@@ -114,30 +84,58 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
         List<T> list = result.children.map((e) {
           return build(e.value);
         }).toList();
-        return response.copy(result: list);
+        return response.attach(result: list);
       } else {
-        return response.copy(error: "Data not found!");
+        return response.attach(exception: "Data not found!");
       }
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
-  Future<Response<T>> getUpdates<R>({
-    Map<String, dynamic>? extra,
+  Future<Response<T>> insert<R>(
+    T data, {
+    R? Function(R parent)? source,
+  })async {
+    final response = Response<T>();
+    if (data.id.isNotEmpty) {
+      final ref = _source(source).child(data.id);
+      return await ref.get().then((value) async {
+        if (!value.exists) {
+          await ref.set(data);
+          return response.attach(data: data);
+        } else {
+          return response.attach(
+            snapshot: value,
+            message: 'Already inserted!',
+          );
+        }
+      });
+    } else {
+      return response.attach(exception: "ID isn't valid!");
+    }
+  }
+
+  @override
+  Future<Response<T>> inserts<R>(
+    List<T> data, {
     R? Function(R parent)? source,
   }) {
-    return gets(
-      forUpdates: true,
-      source: source,
-    );
+    return Future.error("Currently not initialized!");
+  }
+
+  @override
+  Future<bool> isAvailable<R>(
+    String id, {
+    R? Function(R parent)? source,
+  })  {
+    return Future.error("Currently not initialized!");
   }
 
   @override
   Stream<Response<T>> live<R>(
     String id, {
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   }) {
     final controller = StreamController<Response<T>>();
@@ -145,7 +143,7 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
     try {
       _source(source).child(id).onValue.listen((event) {
         if (event.snapshot.exists || event.snapshot.value != null) {
-          controller.add(response.copy(data: build(event.snapshot.value)));
+          controller.add(response.attach(data: build(event.snapshot.value)));
         } else {
           controller.addError("Data not found!");
         }
@@ -158,8 +156,6 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
 
   @override
   Stream<Response<T>> lives<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
   }) {
     final controller = StreamController<Response<T>>();
@@ -170,7 +166,7 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
           List<T> list = result.snapshot.children.map((e) {
             return build(e.value);
           }).toList();
-          controller.add(response.copy(result: list));
+          controller.add(response.attach(result: list));
         } else {
           controller.addError("Data not found!");
         }
@@ -180,5 +176,19 @@ abstract class RealtimeDataSourceImpl<T extends Entity> extends RemoteDataSource
     }
 
     return controller.stream;
+  }
+
+  @override
+  Future<Response<T>> update<R>(
+    T data, {
+    R? Function(R parent)? source,
+  })async {
+    final response = Response<T>();
+    try {
+      await _source(source).child(data.id).update(data.source);
+      return response.attach(isSuccessful: true);
+    } catch (_) {
+      return response.attach(exception: _.toString());
+    }
   }
 }

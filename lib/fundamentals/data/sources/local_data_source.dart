@@ -3,17 +3,17 @@ part of 'sources.dart';
 abstract class LocalDataSourceImpl<T extends Entity>
     extends LocalDataSource<T> {
   final SharedPreferences db;
+  final String path;
 
   LocalDataSourceImpl({
     required this.db,
-    required super.path,
+    required this.path,
   });
 
-  @override
-  bool isAvailable(String id, List<T>? data) {
+  bool isExisted(String id, List<T>? data) {
     if (data != null && data.isNotEmpty) {
       for (var value in data) {
-        if (validator.equals(id, value.id)) {
+        if (id.equals(value.id)) {
           return true;
         }
       }
@@ -24,86 +24,61 @@ abstract class LocalDataSourceImpl<T extends Entity>
   }
 
   @override
-  Future<bool> exists({required String id}) async {
-    final response = await gets();
-    return isAvailable(path, response.result);
-  }
-
-  @override
-  Future<Response<T>> insert({required T data}) async {
-    final response = await gets();
-    final list = response.result ?? [];
-    final isInsertable = !isAvailable(data.id, list);
-    if (isInsertable) {
-      list.add(data);
-      final request = await inserts(data: list);
-      return response.copy(result: request.result);
-    } else {
-      return response.copy(message: "Already data added!");
-    }
-  }
-
-  @override
-  Future<Response<T>> inserts({required List<T>? data}) async {
+  Future<Response<T>> clear<R>({
+    R? Function(R parent)? source,
+  }) async {
     final response = Response<T>();
     try {
-      if (data != null) {
-        final currentMap = data.map((e) => e.source).toList();
-        final String value = jsonEncode(currentMap);
-        final saved = await db.setString(path, value);
-        return response.copy(result: data, isSuccessful: saved);
-      } else {
-        return response.copy(error: "Data not valid!");
-      }
+      final isSaved = await db.remove(path);
+      return response.attach(data: null, isSuccessful: isSaved);
     } catch (_) {
-      return response.copy(error: "Failed to upload data!");
+      return response.attach(exception: "Failed to clean data!");
     }
   }
 
   @override
-  Future<Response<T>> update({required T data}) async {
-    final response = Response<T>();
-    final fetch = await gets();
-    final list = fetch.result ?? [];
-    int index = list.indexWhere((element) => element.id == data.id);
-    if (index > -1) {
-      list.removeAt(index);
-      list.add(data);
-      final request = await inserts(data: list);
-      return response.copy(result: request.result);
-    } else {
-      return response.copy(message: "Data not inserted!");
-    }
-  }
-
-  @override
-  Future<Response<T>> delete({required String id}) async {
+  Future<Response<T>> delete<R>(
+    String id, {
+    R? Function(R parent)? source,
+  }) async {
     final response = await gets();
     final list = response.result ?? [];
     for (int index = 0; index < list.length; index++) {
       final x = list[index];
-      if (validator.equals(id, x.id)) {
+      if (id.equals(x.id)) {
         list.removeAt(index);
       }
     }
-    return inserts(data: list);
+    return inserts(list);
   }
 
   @override
-  Future<Response<T>> get({required String id}) async {
+  Future<Response<T>> get<R>(
+    String id, {
+    R? Function(R parent)? source,
+  }) async {
     final response = await gets();
     final list = response.result ?? [];
     for (int index = 0; index < list.length; index++) {
       final x = list[index];
-      if (validator.equals(id, x.id)) {
-        return response.copy(data: x);
+      if (id.equals(x.id)) {
+        return response.attach(data: x);
       }
     }
-    return response.copy(error: "Data not found!");
+    return response.attach(exception: "Data not found!");
   }
 
   @override
-  Future<Response<T>> gets() async {
+  Future<Response<T>> getUpdates<R>({
+    R? Function(R parent)? source,
+  }) {
+    return Future.error("Current not initialized!");
+  }
+
+  @override
+  Future<Response<T>> gets<R>({
+    R? Function(R parent)? source,
+  }) async {
     final response = Response<T>();
     try {
       final source = db.getString(path);
@@ -112,23 +87,92 @@ abstract class LocalDataSourceImpl<T extends Entity>
         final data = json.map((e) {
           return build(e);
         }).toList();
-        return response.copy(result: data);
+        return response.attach(result: data);
       } else {
-        return response.copy(error: "Data not found!");
+        return response.attach(exception: "Data not found!");
       }
     } catch (e) {
-      return response.copy(error: "Failed to load data!");
+      return response.attach(exception: "Failed to load data!");
     }
   }
 
   @override
-  Future<Response<T>> clear() async {
+  Future<Response<T>> insert<R>(
+    T data, {
+    R? Function(R parent)? source,
+  }) async {
+    final response = await gets();
+    final list = response.result ?? [];
+    final isInsertable = !isExisted(data.id, list);
+    if (isInsertable) {
+      list.add(data);
+      final request = await inserts(list);
+      return response.attach(result: request.result);
+    } else {
+      return response.attach(message: "Already data added!");
+    }
+  }
+
+  @override
+  Future<Response<T>> inserts<R>(
+    List<T> data, {
+    R? Function(R parent)? source,
+  }) async {
     final response = Response<T>();
     try {
-      final isSaved = await db.remove(path);
-      return response.copy(data: null, isSuccessful: isSaved);
+      if (data.isNotEmpty) {
+        final currentMap = data.map((e) => e.source).toList();
+        final String value = jsonEncode(currentMap);
+        final saved = await db.setString(path, value);
+        return response.attach(result: data, isSuccessful: saved);
+      } else {
+        return response.attach(exception: "Data not valid!");
+      }
     } catch (_) {
-      return response.copy(error: "Failed to clean data!");
+      return response.attach(exception: "Failed to upload data!");
+    }
+  }
+
+  @override
+  Future<bool> isAvailable<R>(
+    String id, {
+    R? Function(R parent)? source,
+  }) async {
+    final response = await gets();
+    return isExisted(path, response.result);
+  }
+
+  @override
+  Stream<Response<T>> live<R>(
+    String id, {
+    R? Function(R parent)? source,
+  }) {
+    return Stream.error("Current not initialized!");
+  }
+
+  @override
+  Stream<Response<T>> lives<R>({
+    R? Function(R parent)? source,
+  }) {
+    return Stream.error("Current not initialized!");
+  }
+
+  @override
+  Future<Response<T>> update<R>(
+    T data, {
+    R? Function(R parent)? source,
+  }) async {
+    final response = Response<T>();
+    final fetch = await gets();
+    final list = fetch.result ?? [];
+    int index = list.indexWhere((element) => element.id == data.id);
+    if (index > -1) {
+      list.removeAt(index);
+      list.add(data);
+      final request = await inserts(list);
+      return response.attach(result: request.result);
+    } else {
+      return response.attach(message: "Data not inserted!");
     }
   }
 }

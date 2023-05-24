@@ -16,9 +16,9 @@ class AuthDataSourceImpl extends AuthDataSource {
 
   @override
   Future<Response> signOut() async {
-    const response = Response();
+    final response = Response();
     await firebaseAuth.signOut();
-    return response.copy(data: true);
+    return response.attach(data: true);
   }
 
   @override
@@ -32,15 +32,15 @@ class AuthDataSourceImpl extends AuthDataSource {
     required String email,
     required String password,
   }) async {
-    const response = Response<UserCredential>();
+    final response = Response<UserCredential>();
     try {
       final result = await firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return response.copy(data: result, message: "Sign up successful!");
+      return response.attach(data: result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.copy(error: e.message);
+      return response.attach(exception: e.message);
     }
   }
 
@@ -48,12 +48,12 @@ class AuthDataSourceImpl extends AuthDataSource {
   Future<Response<UserCredential>> signUpWithCredential({
     required AuthCredential credential,
   }) async {
-    const response = Response<UserCredential>();
+    final response = Response<UserCredential>();
     try {
       final result = await firebaseAuth.signInWithCredential(credential);
-      return response.copy(data: result, message: "Sign up successful!");
+      return response.attach(data: result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.copy(error: e.message);
+      return response.attach(exception: e.message);
     }
   }
 
@@ -62,21 +62,28 @@ class AuthDataSourceImpl extends AuthDataSource {
     required String email,
     required String password,
   }) async {
-    const response = Response<UserCredential>();
+    final response = Response<UserCredential>();
     try {
       final result = await firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
-      return response.copy(data: result, message: "Sign in successful!");
+      return response.attach(
+        status: ResponseStatus.ok,
+        data: result,
+        message: "Sign in successful!",
+      );
     } on FirebaseAuthException catch (e) {
-      return response.copy(error: e.message);
+      return response.attach(
+        status: ResponseStatus.networkError,
+        exception: e.message,
+      );
     }
   }
 
   @override
   Future<Response<Credential>> signInWithFacebook() async {
-    const response = Response<Credential>();
+    final response = Response<Credential>();
     try {
       final token = await facebookAuth.accessToken;
       LoginResult? result;
@@ -93,26 +100,26 @@ class AuthDataSourceImpl extends AuthDataSource {
           final credential = FacebookAuthProvider.credential(accessToken.token);
           final fbData = await facebookAuth.getUserData();
           final data = Credential.fromMap(fbData);
-          return response.copy(
+          return response.attach(
             data: data.copyWith(
               accessToken: accessToken.token,
               credential: credential,
             ),
           );
         } else {
-          return response.copy(error: 'Token not valid!');
+          return response.attach(exception: 'Token not valid!');
         }
       } else {
-        return response.copy(error: 'Token not valid!');
+        return response.attach(exception: 'Token not valid!');
       }
     } on FirebaseAuthException catch (e) {
-      return response.copy(error: e.message);
+      return response.attach(exception: e.message);
     }
   }
 
   @override
   Future<Response<Credential>> signInWithGoogle() async {
-    const response = Response<Credential>();
+    final response = Response<Credential>();
     try {
       GoogleSignInAccount? result;
       final auth = GoogleSignIn(scopes: ['email']);
@@ -136,7 +143,7 @@ class AuthDataSourceImpl extends AuthDataSource {
             name: receivedData?.displayName,
             photo: receivedData?.photoUrl,
           );
-          return response.copy(
+          return response.attach(
             data: data.copyWith(
               accessToken: accessToken,
               idToken: idToken,
@@ -144,22 +151,22 @@ class AuthDataSourceImpl extends AuthDataSource {
             ),
           );
         } else {
-          return response.copy(error: 'Token not valid!');
+          return response.attach(exception: 'Token not valid!');
         }
       } else {
-        return response.copy(error: 'Sign in failed!');
+        return response.attach(exception: 'Sign in failed!');
       }
     } on FirebaseAuthException catch (e) {
-      return response.copy(error: e.message);
+      return response.attach(exception: e.message);
     }
   }
 
   @override
   Future<Response<bool>> signInWithBiometric() async {
-    const response = Response<bool>();
+    final response = Response<bool>();
     try {
       if (!await localAuth.isDeviceSupported()) {
-        return response.copy(error: "Device isn't supported!");
+        return response.attach(exception: "Device isn't supported!");
       } else {
         if (await localAuth.canCheckBiometrics) {
           final authenticated = await localAuth.authenticate(
@@ -171,19 +178,19 @@ class AuthDataSourceImpl extends AuthDataSource {
             ),
           );
           if (authenticated) {
-            return response.copy(
+            return response.attach(
               message: "Biometric matched!",
               data: true,
             );
           } else {
-            return response.copy(error: "Biometric matching failed!");
+            return response.attach(exception: "Biometric matching failed!");
           }
         } else {
-          return response.copy(error: "Can not check bio metrics!");
+          return response.attach(exception: "Can not check bio metrics!");
         }
       }
     } catch (e) {
-      return response.copy(error: e.toString());
+      return response.attach(exception: e.toString());
     }
   }
 }

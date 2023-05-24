@@ -1,7 +1,7 @@
 import 'package:flutter_andomie/core.dart';
 
-class UserDataSource extends FireStoreDataSourceImpl<AuthInfo> {
-  UserDataSource({
+class RemoteUserDataSource extends FireStoreDataSourceImpl<AuthInfo> {
+  RemoteUserDataSource({
     super.path = "users",
   });
 
