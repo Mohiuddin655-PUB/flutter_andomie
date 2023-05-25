@@ -45,12 +45,14 @@ class SizeConfig {
       config.isTab(screenWidth, screenHeight) && screenWidth >= 500;
 
   bool get isLaptop =>
-      config.isLaptop(screenWidth, screenHeight) && screenWidth > 1400;
+      config.isLaptop(screenWidth, screenHeight) && screenWidth > 1020;
 
   bool get isDesktop =>
-      config.isDesktop(screenWidth, screenHeight) && screenWidth > 1800;
+      config.isDesktop(screenWidth, screenHeight) && screenWidth > 1366;
 
-  bool get isTV => screenWidth > config.desktop.width && screenWidth > 2400;
+  bool get isTV => screenWidth > config.desktop.width && screenWidth > 1800;
+
+  DeviceType get deviceType => config.deviceType(screenWidth, screenHeight);
 
   double get _detectedPixel => detectScreen ? _suggestedPixel : width;
 

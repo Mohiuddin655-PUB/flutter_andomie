@@ -17,10 +17,10 @@ class DataController<T extends Entity> extends Cubit<Response<T>> {
     }
   }
 
-  Future<void> update<R>(String id, Map<String, dynamic> data) async {
+  Future<void> update<R>(T data) async {
     emit(state.copy(isLoading: true));
     try {
-      var result = await handler.update(id, data);
+      var result = await handler.update(data);
       emit(state.copy(result: result.result));
     } catch (_) {
       emit(state.copy(error: "Something went wrong!"));

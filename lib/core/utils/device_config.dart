@@ -63,14 +63,20 @@ class DeviceConfig {
     // print('${device.name}\t => Y : ${y.toStringAsFixed(2)}');
     return x > y;
   }
-}
 
-class DeviceInfo {
-  static const double mobileX = 10, mobileY = 16, mobileVariant = 3.6;
-  static const double tabX = 1, tabY = 1, tabVariant = 5;
-  static const double laptopX = 16, laptopY = 10, laptopVariant = 6;
-  static const double desktopX = 16, desktopY = 8, desktopVariant = 7;
-  static const double tvX = 0, tvY = 0, tvVariant = 8;
+  DeviceType deviceType(double cx, double cy) {
+    if (isMobile(cx, cy)) {
+      return DeviceType.mobile;
+    } else if (isTab(cx, cy)) {
+      return DeviceType.tab;
+    } else if (isLaptop(cx, cy)) {
+      return DeviceType.laptop;
+    } else if (isDesktop(cx, cy)) {
+      return DeviceType.desktop;
+    } else {
+      return DeviceType.other;
+    }
+  }
 }
 
 class Device extends Size {
@@ -99,4 +105,20 @@ class Device extends Size {
   double ratioY(double cy) => rationalHeight(cy) / 100;
 
   double ratio(double cx, double cy) => Size(cx, cy).aspectRatio;
+}
+
+class DeviceInfo {
+  static const double mobileX = 10, mobileY = 16, mobileVariant = 3.6;
+  static const double tabX = 1, tabY = 1, tabVariant = 5;
+  static const double laptopX = 16, laptopY = 10, laptopVariant = 6;
+  static const double desktopX = 16, desktopY = 8, desktopVariant = 7;
+  static const double tvX = 0, tvY = 0, tvVariant = 8;
+}
+
+enum DeviceType {
+  mobile,
+  tab,
+  laptop,
+  desktop,
+  other;
 }
