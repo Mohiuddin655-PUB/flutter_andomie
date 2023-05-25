@@ -6,3 +6,4 @@ export 'extensions/extensions.dart';
 export 'models/models.dart';
 export 'responses/responses.dart';
 export 'services/services.dart';
+export 'providers/providers.dart';

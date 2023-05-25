@@ -47,6 +47,9 @@ void _dataSources() {
   locator.registerLazySingleton<LocalDataSource<AuthInfo>>(() {
     return LocalUserDataSource(db: locator());
   });
+  locator.registerLazySingleton<RemoteDataSource<AuthInfo>>(() {
+    return RemoteUserDataSource();
+  });
 }
 
 void _repositories() {
@@ -58,12 +61,7 @@ void _repositories() {
   locator.registerLazySingleton<DataRepository<AuthInfo>>(() {
     return UserRepository(
       local: locator(),
-      remote: UserDataSource(),
-    );
-  });
-  locator.registerLazySingleton<LocalDataRepository<AuthInfo>>(() {
-    return LocalDataRepositoryImpl<AuthInfo>(
-      local: locator(),
+      remote: locator(),
     );
   });
 }

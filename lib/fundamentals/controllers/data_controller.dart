@@ -8,32 +8,32 @@ class DataController<T extends Entity> extends Cubit<Response<T>> {
   }) : super(Response<T>());
 
   Future<void> create<R>(T data) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
-      var result = await handler.create(data);
-      emit(state.copy(result: result.result));
+      var result = await handler.insert(data);
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 
   Future<void> update<R>(T data) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
       var result = await handler.update(data);
-      emit(state.copy(result: result.result));
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 
   Future<void> delete<R>(String id) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
       var result = await handler.delete(id);
-      emit(state.copy(result: result.result));
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 
@@ -41,40 +41,40 @@ class DataController<T extends Entity> extends Cubit<Response<T>> {
     String id, [
     R? Function(R parent)? source,
   ]) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
       var result = await handler.get(id);
-      emit(state.copy(result: result.result));
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 
   Future<void> gets<R>([
     R? Function(R parent)? source,
   ]) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
       var result = await handler.gets(
         source: source,
       );
-      emit(state.copy(result: result.result));
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 
   Future<void> getUpdates<R>([
     R? Function(R parent)? source,
   ]) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     try {
       var result = await handler.getUpdates(
         source: source,
       );
-      emit(state.copy(result: result.result));
+      emit(state.attach(result: result.result));
     } catch (_) {
-      emit(state.copy(error: "Something went wrong!"));
+      emit(state.attach(exception: "Something went wrong!"));
     }
   }
 

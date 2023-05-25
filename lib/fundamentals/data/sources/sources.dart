@@ -14,12 +14,11 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:validators/validators.dart' as validator;
 
 import '../../../core.dart';
 
 part 'api_data_source.dart';
-part 'auth_data_source.dart';
+part 'auth_source.dart';
 part 'encrypt_api_data_source.dart';
 part 'fire_store_data_source.dart';
 part 'local_data_source.dart';

@@ -10,4 +10,7 @@ abstract class Entity {
   });
 
   Map<String, dynamic> get source;
+
+  @override
+  String toString() => "$source";
 }

@@ -25,8 +25,7 @@ dependencies:
 
   dio: ^5.0.0
   encrypt: ^5.0.1
-  validators: ^3.0.0
-
+  connectivity_plus: ^4.0.1
 
   cached_network_image: ^3.2.3
   flutter_bloc: ^8.1.2

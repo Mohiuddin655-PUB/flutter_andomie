@@ -2,7 +2,7 @@ part of 'controllers.dart';
 
 class DefaultAuthController extends Cubit<Response<AuthInfo>> {
   final AuthHandler handler;
-  final UserHandler userHandler;
+  final DataHandler<AuthInfo> userHandler;
   final String Function(String uid)? createUid;
 
   DefaultAuthController({
@@ -17,16 +17,16 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
 
   Future<bool> get isLoggedIn async {
     try {
-      emit(state.copy(isLoading: true));
+      emit(state.attach(isLoading: true));
       final signedIn = await handler.isSignIn();
       if (signedIn) {
-        emit(state.copy(isSuccessful: true));
+        emit(state.attach(isSuccessful: true));
       } else {
-        emit(state.copy(error: "User logged out!"));
+        emit(state.attach(exception: "User logged out!"));
       }
       return signedIn;
     } catch (e) {
-      emit(state.copy(error: e.toString()));
+      emit(state.attach(exception: e.toString()));
       return Future.error(e);
     }
   }
@@ -36,14 +36,14 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
     final email = entity.email;
     final password = entity.password;
     if (!Validator.isValidEmail(email)) {
-      emit(state.copy(error: "Email isn't valid!"));
-      return cubitResponse.copy(message: "Email isn't valid!");
+      emit(state.attach(exception: "Email isn't valid!"));
+      return cubitResponse.attach(message: "Email isn't valid!");
     } else if (!Validator.isValidPassword(password)) {
-      emit(state.copy(error: "Password isn't valid!"));
-      return cubitResponse.copy(message: "Password isn't valid!");
+      emit(state.attach(exception: "Password isn't valid!"));
+      return cubitResponse.attach(message: "Password isn't valid!");
     } else {
       try {
-        emit(state.copy(isLoading: true));
+        emit(state.attach(isLoading: true));
         final response = await handler.signUpWithEmailNPassword(
           email: email,
           password: password,
@@ -57,20 +57,23 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
             name: result.displayName,
             photo: result.photoURL,
           );
-          final userResponse = await userHandler.create(user);
+          final userResponse = await userHandler.insert(
+            user,
+            sourceType: SourceType.both,
+          );
           if (userResponse.isSuccessful || userResponse.snapshot != null) {
-            emit(state.copy(data: user));
+            emit(state.attach(data: user));
           } else {
-            emit(state.copy(error: userResponse.message));
+            emit(state.attach(exception: userResponse.message));
           }
-          return userResponse.copy(data: user);
+          return userResponse.attach(data: user);
         } else {
-          emit(state.copy(error: response.message));
+          emit(state.attach(exception: response.message));
           return response;
         }
       } catch (e) {
-        emit(state.copy(error: e.toString()));
-        return cubitResponse.copy(message: e.toString());
+        emit(state.attach(exception: e.toString()));
+        return cubitResponse.attach(message: e.toString());
       }
     }
   }
@@ -79,18 +82,18 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
     final email = entity.email;
     final password = entity.password;
     if (!Validator.isValidEmail(email)) {
-      emit(state.copy(
-        error: "Email isn't valid!",
-        status: Status.invalid,
+      emit(state.attach(
+        exception: "Email isn't valid!",
+        status: ResponseStatus.invalid,
       ));
     } else if (!Validator.isValidPassword(password)) {
-      emit(state.copy(
-        error: "Password isn't valid!",
-        status: Status.invalid,
+      emit(state.attach(
+        exception: "Password isn't valid!",
+        status: ResponseStatus.invalid,
       ));
     } else {
       try {
-        emit(state.copy(isLoading: true));
+        emit(state.attach(isLoading: true));
         final response = await handler.signInWithEmailNPassword(
           email: email,
           password: password,
@@ -106,23 +109,22 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
               photo: result.photoURL,
               provider: AuthProvider.email.name,
             );
-            userHandler.create(
+            await userHandler.insert(
               user,
-              cacheMode: true,
-              forCache: true,
+              sourceType: SourceType.local,
             );
-            emit(state.copy(data: user));
+            emit(state.attach(data: user));
           }
         }
-        emit(state.copy(error: response.error));
+        emit(state.attach(exception: response.error));
       } catch (e) {
-        emit(state.copy(error: e.toString()));
+        emit(state.attach(exception: e.toString()));
       }
     }
   }
 
   Future<Response> signInByFacebook(AuthInfo entity) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     final response = await handler.signInWithFacebook();
     final result = response.data;
     if (result != null && result.credential != null) {
@@ -140,25 +142,28 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
           photo: result.photo,
           provider: AuthProvider.facebook.name,
         );
-        final userResponse = await userHandler.create(user);
+        final userResponse = await userHandler.insert(
+          user,
+          sourceType: SourceType.both,
+        );
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(data: user));
+          emit(state.attach(data: user));
         } else {
-          emit(state.copy(error: userResponse.message));
+          emit(state.attach(exception: userResponse.message));
         }
-        return userResponse.copy(data: user);
+        return userResponse.attach(data: user);
       } else {
-        emit(state.copy(error: finalResponse.message));
+        emit(state.attach(exception: finalResponse.message));
         return finalResponse;
       }
     } else {
-      emit(state.copy(error: response.message));
+      emit(state.attach(exception: response.message));
       return response;
     }
   }
 
   Future<Response> signInByGoogle(AuthInfo entity) async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     final response = await handler.signInWithGoogle();
     final result = response.data;
     if (result != null && result.credential != null) {
@@ -176,29 +181,34 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
           email: result.email,
           provider: AuthProvider.google.name,
         );
-        final userResponse = await userHandler.create(user);
+        final userResponse = await userHandler.insert(
+          user,
+          sourceType: SourceType.both,
+        );
         if (userResponse.isSuccessful || userResponse.snapshot != null) {
-          emit(state.copy(data: user));
+          emit(state.attach(data: user));
         } else {
-          emit(state.copy(error: userResponse.message));
+          emit(state.attach(exception: userResponse.message));
         }
-        return userResponse.copy(data: user);
+        return userResponse.attach(data: user);
       } else {
-        emit(state.copy(error: finalResponse.message));
+        emit(state.attach(exception: finalResponse.message));
         return finalResponse;
       }
     } else {
-      emit(state.copy(error: response.message));
+      emit(state.attach(exception: response.message));
       return response;
     }
   }
 
   Future<Response> signInByBiometric() async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     final response = await handler.signInWithBiometric();
     if (response.isSuccessful) {
-      final userResponse =
-          await userHandler.get(createUid?.call(uid) ?? uid, fromCache: true);
+      final userResponse = await userHandler.get(
+        createUid?.call(uid) ?? uid,
+        sourceType: SourceType.local,
+      );
       final user = userResponse.data;
       if (userResponse.isSuccessful && user is AuthInfo) {
         final email = user.email;
@@ -208,35 +218,35 @@ class DefaultAuthController extends Cubit<Response<AuthInfo>> {
           password: password,
         );
         if (loginResponse.isSuccessful) {
-          emit(state.copy(data: user));
+          emit(state.attach(data: user));
         } else {
-          emit(state.copy(error: loginResponse.message));
+          emit(state.attach(exception: loginResponse.message));
         }
         return loginResponse;
       } else {
-        emit(state.copy(error: userResponse.message));
+        emit(state.attach(exception: userResponse.message));
       }
       return userResponse;
     } else {
-      emit(state.copy(error: response.message));
+      emit(state.attach(exception: response.message));
     }
     return response;
   }
 
   Future<Response> signOut() async {
-    emit(state.copy(isLoading: true));
+    emit(state.attach(isLoading: true));
     final response = await handler.signOut();
     if (response.isSuccessful) {
       final userResponse =
           await userHandler.delete(createUid?.call(uid) ?? uid);
       if (userResponse.isSuccessful || userResponse.snapshot != null) {
-        emit(state.copy(data: null));
+        emit(state.attach(data: null));
       } else {
-        emit(state.copy(error: userResponse.message));
+        emit(state.attach(exception: userResponse.message));
       }
-      return userResponse.copy(data: null);
+      return userResponse.attach(data: null);
     } else {
-      emit(state.copy(error: response.message));
+      emit(state.attach(exception: response.message));
       return response;
     }
   }

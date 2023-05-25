@@ -30,207 +30,131 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   }
 
   @override
-  Future<Response<T>> create<R>(
-    T data, {
-    bool cacheMode = false,
-    bool onlyCache = false,
+  Future<Response<T>> clear<R>({
+    bool isActiveNetwork = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
-    if (data.source.isNotEmpty) {
-      final url = data.id.isNotEmpty
-          ? currentUrl(data.id, source)
-          : currentSource(source);
-      final reference = await database.post(url, data: data.source);
-      final code = reference.statusCode;
-      if (code == 200 || code == 201 || code == api.status.created) {
-        final result = reference.data;
-        return response.copy(result: result);
-      } else {
-        final error = "Data unmodified [${reference.statusCode}]";
-        return response.copy(snapshot: reference, error: error);
-      }
+    if (isActiveNetwork) {
+      return response.withException(
+        status: ResponseStatus.undefined,
+        exception: "Currently not initialized!",
+      );
     } else {
-      final error = "Undefined data $data";
-      return response.copy(error: error);
-    }
-  }
-
-  @override
-  Future<Response<T>> update<R>(
-    String id,
-    Map<String, dynamic> data, {
-    bool cacheMode = false,
-    bool forCache = false,
-    R? Function(R parent)? source,
-  }) async {
-    Response<T> response = const Response();
-    try {
-      if (data.isNotEmpty) {
-        final url = currentUrl(id, source);
-        final reference = await database.put(url, data: data);
-        final code = reference.statusCode;
-        if (code == 200 || code == 201 || code == api.status.updated) {
-          final result = reference.data;
-          return response.copy(result: result);
-        } else {
-          final error = "Data unmodified [${reference.statusCode}]";
-          return response.copy(snapshot: reference, error: error);
-        }
-      } else {
-        final error = "Undefined data $data";
-        return response.copy(error: error);
-      }
-    } catch (_) {
-      return response.copy(error: _.toString());
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
     }
   }
 
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    bool cacheMode = false,
-    bool fromCache = false,
+    bool isActiveNetwork = false,
     R? Function(R parent)? source,
   }) async {
-    Response<T> response = const Response();
-    try {
-      if (id.isNotEmpty) {
-        final url = currentUrl(id, source);
-        final reference = await database.delete(url);
-        final code = reference.statusCode;
-        if (code == 200 || code == 201 || code == api.status.deleted) {
-          final result = reference.data;
-          return response.copy(result: result);
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      try {
+        if (id.isNotEmpty) {
+          final url = currentUrl(id, source);
+          final reference = await database.delete(url);
+          final code = reference.statusCode;
+          if (code == 200 || code == 201 || code == api.status.deleted) {
+            return response.withFeedback(
+              feedback: reference.data,
+            );
+          } else {
+            return response.withFeedback(
+              feedback: reference,
+              exception: "Data unmodified [${reference.statusCode}]",
+              status: ResponseStatus.unmodified,
+            );
+          }
         } else {
-          final error = "Data unmodified [${reference.statusCode}]";
-          return response.copy(snapshot: reference, error: error);
+          return response.withException(
+            exception: "Undefined ID [$id]",
+            status: ResponseStatus.invalid,
+          );
         }
-      } else {
-        final error = "Undefined ID [$id]";
-        return response.copy(error: error);
+      } catch (_) {
+        return response.withException(
+          exception: _.toString(),
+          status: ResponseStatus.failure,
+        );
       }
-    } catch (_) {
-      return response.copy(error: _.toString());
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
     }
   }
 
   @override
   Future<Response<T>> get<R>(
     String id, {
-    bool fromCache = false,
+    bool isActiveNetwork = false,
     R? Function(R parent)? source,
   }) async {
     final response = Response<T>();
-    try {
-      if (id.isNotEmpty) {
-        final url = currentUrl(id, source);
-        final reference = await database.get(url);
-        final data = reference.data;
-        final code = reference.statusCode;
-        if ((code == 200 || code == api.status.ok) && data is Map) {
-          final result = build(data);
-          return response.copy(data: result);
-        } else {
-          final error = "Data unmodified [${reference.statusCode}]";
-          return response.copy(snapshot: reference, error: error);
-        }
-      } else {
-        final error = "Undefined ID [$id]";
-        return response.copy(error: error);
-      }
-    } catch (_) {
-      return response.copy(error: _.toString());
-    }
-  }
-
-  @override
-  Future<Response<T>> gets<R>({
-    bool fromCache = false,
-    bool forUpdates = false,
-    R? Function(R parent)? source,
-  })async {
-    final response = Response<T>();
-    try {
-      final url = currentSource(source);
-      final reference = await database.get(url);
-      final data = reference.data;
-      final code = reference.statusCode;
-      if ((code == 200 || code == api.status.ok) && data is List<dynamic>) {
-        List<T> result = data.map((item) {
-          return build(item);
-        }).toList();
-        return response.copy(result: result);
-      } else {
-        final error = "Data unmodified [${reference.statusCode}]";
-        return response.copy(snapshot: reference, error: error);
-      }
-    } catch (_) {
-      return response.copy(error: _.toString());
-    }
-  }
-
-  @override
-  Future<Response<T>> getUpdates<R>({
-    Map<String, dynamic>? extra,
-    R? Function(R parent)? source,
-  }) {
-    return gets(
-      forUpdates: true,
-      source: source,
-    );
-  }
-
-  @override
-  Stream<Response<T>> live<R>(
-    String id, {
-    Map<String, dynamic>? extra,
-    R? Function(R parent)? source,
-  }) {
-    final controller = StreamController<Response<T>>();
-    final response = Response<T>();
-    try {
-      if (id.isNotEmpty) {
-        final url = currentUrl(id, source);
-        Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
+    if (isActiveNetwork) {
+      try {
+        if (id.isNotEmpty) {
+          final url = currentUrl(id, source);
           final reference = await database.get(url);
           final data = reference.data;
           final code = reference.statusCode;
           if ((code == 200 || code == api.status.ok) && data is Map) {
             final result = build(data);
-            controller.add(
-              response.copy(data: result),
-            );
+            return response.attach(data: result);
           } else {
-            final error = "Data unmodified [${reference.statusCode}]";
-            controller.addError(
-              response.copy(snapshot: reference, error: error),
+            return response.attach(
+              snapshot: reference,
+              exception: "Data unmodified [${reference.statusCode}]",
+              status: ResponseStatus.unmodified,
             );
           }
-        });
-      } else {
-        final error = "Undefined ID [$id]";
-        controller.addError(
-          response.copy(error: error),
+        } else {
+          return response.withException(
+            exception: "Undefined ID [$id]",
+            status: ResponseStatus.invalid,
+          );
+        }
+      } catch (_) {
+        return response.withException(
+          exception: _.toString(),
+          status: ResponseStatus.failure,
         );
       }
-    } catch (_) {
-      controller.addError(_);
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
     }
-    return controller.stream;
   }
 
   @override
-  Stream<Response<T>> lives<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
+  Future<Response<T>> getUpdates<R>({
+    bool isActiveNetwork = false,
     R? Function(R parent)? source,
   }) {
-    final controller = StreamController<Response<T>>();
+    return gets(
+      forUpdates: true,
+      isActiveNetwork: isActiveNetwork,
+      source: source,
+    );
+  }
+
+  @override
+  Future<Response<T>> gets<R>({
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+    bool forUpdates = false,
+  }) async {
     final response = Response<T>();
-    try {
-      final url = currentSource(source);
-      Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
+    if (isActiveNetwork) {
+      try {
+        final url = currentSource(source);
         final reference = await database.get(url);
         final data = reference.data;
         final code = reference.statusCode;
@@ -238,21 +162,231 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
           List<T> result = data.map((item) {
             return build(item);
           }).toList();
-          controller.add(
-            response.copy(result: result),
-          );
+          return response.withResult(result);
         } else {
-          final error = "Data unmodified [${reference.statusCode}]";
-          controller.addError(
-            response.copy(snapshot: reference, error: error),
+          return response.attach(
+            snapshot: reference,
+            exception: "Data unmodified [${reference.statusCode}]",
+            status: ResponseStatus.unmodified,
           );
         }
-      });
-    } catch (_) {
-      controller.addError(_);
+      } catch (_) {
+        return response.withException(
+          status: ResponseStatus.failure,
+          exception: _.toString(),
+        );
+      }
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
+    }
+  }
+
+  @override
+  Future<Response<T>> insert<R>(
+    T data, {
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) async {
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      if (data.source.isNotEmpty) {
+        final url = data.id.isNotEmpty
+            ? currentUrl(data.id, source)
+            : currentSource(source);
+        final reference = await database.post(url, data: data.source);
+        final code = reference.statusCode;
+        if (code == 200 || code == 201 || code == api.status.created) {
+          final result = reference.data;
+          return response.attach(result: result);
+        } else {
+          return response.attach(
+            snapshot: reference,
+            exception: "Data unmodified [${reference.statusCode}]",
+            status: ResponseStatus.unmodified,
+          );
+        }
+      } else {
+        return response.withException(
+          status: ResponseStatus.invalid,
+          exception: "Undefined data $data",
+        );
+      }
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
+    }
+  }
+
+  @override
+  Future<Response<T>> inserts<R>(
+    List<T> data, {
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) async {
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      return response.withException(
+        status: ResponseStatus.undefined,
+        exception: "Currently not initialized!",
+      );
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
+    }
+  }
+
+  @override
+  Future<Response<T>> isAvailable<R>(
+    String id, {
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) async {
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      return response.withException(
+        status: ResponseStatus.undefined,
+        exception: "Currently not initialized!",
+      );
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
+    }
+  }
+
+  @override
+  Stream<Response<T>> live<R>(
+    String id, {
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) {
+    final controller = StreamController<Response<T>>();
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      try {
+        if (id.isNotEmpty) {
+          final url = currentUrl(id, source);
+          Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
+            final reference = await database.get(url);
+            final data = reference.data;
+            final code = reference.statusCode;
+            if ((code == 200 || code == api.status.ok) && data is Map) {
+              final result = build(data);
+              controller.add(response.withData(result));
+            } else {
+              controller.add(response.attach(
+                snapshot: reference,
+                exception: "Data unmodified [${reference.statusCode}]",
+                status: ResponseStatus.unmodified,
+              ));
+            }
+          });
+        } else {
+          controller.add(response.attach(
+            exception: "Undefined ID [$id]",
+            status: ResponseStatus.undefined,
+          ));
+        }
+      } catch (_) {
+        controller.add(response.withException(
+          exception: _,
+          status: ResponseStatus.failure,
+        ));
+      }
+    } else {
+      controller.add(response.withStatus(
+        ResponseStatus.networkError,
+      ));
+    }
+    return controller.stream;
+  }
+
+  @override
+  Stream<Response<T>> lives<R>({
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) {
+    final controller = StreamController<Response<T>>();
+    final response = Response<T>();
+
+    if (isActiveNetwork) {
+      try {
+        final url = currentSource(source);
+        Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
+          final reference = await database.get(url);
+          final data = reference.data;
+          final code = reference.statusCode;
+          if ((code == 200 || code == api.status.ok) && data is List<dynamic>) {
+            List<T> result = data.map((item) {
+              return build(item);
+            }).toList();
+            controller.add(response.withResult(result));
+          } else {
+            controller.add(response.attach(
+              snapshot: reference,
+              exception: "Data unmodified [${reference.statusCode}]",
+              status: ResponseStatus.unmodified,
+            ));
+          }
+        });
+      } catch (_) {
+        controller.add(response.withException(
+          exception: _,
+          status: ResponseStatus.failure,
+        ));
+      }
+    } else {
+      controller.add(response.withStatus(
+        ResponseStatus.networkError,
+      ));
     }
 
     return controller.stream;
+  }
+
+  @override
+  Future<Response<T>> update<R>(
+    T data, {
+    bool isActiveNetwork = false,
+    R? Function(R parent)? source,
+  }) async {
+    final response = Response<T>();
+    if (isActiveNetwork) {
+      try {
+        if (data.source.isNotEmpty) {
+          final url = currentUrl(data.id, source);
+          final reference = await database.put(url, data: data);
+          final code = reference.statusCode;
+          if (code == 200 || code == 201 || code == api.status.updated) {
+            return response.withStatus(ResponseStatus.ok);
+          } else {
+            return response.attach(
+              status: ResponseStatus.unmodified,
+              snapshot: reference,
+              exception: "Data unmodified [${reference.statusCode}]",
+            );
+          }
+        } else {
+          return response.withException(
+            status: ResponseStatus.undefined,
+            exception: "Undefined data $data",
+          );
+        }
+      } catch (_) {
+        return response.withException(
+          status: ResponseStatus.failure,
+          exception: _.toString(),
+        );
+      }
+    } else {
+      return response.withStatus(
+        ResponseStatus.networkError,
+      );
+    }
   }
 }
 

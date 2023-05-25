@@ -7,4 +7,3 @@ import '../../core.dart';
 
 part 'auth_controller.dart';
 part 'data_controller.dart';
-part 'local_data_controller.dart';

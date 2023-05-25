@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:example/tester/device_test.dart';
-import 'package:example/tester/wrap_view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +8,8 @@ import 'tester/auth_test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
-  // await diInit();
+  await Firebase.initializeApp();
+  await diInit();
   runApp(const Application());
 }
 
@@ -40,7 +38,7 @@ class Home extends StatelessWidget {
     return const Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: WrapViewTest(),
+        child: AuthTest(),
       ),
     );
   }

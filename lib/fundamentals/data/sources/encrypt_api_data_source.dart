@@ -18,79 +18,15 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
   }
 
   @override
-  Future<Response<T>> create<R>(
-    T data, {
-    bool cacheMode = false,
-    bool onlyCache = false,
+  Future<Response<T>> clear<R>({
     R? Function(R parent)? source,
-  }) async {
-    final response = Response<T>();
-    if (data.source.isNotEmpty) {
-      final value = await input(data.source);
-      if (value.isNotEmpty) {
-        final url = data.id.isNotEmpty
-            ? currentUrl(data.id, source)
-            : currentSource(source);
-        final reference = await database.post(url, data: value);
-        final code = reference.statusCode;
-        if (code == 200 || code == 201 || code == encryptor.status.created) {
-          final result = reference.data;
-          return response.copy(result: result);
-        } else {
-          final error = "Data unmodified [${reference.statusCode}]";
-          return response.copy(snapshot: reference, error: error);
-        }
-      } else {
-        const error = "Unacceptable request!";
-        return response.copy(error: error);
-      }
-    } else {
-      const error = "Undefined data!";
-      return response.copy(error: error);
-    }
-  }
-
-  @override
-  Future<Response<T>> update<R>(
-    String id,
-    Map<String, dynamic> data, {
-    bool cacheMode = false,
-    bool forCache = false,
-    R? Function(R parent)? source,
-  }) async {
-    Response<T> response = const Response();
-    try {
-      if (data.isNotEmpty) {
-        final value = await input(data);
-        if (value.isNotEmpty) {
-          final url = currentUrl(id, source);
-          final reference = await database.put(url, data: value);
-          final code = reference.statusCode;
-          if (code == 200 || code == encryptor.status.updated) {
-            final result = reference.data;
-            return response.copy(result: result);
-          } else {
-            final error = "Data unmodified [${reference.statusCode}]";
-            return response.copy(snapshot: reference, error: error);
-          }
-        } else {
-          const error = "Unacceptable request!";
-          return response.copy(error: error);
-        }
-      } else {
-        const error = "Undefined data!";
-        return response.copy(error: error);
-      }
-    } catch (_) {
-      return response.copy(error: _.toString());
-    }
+  }) {
+    return Future.error("Currently not initialized!");
   }
 
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    bool cacheMode = false,
-    bool fromCache = false,
     R? Function(R parent)? source,
     Map<String, dynamic>? extra,
   }) async {
@@ -104,28 +40,27 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
           final code = reference.statusCode;
           if (code == 200 || code == encryptor.status.deleted) {
             final result = reference.data;
-            return response.copy(result: result);
+            return response.attach(result: result);
           } else {
             final error = "Data unmodified [${reference.statusCode}]";
-            return response.copy(snapshot: reference, error: error);
+            return response.attach(snapshot: reference, exception: error);
           }
         } else {
           const error = "Unacceptable request!";
-          return response.copy(error: error);
+          return response.attach(exception: error);
         }
       } else {
         const error = "Undefined request!";
-        return response.copy(error: error);
+        return response.attach(exception: error);
       }
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
   Future<Response<T>> get<R>(
     String id, {
-    bool fromCache = false,
     R? Function(R parent)? source,
     Map<String, dynamic>? extra,
   }) async {
@@ -143,27 +78,38 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
           if ((code == 200 || code == encryptor.status.ok) &&
               data is Map<String, dynamic>) {
             final result = build(data);
-            return response.copy(data: result);
+            return response.attach(data: result);
           } else {
             final error = "Data unmodified [${reference.statusCode}]";
-            return response.copy(snapshot: reference, error: error);
+            return response.attach(snapshot: reference, exception: error);
           }
         } else {
           const error = "Unacceptable request.";
-          return response.copy(error: error);
+          return response.attach(exception: error);
         }
       } else {
         const error = "Undefined request.";
-        return response.copy(error: error);
+        return response.attach(exception: error);
       }
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
+  Future<Response<T>> getUpdates<R>({
+    R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
+  }) {
+    return gets(
+      forUpdates: true,
+      extra: extra,
+      source: source,
+    );
+  }
+
+  @override
   Future<Response<T>> gets<R>({
-    bool fromCache = false,
     bool forUpdates = false,
     R? Function(R parent)? source,
     Map<String, dynamic>? extra,
@@ -188,41 +134,76 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
                 return build(item);
               }).toList();
             }
-            return response.copy(result: result);
+            return response.attach(result: result);
           } else {
             const error = "Data unmodified!";
-            return response.copy(snapshot: data, error: error);
+            return response.attach(snapshot: data, exception: error);
           }
         } else {
           final error = "Unacceptable response [${reference.statusCode}]";
-          return response.copy(error: error);
+          return response.attach(exception: error);
         }
       } else {
         const error = "Unacceptable request!";
-        return response.copy(error: error);
+        return response.attach(exception: error);
       }
     } catch (_) {
-      return response.copy(error: _.toString());
+      return response.attach(exception: _.toString());
     }
   }
 
   @override
-  Future<Response<T>> getUpdates<R>({
+  Future<Response<T>> insert<R>(
+    T data, {
     R? Function(R parent)? source,
-    Map<String, dynamic>? extra,
+  }) async {
+    final response = Response<T>();
+    if (data.source.isNotEmpty) {
+      final value = await input(data.source);
+      if (value.isNotEmpty) {
+        final url = data.id.isNotEmpty
+            ? currentUrl(data.id, source)
+            : currentSource(source);
+        final reference = await database.post(url, data: value);
+        final code = reference.statusCode;
+        if (code == 200 || code == 201 || code == encryptor.status.created) {
+          final result = reference.data;
+          return response.attach(result: result);
+        } else {
+          final error = "Data unmodified [${reference.statusCode}]";
+          return response.attach(snapshot: reference, exception: error);
+        }
+      } else {
+        const error = "Unacceptable request!";
+        return response.attach(exception: error);
+      }
+    } else {
+      const error = "Undefined data!";
+      return response.attach(exception: error);
+    }
+  }
+
+  @override
+  Future<Response<T>> inserts<R>(
+    List<T> data, {
+    R? Function(R parent)? source,
   }) {
-    return gets(
-      forUpdates: true,
-      extra: extra,
-      source: source,
-    );
+    return Future.error("Currently not initialized!");
+  }
+
+  @override
+  Future<bool> isAvailable<R>(
+    String id, {
+    R? Function(R parent)? source,
+  }) {
+    return Future.error("Currently not initialized!");
   }
 
   @override
   Stream<Response<T>> live<R>(
     String id, {
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) async* {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
@@ -241,25 +222,25 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
                 data is Map<String, dynamic>) {
               final result = build(data);
               controller.add(
-                response.copy(data: result),
+                response.attach(data: result),
               );
             } else {
               final error = "Data unmodified [${reference.statusCode}]";
               controller.addError(
-                response.copy(snapshot: reference, error: error),
+                response.attach(snapshot: reference, exception: error),
               );
             }
           });
         } else {
           const error = "Unacceptable request!";
           controller.addError(
-            response.copy(error: error),
+            response.attach(exception: error),
           );
         }
       } else {
         const error = "Undefined request!";
         controller.addError(
-          response.copy(error: error),
+          response.attach(exception: error),
         );
       }
     } catch (_) {
@@ -270,9 +251,8 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
 
   @override
   Stream<Response<T>> lives<R>({
-    bool onlyUpdatedData = false,
-    Map<String, dynamic>? extra,
     R? Function(R parent)? source,
+    Map<String, dynamic>? extra,
   }) async* {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
@@ -293,25 +273,25 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
                 return build(item);
               }).toList();
               controller.add(
-                response.copy(result: result),
+                response.attach(result: result),
               );
             } else {
               final error = "Data unmodified [${reference.statusCode}]";
               controller.addError(
-                response.copy(snapshot: reference, error: error),
+                response.attach(snapshot: reference, exception: error),
               );
             }
           });
         } else {
           const error = "Unacceptable request!";
           controller.addError(
-            response.copy(error: error),
+            response.attach(exception: error),
           );
         }
       } else {
         const error = "Undefined request!";
         controller.addError(
-          response.copy(error: error),
+          response.attach(exception: error),
         );
       }
     } catch (_) {
@@ -319,6 +299,39 @@ abstract class EncryptApiDataSourceImpl<T extends Entity>
     }
 
     controller.stream;
+  }
+
+  @override
+  Future<Response<T>> update<R>(
+    T data, {
+    R? Function(R parent)? source,
+  }) async {
+    Response<T> response = const Response();
+    try {
+      if (data.source.isNotEmpty) {
+        final value = await input(data.source);
+        if (value.isNotEmpty) {
+          final url = currentUrl(data.id, source);
+          final reference = await database.put(url, data: value);
+          final code = reference.statusCode;
+          if (code == 200 || code == encryptor.status.updated) {
+            final result = reference.data;
+            return response.attach(result: result);
+          } else {
+            final error = "Data unmodified [${reference.statusCode}]";
+            return response.attach(snapshot: reference, exception: error);
+          }
+        } else {
+          const error = "Unacceptable request!";
+          return response.attach(exception: error);
+        }
+      } else {
+        const error = "Undefined data!";
+        return response.attach(exception: error);
+      }
+    } catch (_) {
+      return response.attach(exception: _.toString());
+    }
   }
 }
 
