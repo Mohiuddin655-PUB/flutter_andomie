@@ -1,6 +1,7 @@
 part of 'sources.dart';
 
-abstract class FireStoreDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
+abstract class FireStoreDataSourceImpl<T extends Entity>
+    extends RemoteDataSource<T> {
   final String path;
 
   FireStoreDataSourceImpl({
@@ -12,7 +13,7 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends RemoteDataSourc
   FirebaseFirestore get database => _db ??= FirebaseFirestore.instance;
 
   CollectionReference _source<R>(
-    R? Function(R parent)? source,
+    OnDataSourceBuilder<R>? source,
   ) {
     final parent = database.collection(path);
     dynamic current = source?.call(parent as R);
@@ -27,48 +28,81 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends RemoteDataSourc
 
   @override
   Future<Response<T>> clear<R>({
-    R? Function(R parent)? source,
-  }) {
-    return Future.error("Currently not initialized!");
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    final response = Response<T>();
+    if (isConnected) {
+      try {
+        var reference = _source(source);
+        return reference.get().then((value) async {
+          for (var i in value.docs) {
+            await reference.doc(build(i.data()).id).delete();
+          }
+          return response.withResult([]);
+        }).onError((e, s) {
+          return response.withException(
+            e,
+            status: Status.failure,
+          );
+        });
+      } catch (_) {
+        return response.withException(_, status: Status.failure);
+      }
+    } else {
+      return response.withStatus(Status.networkError);
+    }
   }
 
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    try {
-      await _source(source).doc(id).delete();
-      return response.attach(isSuccessful: true);
-    } catch (_) {
-      return response.attach(exception: _.toString());
+    if (isConnected) {
+      try {
+        await _source(source).doc(id).delete();
+        return response.withData(null);
+      } catch (_) {
+        return response.withException(_, status: Status.failure);
+      }
+    } else {
+      return response.withStatus(Status.networkError);
     }
   }
 
   @override
   Future<Response<T>> get<R>(
     String id, {
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    try {
-      final result = await _source(source).doc(id).get();
-      if (result.exists && result.data() != null) {
-        return response.attach(data: build(result.data()));
-      } else {
-        return response.attach(exception: "Data not found!");
+    if (isConnected) {
+      try {
+        final result = await _source(source).doc(id).get();
+        if (result.exists && result.data() != null) {
+          return response.withData(build(result.data()));
+        } else {
+          return response.withException("Data not found!");
+        }
+      } catch (_) {
+        return response.withException(_, status: Status.failure);
       }
-    } catch (_) {
-      return response.attach(exception: _.toString());
+    } else {
+      return response.withStatus(Status.networkError);
     }
   }
 
   @override
   Future<Response<T>> getUpdates<R>({
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) {
     return gets(
+      isConnected: isConnected,
       forUpdates: true,
       source: source,
     );
@@ -76,136 +110,200 @@ abstract class FireStoreDataSourceImpl<T extends Entity> extends RemoteDataSourc
 
   @override
   Future<Response<T>> gets<R>({
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
     bool forUpdates = false,
   }) async {
     final response = Response<T>();
-    try {
-      final result = await _source(source).get();
-      if (result.docs.isNotEmpty || result.docChanges.isNotEmpty) {
-        if (forUpdates) {
-          List<T> list = result.docChanges.map((e) {
-            return build(e.doc.data());
-          }).toList();
-          return response.attach(result: list);
+    if (isConnected) {
+      try {
+        final result = await _source(source).get();
+        if (result.docs.isNotEmpty || result.docChanges.isNotEmpty) {
+          if (forUpdates) {
+            var v = result.docChanges.map((e) => build(e.doc.data())).toList();
+            return response.withResult(v);
+          } else {
+            var v = result.docs.map((e) => build(e.data())).toList();
+            return response.withResult(v);
+          }
         } else {
-          List<T> list = result.docs.map((e) {
-            return build(e.data());
-          }).toList();
-          return response.attach(result: list);
+          return response.withException("Data not found!");
         }
-      } else {
-        return response.attach(exception: "Data not found!");
+      } catch (_) {
+        return response.withException(_, status: Status.failure);
       }
-    } catch (_) {
-      return response.attach(exception: _.toString());
+    } else {
+      return response.withStatus(Status.networkError);
     }
   }
 
   @override
   Future<Response<T>> insert<R>(
     T data, {
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (data.id.isNotEmpty) {
-      final reference = _source(source).doc(data.id);
-      return await reference.get().then((value) async {
-        if (!value.exists) {
-          await reference.set(data.source, SetOptions(merge: true));
-          return response.attach(data: data);
-        } else {
-          return response.attach(
-            snapshot: value,
-            message: 'Already inserted!',
-          );
+    if (isConnected) {
+      if (data.id.isNotEmpty) {
+        try {
+          final reference = _source(source).doc(data.id);
+          return await reference.get().then((value) async {
+            if (!value.exists) {
+              await reference.set(data.source, SetOptions(merge: true));
+              return response.withData(data);
+            } else {
+              return response.modify(
+                snapshot: value,
+                message: 'Already inserted!',
+              );
+            }
+          });
+        } catch (_) {
+          return response.withException(_, status: Status.failure);
         }
-      });
+      } else {
+        return response.withException(
+          "Id isn't valid!",
+          status: Status.invalid,
+        );
+      }
     } else {
-      return response.attach(exception: "Id isn't valid!");
+      return response.withStatus(Status.networkError);
     }
   }
 
   @override
   Future<Response<T>> inserts<R>(
     List<T> data, {
-    R? Function(R parent)? source,
-  }) {
-    return Future.error("Currently not initialized!");
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    final response = Response<T>();
+    if (isConnected) {
+      if (data.isNotEmpty) {
+        try {
+          final reference = _source(source);
+          for (var i in data) {
+            await reference.doc(i.id).get().then((value) async {
+              if (!value.exists) {
+                await reference
+                    .doc(i.id)
+                    .set(i.source, SetOptions(merge: true));
+              }
+            });
+          }
+          return response.withResult(data);
+        } catch (_) {
+          return response.withException(_, status: Status.failure);
+        }
+      } else {
+        return response.withException(
+          "Id isn't valid!",
+          status: Status.invalid,
+        );
+      }
+    } else {
+      return response.withStatus(Status.networkError);
+    }
   }
 
   @override
-  Future<bool> isAvailable<R>(
+  Future<Response<T>> isAvailable<R>(
     String id, {
-    R? Function(R parent)? source,
-  }) {
-    return Future.error("Currently not initialized!");
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    final response = Response<T>();
+    if (isConnected) {
+      if (id.isNotEmpty) {
+        try {
+          return _source(source).doc(id).get().then((value) {
+            return response.withAvailable(!value.exists);
+          });
+        } catch (_) {
+          return response.withException(_, status: Status.failure);
+        }
+      } else {
+        return response.withException(
+          "Id isn't valid!",
+          status: Status.invalid,
+        );
+      }
+    } else {
+      return response.withStatus(Status.networkError);
+    }
   }
 
   @override
   Stream<Response<T>> live<R>(
     String id, {
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
-    try {
-      _source(source).doc(id).snapshots().listen((event) {
-        if (event.exists || event.data() != null) {
-          controller.add(response.attach(data: build(event.data())));
-        } else {
-          controller.addError("Data not found!");
-        }
-      });
-    } catch (_) {
-      controller.addError(_);
+    if (isConnected) {
+      try {
+        _source(source).doc(id).snapshots().listen((event) {
+          if (event.exists || event.data() != null) {
+            controller.add(response.withData(build(event.data())));
+          } else {
+            controller.add(response.withException("Data not found!"));
+          }
+        });
+      } catch (_) {
+        controller.add(response.withException(_, status: Status.failure));
+      }
+    } else {
+      controller.add(response.withStatus(Status.networkError));
     }
     return controller.stream;
   }
 
   @override
   Stream<Response<T>> lives<R>({
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
     bool forUpdates = false,
   }) {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
-    try {
-      _source(source).snapshots().listen((event) {
-        if (event.docs.isNotEmpty || event.docChanges.isNotEmpty) {
-          if (forUpdates) {
-            List<T> list = event.docChanges.map((e) {
-              return build(e.doc.data());
-            }).toList();
-            controller.add(response.attach(result: list));
+    if (isConnected) {
+      try {
+        _source(source).snapshots().listen((event) {
+          if (event.docs.isNotEmpty) {
+            var v = event.docs.map((e) => build(e.data())).toList();
+            controller.add(response.withResult(v));
           } else {
-            List<T> list = event.docs.map((e) {
-              return build(e.data());
-            }).toList();
-            controller.add(response.attach(result: list));
+            controller.add(response.withException("Data not found!"));
           }
-        } else {
-          controller.addError("Data not found!");
-        }
-      });
-    } catch (_) {
-      controller.addError(_);
+        });
+      } catch (_) {
+        controller.add(response.withException(_, status: Status.failure));
+      }
+    } else {
+      controller.add(response.withStatus(Status.networkError));
     }
-
     return controller.stream;
   }
 
   @override
   Future<Response<T>> update<R>(
     T data, {
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    try {
-      await _source(source).doc(data.id).update(data.source);
-      return response.attach(isSuccessful: true);
-    } catch (_) {
-      return response.attach(exception: _.toString());
+    if (isConnected) {
+      try {
+        await _source(source).doc(data.id).update(data.source);
+        return response.withData(data);
+      } catch (_) {
+        return response.withException(_, status: Status.failure);
+      }
+    } else {
+      return response.withStatus(Status.networkError);
     }
   }
 }

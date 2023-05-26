@@ -8,8 +8,8 @@ class AuthInfo extends Entity {
   final String photo;
   final String provider;
 
-  const AuthInfo({
-    super.id = "",
+  AuthInfo({
+    super.id,
     this.email = "",
     this.name = "",
     this.password = "",
@@ -62,7 +62,7 @@ class AuthInfo extends Entity {
         log(e.toString());
       }
     }
-    return const AuthInfo();
+    return AuthInfo();
   }
 
   bool get isCurrentUid => id == AuthHelper.uid;

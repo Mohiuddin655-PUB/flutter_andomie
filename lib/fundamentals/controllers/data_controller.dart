@@ -1,86 +1,209 @@
 part of 'controllers.dart';
 
-class DataController<T extends Entity> extends Cubit<Response<T>> {
+class DefaultDataController<T extends Entity> extends Cubit<Response<T>> {
   final DataHandler<T> handler;
 
-  DataController({
+  DefaultDataController({
     required this.handler,
   }) : super(Response<T>());
 
-  Future<void> create<R>(T data) async {
-    emit(state.attach(isLoading: true));
+  void clear<R>({
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
     try {
-      var result = await handler.insert(data);
-      emit(state.attach(result: result.result));
-    } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
-    }
-  }
-
-  Future<void> update<R>(T data) async {
-    emit(state.attach(isLoading: true));
-    try {
-      var result = await handler.update(data);
-      emit(state.attach(result: result.result));
-    } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
-    }
-  }
-
-  Future<void> delete<R>(String id) async {
-    emit(state.attach(isLoading: true));
-    try {
-      var result = await handler.delete(id);
-      emit(state.attach(result: result.result));
-    } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
-    }
-  }
-
-  Future<void> get<R>(
-    String id, [
-    R? Function(R parent)? source,
-  ]) async {
-    emit(state.attach(isLoading: true));
-    try {
-      var result = await handler.get(id);
-      emit(state.attach(result: result.result));
-    } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
-    }
-  }
-
-  Future<void> gets<R>([
-    R? Function(R parent)? source,
-  ]) async {
-    emit(state.attach(isLoading: true));
-    try {
-      var result = await handler.gets(
+      var result = await handler.clear(
+        cacheMode: cacheMode,
+        localMode: localMode,
         source: source,
       );
-      emit(state.attach(result: result.result));
+      emit(state.from(result));
     } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
+      emit(state.copy(exception: "Something went wrong!"));
     }
   }
 
-  Future<void> getUpdates<R>([
-    R? Function(R parent)? source,
-  ]) async {
-    emit(state.attach(isLoading: true));
+  void delete<R>(
+    String id, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.delete(
+        id,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  void get<R>(
+    String id, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.get(
+        id,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  void getUpdates<R>({
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
     try {
       var result = await handler.getUpdates(
+        cacheMode: cacheMode,
+        localMode: localMode,
         source: source,
       );
-      emit(state.attach(result: result.result));
+      emit(state.from(result));
     } catch (_) {
-      emit(state.attach(exception: "Something went wrong!"));
+      emit(state.copy(exception: "Something went wrong!"));
     }
   }
 
-  dynamic value;
+  void gets<R>({
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.gets(
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
 
-  void setData(dynamic data) {
-    value = data;
+  void insert<R>(
+    T data, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.insert(
+        data,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  void inserts<R>(
+    List<T> data, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.inserts(
+        data,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  void isAvailable<R>(
+    String id, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.isAvailable(
+        id,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  void update<R>(
+    T data, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    emit(state.copy(loading: true));
+    try {
+      var result = await handler.update(
+        data,
+        cacheMode: cacheMode,
+        localMode: localMode,
+        source: source,
+      );
+      emit(state.from(result));
+    } catch (_) {
+      emit(state.copy(exception: "Something went wrong!"));
+    }
+  }
+
+  Stream<Response<T>> live<R>(
+    String id, {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) {
+    return handler.live(
+      id,
+      cacheMode: cacheMode,
+      localMode: localMode,
+      source: source,
+    );
+  }
+
+  Stream<Response<T>> lives<R>({
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) {
+    return handler.lives(
+      cacheMode: cacheMode,
+      localMode: localMode,
+      source: source,
+    );
   }
 }

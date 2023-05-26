@@ -3,9 +3,9 @@ part of 'repositories.dart';
 class Repository {
   final ConnectivityProvider connectivity;
 
-  const Repository({
-    required this.connectivity,
-  });
+  Repository({
+    ConnectivityProvider? connectivity,
+  }) : connectivity = connectivity ?? ConnectivityProvider.I;
 
   Future<bool> get isConnected async => await connectivity.isConnected;
 

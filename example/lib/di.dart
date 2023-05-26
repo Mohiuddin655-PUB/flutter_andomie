@@ -8,8 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'tester/data_controller.dart';
 import 'user_data_source.dart';
-import 'user_repository.dart';
 
 GetIt locator = GetIt.instance;
 
@@ -59,7 +59,7 @@ void _repositories() {
     );
   });
   locator.registerLazySingleton<DataRepository<AuthInfo>>(() {
-    return UserRepository(
+    return DataRepositoryImpl<AuthInfo>(
       local: locator(),
       remote: locator(),
     );
@@ -82,6 +82,11 @@ void _controllers() {
     return DefaultAuthController(
       handler: locator(),
       userHandler: locator(),
+    );
+  });
+  locator.registerFactory<DataController>(() {
+    return DataController(
+      handler: locator(),
     );
   });
 }

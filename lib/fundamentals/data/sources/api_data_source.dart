@@ -14,7 +14,7 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   dio.Dio get database => _db ??= dio.Dio();
 
   String currentSource<R>(
-    R? Function(R parent)? source,
+    OnDataSourceBuilder<R>? source,
   ) {
     final reference = "${api.api}/$path";
     dynamic current = source?.call(reference as R);
@@ -25,24 +25,21 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
     }
   }
 
-  String currentUrl<R>(String id, R? Function(R parent)? source) {
+  String currentUrl<R>(String id, OnDataSourceBuilder<R>? source) {
     return "${currentSource(source)}/$id";
   }
 
   @override
   Future<Response<T>> clear<R>({
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
-      return response.withException(
-        status: ResponseStatus.undefined,
-        exception: "Currently not initialized!",
-      );
+    if (isConnected) {
+      return response.withStatus(Status.undefined);
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -50,42 +47,37 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         if (id.isNotEmpty) {
           final url = currentUrl(id, source);
           final reference = await database.delete(url);
           final code = reference.statusCode;
           if (code == 200 || code == 201 || code == api.status.deleted) {
-            return response.withFeedback(
-              feedback: reference.data,
-            );
+            return response.withFeedback(reference.data);
           } else {
             return response.withFeedback(
-              feedback: reference,
+              reference,
               exception: "Data unmodified [${reference.statusCode}]",
-              status: ResponseStatus.unmodified,
+              status: Status.unmodified,
             );
           }
         } else {
           return response.withException(
-            exception: "Undefined ID [$id]",
-            status: ResponseStatus.invalid,
+            "Undefined ID [$id]",
+            status: Status.invalid,
           );
         }
       } catch (_) {
-        return response.withException(
-          exception: _.toString(),
-          status: ResponseStatus.failure,
-        );
+        return response.withException(_, status: Status.failure);
       }
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -93,11 +85,11 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> get<R>(
     String id, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         if (id.isNotEmpty) {
           final url = currentUrl(id, source);
@@ -106,53 +98,50 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
           final code = reference.statusCode;
           if ((code == 200 || code == api.status.ok) && data is Map) {
             final result = build(data);
-            return response.attach(data: result);
+            return response.modify(data: result);
           } else {
-            return response.attach(
+            return response.modify(
               snapshot: reference,
               exception: "Data unmodified [${reference.statusCode}]",
-              status: ResponseStatus.unmodified,
+              status: Status.unmodified,
             );
           }
         } else {
           return response.withException(
-            exception: "Undefined ID [$id]",
-            status: ResponseStatus.invalid,
+            "Undefined ID [$id]",
+            status: Status.invalid,
           );
         }
       } catch (_) {
-        return response.withException(
-          exception: _.toString(),
-          status: ResponseStatus.failure,
-        );
+        return response.withException(_, status: Status.failure);
       }
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
 
   @override
   Future<Response<T>> getUpdates<R>({
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) {
     return gets(
       forUpdates: true,
-      isActiveNetwork: isActiveNetwork,
+      isConnected: isConnected,
       source: source,
     );
   }
 
   @override
   Future<Response<T>> gets<R>({
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
     bool forUpdates = false,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         final url = currentSource(source);
         final reference = await database.get(url);
@@ -164,21 +153,18 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
           }).toList();
           return response.withResult(result);
         } else {
-          return response.attach(
+          return response.modify(
             snapshot: reference,
             exception: "Data unmodified [${reference.statusCode}]",
-            status: ResponseStatus.unmodified,
+            status: Status.unmodified,
           );
         }
       } catch (_) {
-        return response.withException(
-          status: ResponseStatus.failure,
-          exception: _.toString(),
-        );
+        return response.withException(_, status: Status.failure);
       }
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -186,11 +172,11 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> insert<R>(
     T data, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       if (data.source.isNotEmpty) {
         final url = data.id.isNotEmpty
             ? currentUrl(data.id, source)
@@ -199,23 +185,23 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
         final code = reference.statusCode;
         if (code == 200 || code == 201 || code == api.status.created) {
           final result = reference.data;
-          return response.attach(result: result);
+          return response.modify(result: result);
         } else {
-          return response.attach(
+          return response.modify(
             snapshot: reference,
             exception: "Data unmodified [${reference.statusCode}]",
-            status: ResponseStatus.unmodified,
+            status: Status.unmodified,
           );
         }
       } else {
         return response.withException(
-          status: ResponseStatus.invalid,
-          exception: "Undefined data $data",
+          "Undefined data $data",
+          status: Status.invalid,
         );
       }
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -223,18 +209,18 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> inserts<R>(
     List<T> data, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       return response.withException(
-        status: ResponseStatus.undefined,
-        exception: "Currently not initialized!",
+        "Currently not initialized!",
+        status: Status.undefined,
       );
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -242,18 +228,18 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> isAvailable<R>(
     String id, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       return response.withException(
-        status: ResponseStatus.undefined,
-        exception: "Currently not initialized!",
+        "Currently not initialized!",
+        status: Status.undefined,
       );
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }
@@ -261,12 +247,12 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Stream<Response<T>> live<R>(
     String id, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         if (id.isNotEmpty) {
           final url = currentUrl(id, source);
@@ -278,28 +264,25 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
               final result = build(data);
               controller.add(response.withData(result));
             } else {
-              controller.add(response.attach(
+              controller.add(response.modify(
                 snapshot: reference,
                 exception: "Data unmodified [${reference.statusCode}]",
-                status: ResponseStatus.unmodified,
+                status: Status.unmodified,
               ));
             }
           });
         } else {
-          controller.add(response.attach(
+          controller.add(response.modify(
             exception: "Undefined ID [$id]",
-            status: ResponseStatus.undefined,
+            status: Status.undefined,
           ));
         }
       } catch (_) {
-        controller.add(response.withException(
-          exception: _,
-          status: ResponseStatus.failure,
-        ));
+        controller.add(response.withException(_, status: Status.failure));
       }
     } else {
       controller.add(response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       ));
     }
     return controller.stream;
@@ -307,13 +290,13 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
 
   @override
   Stream<Response<T>> lives<R>({
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) {
     final controller = StreamController<Response<T>>();
     final response = Response<T>();
 
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         final url = currentSource(source);
         Timer.periodic(const Duration(milliseconds: 3000), (timer) async {
@@ -326,22 +309,19 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
             }).toList();
             controller.add(response.withResult(result));
           } else {
-            controller.add(response.attach(
+            controller.add(response.modify(
               snapshot: reference,
               exception: "Data unmodified [${reference.statusCode}]",
-              status: ResponseStatus.unmodified,
+              status: Status.unmodified,
             ));
           }
         });
       } catch (_) {
-        controller.add(response.withException(
-          exception: _,
-          status: ResponseStatus.failure,
-        ));
+        controller.add(response.withException(_, status: Status.failure));
       }
     } else {
       controller.add(response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       ));
     }
 
@@ -351,40 +331,37 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
   @override
   Future<Response<T>> update<R>(
     T data, {
-    bool isActiveNetwork = false,
-    R? Function(R parent)? source,
+    bool isConnected = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
     final response = Response<T>();
-    if (isActiveNetwork) {
+    if (isConnected) {
       try {
         if (data.source.isNotEmpty) {
           final url = currentUrl(data.id, source);
           final reference = await database.put(url, data: data);
           final code = reference.statusCode;
           if (code == 200 || code == 201 || code == api.status.updated) {
-            return response.withStatus(ResponseStatus.ok);
+            return response.withStatus(Status.ok);
           } else {
-            return response.attach(
-              status: ResponseStatus.unmodified,
+            return response.modify(
+              status: Status.unmodified,
               snapshot: reference,
               exception: "Data unmodified [${reference.statusCode}]",
             );
           }
         } else {
           return response.withException(
-            status: ResponseStatus.undefined,
-            exception: "Undefined data $data",
+            "Undefined data $data",
+            status: Status.undefined,
           );
         }
       } catch (_) {
-        return response.withException(
-          status: ResponseStatus.failure,
-          exception: _.toString(),
-        );
+        return response.withException(_, status: Status.failure);
       }
     } else {
       return response.withStatus(
-        ResponseStatus.networkError,
+        Status.networkError,
       );
     }
   }

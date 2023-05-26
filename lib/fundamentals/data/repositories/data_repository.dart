@@ -2,35 +2,49 @@ part of 'repositories.dart';
 
 class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
   DataRepositoryImpl({
-    required super.connectivity,
+    super.connectivity,
     required super.local,
     required super.remote,
   });
 
   @override
   Future<Response<T>> clear<R>({
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    var connected = await isConnected;
-    if (sourceType.isLocalOrBoth && !connected) {
+    if (localMode) {
       return local.clear(source: source);
     } else {
-      return remote.clear(source: source);
+      var connected = await isConnected;
+      var response = await remote.clear(
+        isConnected: connected,
+        source: source,
+      );
+      if (response.isSuccessful && cacheMode) {
+        await local.clear(source: source);
+      }
+      return response;
     }
   }
 
   @override
   Future<Response<T>> delete<R>(
     String id, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocal) {
+    if (localMode) {
       return local.delete(id, source: source);
     } else {
-      var response = await remote.delete(id, source: source);
-      if (response.isSuccessful && sourceType.isBoth) {
+      var connected = await isConnected;
+      var response = await remote.delete(
+        id,
+        isConnected: connected,
+        source: source,
+      );
+      if (response.isSuccessful && cacheMode) {
         await local.delete(id, source: source);
       }
       return response;
@@ -40,51 +54,91 @@ class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
   @override
   Future<Response<T>> get<R>(
     String id, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocalOrBoth) {
+    if (localMode) {
       return local.get(id, source: source);
     } else {
-      return remote.get(id, source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        return local.get(id, source: source);
+      } else {
+        return remote.get(
+          id,
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Future<Response<T>> getUpdates<R>({
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
-  }) {
-    if (sourceType.isLocalOrBoth) {
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    if (localMode) {
       return local.getUpdates(source: source);
     } else {
-      return remote.getUpdates(source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        return local.getUpdates(
+          source: source,
+        );
+      } else {
+        return remote.getUpdates(
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Future<Response<T>> gets<R>({
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
-  }) {
-    if (sourceType.isLocal) {
-      return local.gets(source: source);
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async {
+    if (localMode) {
+      return local.gets(
+        source: source,
+      );
     } else {
-      return remote.gets(source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        return local.gets(
+          source: source,
+        );
+      } else {
+        return remote.gets(
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Future<Response<T>> insert<R>(
     T data, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = true,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocal) {
+    if (localMode) {
       return local.insert(data, source: source);
     } else {
-      var response = await remote.insert(data, source: source);
-      if (response.isSuccessful && sourceType.isBoth) {
+      var connected = await isConnected;
+      var response = await remote.insert(
+        data,
+        isConnected: connected,
+        source: source,
+      );
+      if (response.isSuccessful && cacheMode) {
         await local.insert(data, source: source);
       }
       return response;
@@ -94,14 +148,20 @@ class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
   @override
   Future<Response<T>> inserts<R>(
     List<T> data, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocal) {
+    if (localMode) {
       return local.inserts(data, source: source);
     } else {
-      var response = await remote.inserts(data, source: source);
-      if (response.isSuccessful && sourceType.isBoth) {
+      var connected = await isConnected;
+      var response = await remote.inserts(
+        data,
+        isConnected: connected,
+        source: source,
+      );
+      if (response.isSuccessful && cacheMode) {
         await local.inserts(data, source: source);
       }
       return response;
@@ -111,52 +171,95 @@ class DataRepositoryImpl<T extends Entity> extends DataRepository<T> {
   @override
   Future<Response<T>> isAvailable<R>(
     String id, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocal) {
+    if (localMode) {
       return local.isAvailable(id, source: source);
     } else {
-      return remote.isAvailable(id, source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        return local.isAvailable(
+          id,
+          source: source,
+        );
+      } else {
+        return remote.isAvailable(
+          id,
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Stream<Response<T>> live<R>(
     String id, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
-  }) {
-    if (sourceType.isLocalOrBoth) {
-      return local.live(id, source: source);
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async* {
+    if (localMode) {
+      yield* local.live(id, source: source);
     } else {
-      return remote.live(id, source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        yield* local.live(
+          id,
+          source: source,
+        );
+      } else {
+        yield* remote.live(
+          id,
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Stream<Response<T>> lives<R>({
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
-  }) {
-    if (sourceType.isLocalOrBoth) {
-      return local.lives(source: source);
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
+  }) async* {
+    if (localMode) {
+      yield* local.lives(source: source);
     } else {
-      return remote.lives(source: source);
+      var connected = await isConnected;
+      if (cacheMode && !connected) {
+        yield* local.lives(
+          source: source,
+        );
+      } else {
+        yield* remote.lives(
+          isConnected: connected,
+          source: source,
+        );
+      }
     }
   }
 
   @override
   Future<Response<T>> update<R>(
     T data, {
-    R? Function(R parent)? source,
-    SourceType sourceType = SourceType.remote,
+    bool cacheMode = false,
+    bool localMode = false,
+    OnDataSourceBuilder<R>? source,
   }) async {
-    if (sourceType.isLocal) {
+    if (localMode) {
       return local.update(data, source: source);
     } else {
-      var response = await remote.update(data, source: source);
-      if (response.isSuccessful && sourceType.isBoth) {
+      var connected = await isConnected;
+      var response = await remote.update(
+        data,
+        isConnected: connected,
+        source: source,
+      );
+      if (response.isSuccessful && cacheMode) {
         await local.update(data, source: source);
       }
       return response;

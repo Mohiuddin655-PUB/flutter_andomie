@@ -1,154 +1,266 @@
 part of 'responses.dart';
 
 class Response<T> {
-  final int _requestCode;
-  ResponseStatus status = ResponseStatus.none;
+  final int requestCode;
+
+  bool? _available;
+  bool? _cancel;
+  bool? _complete;
+  bool? _failed;
+  bool? _internetError;
+  bool? _loaded;
+  bool? _loading;
+  bool? _nullable;
+  bool? _paused;
+  bool? _stopped;
+  bool? _successful;
+  bool? _timeout;
+  bool? _valid;
+
   T? _data;
   List<T>? _result;
-  String? _message;
-  dynamic _feedback;
-  dynamic _snapshot;
-  String? _exception;
   double? _progress;
-  bool _available = false;
-  bool _successful = false;
-  bool _cancel = false;
-  bool _complete = false;
-  bool _internetError = false;
-  bool _valid = false;
-  bool _loaded = false;
-  bool _paused = false;
-  bool _nullableObject = false;
-  bool _stopped = false;
-  bool _failed = false;
-  bool _timeout = false;
+  Status? _status;
+  String? _exception;
+  String? _message;
+  dynamic feedback;
+  dynamic snapshot;
 
-  Response([this._requestCode = 0]);
-
-  set timeout(bool value) => _timeout = value;
-
-  set failed(bool value) => _failed = value;
-
-  set stopped(bool value) => _stopped = value;
-
-  set nullableObject(bool value) => _nullableObject = value;
-
-  set paused(bool value) => _paused = value;
-
-  set loaded(bool value) => _loaded = value;
-
-  set valid(bool value) => _valid = value;
-
-  set internetError(bool value) => _internetError = value;
-
-  set complete(bool value) => _complete = value;
-
-  set cancel(bool value) => _cancel = value;
-
-  set successful(bool value) => _successful = value;
-
-  set available(bool value) => _available = value;
-
-  set progress(double value) => _progress = value;
-
-  set exception(String value) => _exception = value;
-
-  set snapshot(dynamic value) => _snapshot = value;
-
-  set message(String value) => _message = value;
-
-  set feedback(dynamic value) => _feedback = value;
-
-  set data(T? value) => _data = value;
-
-  set result(List<T>? value) => _result = value;
-
-  T? get data => _data is T ? _data as T : null;
-
-  List<T> get result => _result ?? [];
-
-  int get requestCode => _requestCode;
-
-  int get statusCode => status.code;
-
-  String get statusMessage => status.message;
-
-  String get feedback => _message ?? '';
-
-  String get exception => _exception ?? '';
-
-  bool get isSuccessful => _successful;
-
-  double get progress => _progress ?? 0;
-
-  bool get isAvailable => _available;
-
-  bool get isComplete => _complete;
-
-  bool get isCancel => _cancel;
-
-  bool get isValid => _valid;
-
-  bool get isLoaded => _loaded;
-
-  bool get isLoading => !_loaded;
-
-  bool get isConnected => !_internetError;
-
-  bool get isValidException => _exception != null && _exception!.isNotEmpty;
-
-  bool get isInternetError => _internetError;
-
-  bool get isPaused => _paused;
-
-  bool get isNullableObject => _nullableObject;
-
-  bool get isStopped => _stopped;
-
-  bool get isFailed => _failed;
-
-  bool get isTimeout => _timeout;
-
-  Response<T> attach({
-    bool? isCancel,
-    bool? isSuccessful,
-    bool? isFailed,
+  Response({
+    this.requestCode = 0,
+    bool? available,
+    bool? cancel,
+    bool? complete,
+    bool? failed,
+    bool? internetError,
+    bool? loaded,
+    bool? loading,
+    bool? nullable,
+    bool? paused,
+    bool? stopped,
+    bool? successful,
+    bool? timeout,
+    bool? valid,
     T? data,
     List<T>? result,
-    String? message,
+    double? progress,
+    Status? status,
     String? exception,
+    String? message,
+    this.feedback,
+    this.snapshot,
+  })  : _available = available,
+        _cancel = cancel,
+        _complete = complete,
+        _failed = failed,
+        _internetError = internetError,
+        _loaded = loaded,
+        _loading = loading,
+        _nullable = nullable,
+        _paused = paused,
+        _stopped = stopped,
+        _successful = successful,
+        _timeout = timeout,
+        _valid = valid,
+        _data = data,
+        _result = result,
+        _progress = progress,
+        _status = status,
+        _exception = exception,
+        _message = message;
+
+  Response<T> from(Response<T> response) {
+    return copy(
+      available: response._available,
+      cancel: response._cancel,
+      complete: response._complete,
+      data: response._data,
+      exception: response._exception,
+      failed: response._failed,
+      feedback: response.feedback,
+      internetError: response._internetError,
+      loaded: response._loaded,
+      loading: response._loading,
+      message: response._message,
+      nullable: response._nullable,
+      paused: response._paused,
+      progress: response._progress,
+      requestCode: response.requestCode,
+      result: response._result,
+      snapshot: response.snapshot,
+      status: response._status,
+      stopped: response._stopped,
+      successful: response._successful,
+      timeout: response._timeout,
+      valid: response._valid,
+    );
+  }
+
+  Response<T> copy({
+    int? requestCode,
+    bool? available,
+    bool? cancel,
+    bool? complete,
+    bool? failed,
+    bool? internetError,
+    bool? loaded,
+    bool? loading,
+    bool? nullable,
+    bool? paused,
+    bool? stopped,
+    bool? successful,
+    bool? timeout,
+    bool? valid,
+    T? data,
+    List<T>? result,
+    double? progress,
+    Status? status,
+    String? exception,
+    String? message,
     dynamic feedback,
     dynamic snapshot,
-    ResponseStatus? status,
-    String? tag,
   }) {
-    _cancel = isCancel ?? _cancel;
-    _successful =
-        isSuccessful ?? ((data != null || result != null) ? true : _successful);
-    _internetError = isFailed ?? _internetError;
-    _feedback = feedback ?? _feedback;
+    return Response<T>(
+      available: available ?? this._available,
+      cancel: cancel ?? this._cancel,
+      complete: complete ?? this._complete,
+      data: data ?? this._data,
+      exception: exception ?? this._exception,
+      failed: failed ?? this._failed,
+      feedback: feedback ?? this.feedback,
+      internetError: internetError ?? this._internetError,
+      loaded: loaded ?? this._loaded,
+      loading: loading ?? this._loading,
+      message: message ?? this._message,
+      nullable: nullable ?? this._nullable,
+      paused: paused ?? this._paused,
+      progress: progress ?? this._progress,
+      requestCode: requestCode ?? this.requestCode,
+      result: result ?? this._result,
+      snapshot: snapshot ?? this.snapshot,
+      status: status ?? this._status,
+      stopped: stopped ?? this._stopped,
+      successful: successful ?? this._successful,
+      timeout: timeout ?? this._timeout,
+      valid: valid ?? this._valid,
+    );
+  }
+
+  Response<T> modify({
+    bool? available,
+    bool? cancel,
+    bool? complete,
+    bool? failed,
+    bool? internetError,
+    bool? loaded,
+    bool? loading,
+    bool? nullable,
+    bool? paused,
+    bool? stopped,
+    bool? successful,
+    bool? timeout,
+    bool? valid,
+    T? data,
+    List<T>? result,
+    double? progress,
+    Status? status,
+    String? exception,
+    String? message,
+    dynamic feedback,
+    dynamic snapshot,
+  }) {
+    successful = successful ?? ((data != null || result != null) ? true : null);
+    _available = available ?? _available;
+    _cancel = cancel ?? _cancel;
+    _complete = complete ?? _complete;
+    _failed = failed ?? _failed;
+    _internetError = internetError ?? _internetError;
+    _loaded = loaded ?? _loaded;
+    _loading = loading ?? _loading;
+    _nullable = nullable ?? _nullable;
+    _paused = paused ?? _paused;
+    _stopped = stopped ?? _stopped;
+    _successful = successful ?? _successful;
+    _timeout = timeout ?? _timeout;
+    _valid = valid ?? _valid;
+
     _data = data ?? _data;
     _result = result ?? _result;
-    _snapshot = snapshot ?? _snapshot;
-    _message = message ?? _message;
+    _progress = progress ?? _progress;
+    _status = status ?? _status;
     _exception = exception ?? _exception;
+    _message = message ?? _message;
+    feedback = feedback ?? this.feedback;
+    snapshot = snapshot ?? this.snapshot;
+
     return this;
   }
 
-  Response<T> withStatus(ResponseStatus status) {
-    withException(status: status);
-    return this;
-  }
-
-  Response<T> withFeedback({
+  Response<T> clear({
+    bool? available,
+    bool? cancel,
+    bool? complete,
+    bool? failed,
+    bool? internetError,
+    bool? loaded,
+    bool? loading,
+    bool? nullable,
+    bool? paused,
+    bool? stopped,
+    bool? successful,
+    bool? timeout,
+    bool? valid,
+    T? data,
+    List<T>? result,
+    double? progress,
+    Status? status,
+    String? exception,
+    String? message,
     dynamic feedback,
+    dynamic snapshot,
+  }) {
+    successful = successful ?? ((data != null || result != null) ? true : null);
+    _available = available;
+    _cancel = cancel;
+    _complete = complete;
+    _failed = failed;
+    _internetError = internetError;
+    _loaded = loaded;
+    _loading = loading;
+    _nullable = nullable;
+    _paused = paused;
+    _stopped = stopped;
+    _successful = successful;
+    _timeout = timeout;
+    _valid = valid;
+
+    _data = data;
+    _result = result;
+    _progress = progress;
+    _status = status;
+    _exception = exception;
+    _message = message;
+    feedback = feedback;
+    snapshot = snapshot;
+
+    return this;
+  }
+
+  Response<T> withStatus(Status status, {String? message}) {
+    _status = status;
+    _message = message;
+    return this;
+  }
+
+  Response<T> withFeedback(
+    dynamic feedback, {
     String? message,
     String? exception,
-    ResponseStatus status = ResponseStatus.ok,
+    Status status = Status.ok,
   }) {
-    this.status = status;
-    _feedback = feedback ?? _feedback;
-    _successful = status.isSuccessful ? true : _successful;
+    this.feedback = feedback ?? this.feedback;
+    _status = status;
+    _successful = status.isSuccessful;
     _message = message ?? _message;
     _exception = exception ?? _exception;
     _complete = true;
@@ -157,7 +269,7 @@ class Response<T> {
   }
 
   Response<T> withData(T? data) {
-    this.status = ResponseStatus.ok;
+    this.status = Status.ok;
     _data = data;
     _successful = true;
     _complete = true;
@@ -166,7 +278,7 @@ class Response<T> {
   }
 
   Response<T> withResult(List<T>? result) {
-    this.status = ResponseStatus.ok;
+    this.status = Status.ok;
     _result = result;
     _successful = true;
     _complete = true;
@@ -174,10 +286,8 @@ class Response<T> {
     return this;
   }
 
-  Response<T> withMessage({
-    dynamic message,
-  }) {
-    this.status = ResponseStatus.ok;
+  Response<T> withMessage(String? message) {
+    this.status = Status.ok;
     _message = message ?? _message;
     _successful = true;
     _complete = true;
@@ -186,16 +296,14 @@ class Response<T> {
   }
 
   Response<T> withSnapshot(dynamic snapshot) {
-    _snapshot = snapshot;
+    this.snapshot = snapshot;
     return this;
   }
 
-  Response<T> withException({
-    ResponseStatus status = ResponseStatus.none,
-    dynamic exception,
-  }) {
-    this.status = status;
-    _exception = exception != null ? "$exception" : status.message;
+  Response<T> withException(dynamic exception, {Status? status}) {
+    _status = status ?? _status;
+    _exception = exception;
+    _successful = false;
     _message = null;
     _complete = true;
     _loaded = true;
@@ -239,9 +347,9 @@ class Response<T> {
     return this;
   }
 
-  Response<T> withInternetError(String message, [bool? internetError]) {
-    withException(exception: message);
-    _internetError = internetError ?? true;
+  Response<T> withInternetError(String message) {
+    withException(message, status: Status.networkError);
+    _internetError = true;
     _valid = false;
     return this;
   }
@@ -251,8 +359,8 @@ class Response<T> {
     return this;
   }
 
-  Response<T> withNullableObject(bool nullableObject) {
-    _nullableObject = nullableObject;
+  Response<T> withNullable(bool nullableObject) {
+    _nullable = nullableObject;
     return this;
   }
 
@@ -271,7 +379,111 @@ class Response<T> {
     return this;
   }
 
-  Snapshot? getSnapshot<Snapshot>() => _snapshot is Snapshot ? _snapshot : null;
+  Snapshot? getSnapshot<Snapshot>() => snapshot is Snapshot ? snapshot : null;
+
+  bool get isAvailable => _available ?? false;
+
+  set isAvailable(bool value) => _available = value;
+
+  bool get isCancel => _cancel ?? false;
+
+  set isCancel(bool value) => _cancel = value;
+
+  bool get isComplete => _complete ?? false;
+
+  set isComplete(bool value) => _complete = value;
+
+  bool get isFailed => _failed ?? false;
+
+  set isFailed(bool value) => _failed = value;
+
+  bool get isInternetError => _internetError ?? false;
+
+  set isInternetError(bool value) => _internetError = value;
+
+  bool get isLoaded => _loaded ?? false;
+
+  set isLoaded(bool value) => _loaded = value;
+
+  bool get isLoading => _loading ?? false;
+
+  set isLoading(bool value) => _loading = value;
+
+  bool get isNullable => _nullable ?? false;
+
+  set isNullable(bool value) => _nullable = value;
+
+  bool get isPaused => _paused ?? false;
+
+  set isPaused(bool value) => _paused = value;
+
+  bool get isStopped => _stopped ?? false;
+
+  set isStopped(bool value) => _stopped = value;
+
+  bool get isSuccessful => _successful ?? false;
+
+  set isSuccessful(bool value) => _successful = value;
+
+  bool get isTimeout => _timeout ?? false;
+
+  set isTimeout(bool value) => _timeout = value;
+
+  bool get isValid => _valid ?? false;
+
+  set isValid(bool value) => _valid = value;
+
+  T? get data => _data is T ? _data : null;
+
+  set data(T? value) => _data = value;
+
+  List<T> get result => _result ?? [];
+
+  set result(List<T> value) => _result = value;
+
+  double get progress => _progress ?? 0;
+
+  set progress(double value) => _progress = value;
+
+  Status get status => _status ?? Status.none;
+
+  set status(Status value) => _status = value;
+
+  String get exception => _exception ?? "";
+
+  set exception(String value) => _exception = value;
+
+  String get message => _message ?? "";
+
+  set message(String value) => _message = value;
+
+  @override
+  String toString() {
+    return {
+      "Request Code": requestCode,
+      "Available": _available,
+      "Cancel": _cancel,
+      "Complete": _complete,
+      "Failed": _failed,
+      "Internet Error": _internetError,
+      "Loaded": _loaded,
+      "Loading": _loading,
+      "Nullable": _nullable,
+      "Paused": _paused,
+      "Stopped": _stopped,
+      "Successful": _successful,
+      "Timeout": _timeout,
+      "Valid": _valid,
+      "Progress": _progress,
+      "Status": _status,
+      "Exception": _exception,
+      "Message": _message,
+      "Feedback": feedback,
+      "Snapshot": snapshot,
+      "Data": _data,
+      "Result": _result,
+    }.toString();
+  }
 }
 
 enum ResponseCode {
@@ -291,14 +503,14 @@ enum ResponseCode {
   const ResponseCode(this.value);
 }
 
-enum ResponseStatus {
+enum Status {
   none(10000, ""),
   canceled(10010, ResponseMessages.processCanceled),
   failure(10020, ResponseMessages.processFailed),
   networkError(10030, ResponseMessages.internetDisconnected),
   nullable(10040, ResponseMessages.invalidData),
   paused(10050, ResponseMessages.processPaused),
-  resultNotFound(10060, ResponseMessages.resultNotFound),
+  dataNotFound(10060, ResponseMessages.resultNotFound),
   stopped(10070, ResponseMessages.processStopped),
   running(10090, ""),
   timeOut(10080, ResponseMessages.tryAgain),
@@ -311,37 +523,37 @@ enum ResponseStatus {
   final int code;
   final String message;
 
-  const ResponseStatus(this.code, this.message);
+  const Status(this.code, this.message);
 }
 
-extension ResponseStatusExtension on ResponseStatus {
-  bool get isCanceled => this == ResponseStatus.canceled;
+extension ResponseStatusExtension on Status {
+  bool get isCanceled => this == Status.canceled;
 
-  bool get isFailure => this == ResponseStatus.failure;
+  bool get isFailure => this == Status.failure;
 
-  bool get isNetworkError => this == ResponseStatus.networkError;
+  bool get isNetworkError => this == Status.networkError;
 
-  bool get isNullable => this == ResponseStatus.nullable;
+  bool get isNullable => this == Status.nullable;
 
-  bool get isPaused => this == ResponseStatus.paused;
+  bool get isPaused => this == Status.paused;
 
-  bool get isResultNotFound => this == ResponseStatus.resultNotFound;
+  bool get isResultNotFound => this == Status.dataNotFound;
 
-  bool get isStopped => this == ResponseStatus.stopped;
+  bool get isStopped => this == Status.stopped;
 
-  bool get isRunning => this == ResponseStatus.running;
+  bool get isRunning => this == Status.running;
 
-  bool get isTimeout => this == ResponseStatus.timeOut;
+  bool get isTimeout => this == Status.timeOut;
 
-  bool get isSuccessful => this == ResponseStatus.ok;
+  bool get isSuccessful => this == Status.ok;
 
-  bool get isInvalid => this == ResponseStatus.invalid;
+  bool get isInvalid => this == Status.invalid;
 
-  bool get isUndefined => this == ResponseStatus.undefined;
+  bool get isUndefined => this == Status.undefined;
 
-  bool get isUnmodified => this == ResponseStatus.unmodified;
+  bool get isUnmodified => this == Status.unmodified;
 
-  bool get isError => this == ResponseStatus.error;
+  bool get isError => this == Status.error;
 }
 
 class ResponseMessages {

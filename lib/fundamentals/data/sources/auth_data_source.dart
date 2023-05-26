@@ -18,7 +18,7 @@ class AuthDataSourceImpl extends AuthDataSource {
   Future<Response> signOut() async {
     final response = Response();
     await firebaseAuth.signOut();
-    return response.attach(data: true);
+    return response.modify(data: true);
   }
 
   @override
@@ -38,9 +38,9 @@ class AuthDataSourceImpl extends AuthDataSource {
         email: email,
         password: password,
       );
-      return response.attach(data: result, message: "Sign up successful!");
+      return response.modify(data: result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.attach(exception: e.message);
+      return response.modify(exception: e.message);
     }
   }
 
@@ -51,9 +51,9 @@ class AuthDataSourceImpl extends AuthDataSource {
     final response = Response<UserCredential>();
     try {
       final result = await firebaseAuth.signInWithCredential(credential);
-      return response.attach(data: result, message: "Sign up successful!");
+      return response.modify(data: result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.attach(exception: e.message);
+      return response.modify(exception: e.message);
     }
   }
 
@@ -68,14 +68,14 @@ class AuthDataSourceImpl extends AuthDataSource {
         email: email,
         password: password,
       );
-      return response.attach(
-        status: ResponseStatus.ok,
+      return response.modify(
+        status: Status.ok,
         data: result,
         message: "Sign in successful!",
       );
     } on FirebaseAuthException catch (e) {
-      return response.attach(
-        status: ResponseStatus.networkError,
+      return response.modify(
+        status: Status.networkError,
         exception: e.message,
       );
     }
@@ -100,20 +100,20 @@ class AuthDataSourceImpl extends AuthDataSource {
           final credential = FacebookAuthProvider.credential(accessToken.token);
           final fbData = await facebookAuth.getUserData();
           final data = Credential.fromMap(fbData);
-          return response.attach(
+          return response.modify(
             data: data.copyWith(
               accessToken: accessToken.token,
               credential: credential,
             ),
           );
         } else {
-          return response.attach(exception: 'Token not valid!');
+          return response.modify(exception: 'Token not valid!');
         }
       } else {
-        return response.attach(exception: 'Token not valid!');
+        return response.modify(exception: 'Token not valid!');
       }
     } on FirebaseAuthException catch (e) {
-      return response.attach(exception: e.message);
+      return response.modify(exception: e.message);
     }
   }
 
@@ -143,7 +143,7 @@ class AuthDataSourceImpl extends AuthDataSource {
             name: receivedData?.displayName,
             photo: receivedData?.photoUrl,
           );
-          return response.attach(
+          return response.modify(
             data: data.copyWith(
               accessToken: accessToken,
               idToken: idToken,
@@ -151,13 +151,13 @@ class AuthDataSourceImpl extends AuthDataSource {
             ),
           );
         } else {
-          return response.attach(exception: 'Token not valid!');
+          return response.modify(exception: 'Token not valid!');
         }
       } else {
-        return response.attach(exception: 'Sign in failed!');
+        return response.modify(exception: 'Sign in failed!');
       }
     } on FirebaseAuthException catch (e) {
-      return response.attach(exception: e.message);
+      return response.modify(exception: e.message);
     }
   }
 
@@ -166,7 +166,7 @@ class AuthDataSourceImpl extends AuthDataSource {
     final response = Response<bool>();
     try {
       if (!await localAuth.isDeviceSupported()) {
-        return response.attach(exception: "Device isn't supported!");
+        return response.modify(exception: "Device isn't supported!");
       } else {
         if (await localAuth.canCheckBiometrics) {
           final authenticated = await localAuth.authenticate(
@@ -178,19 +178,19 @@ class AuthDataSourceImpl extends AuthDataSource {
             ),
           );
           if (authenticated) {
-            return response.attach(
+            return response.modify(
               message: "Biometric matched!",
               data: true,
             );
           } else {
-            return response.attach(exception: "Biometric matching failed!");
+            return response.modify(exception: "Biometric matching failed!");
           }
         } else {
-          return response.attach(exception: "Can not check bio metrics!");
+          return response.modify(exception: "Can not check bio metrics!");
         }
       }
     } catch (e) {
-      return response.attach(exception: e.toString());
+      return response.modify(exception: e.toString());
     }
   }
 }

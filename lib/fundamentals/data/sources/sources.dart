@@ -18,7 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core.dart';
 
 part 'api_data_source.dart';
-part 'auth_source.dart';
+part 'auth_data_source.dart';
 part 'encrypt_api_data_source.dart';
 part 'fire_store_data_source.dart';
 part 'local_data_source.dart';
