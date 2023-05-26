@@ -1,3 +1,3 @@
-## 0.2.4
+## 0.2.5
 
-* Auth controller createUid not required mode activate
+* Data services modified

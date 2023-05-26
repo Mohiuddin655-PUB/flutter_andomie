@@ -80,7 +80,7 @@ class _AuthTestState extends State<AuthTest> {
                     alignment: Alignment.center,
                     child: RawText(
                       text:
-                          'Message : ${state.message}\n Error: ${state.error}',
+                          'Message : ${state.message}\n Error: ${state.exception}',
                       textAlign: TextAlign.center,
                     ),
                   ),
