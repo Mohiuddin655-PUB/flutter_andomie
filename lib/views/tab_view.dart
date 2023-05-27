@@ -274,26 +274,24 @@ class TabViewController extends ViewController {
     bool Function(bool selected)? onVisibleTitleWhenTabSelected,
   }) {
     super.attach(view);
-    _contentColor = contentColor ?? _contentColor;
-    this.contentColorState = contentColorState ?? this.contentColorState;
-    _icon = icon ?? _icon;
-    this.iconState = iconState ?? this.iconState;
-    _iconTint = iconTint ?? _iconTint;
-    this.iconTintState = iconTintState ?? this.iconTintState;
-    _iconSize = size ?? _iconSize;
-    this.iconSizeState = iconSizeState ?? this.iconSizeState;
-    this.iconSpace = iconSpace ?? this.iconSpace;
-    this.inline = inline ?? this.inline;
-    _title = title ?? _title;
-    this.titleState = titleState ?? this.titleState;
-    _titleSize = titleSize ?? _titleSize;
-    this.titleSizeState = titleSizeState ?? this.titleSizeState;
-    _titleWeight = titleWeight ?? _titleWeight;
-    this.titleWeightState = titleWeightState ?? this.titleWeightState;
-    this.onVisibleIconWhenTabSelected =
-        onVisibleIconWhenTabSelected ?? this.onVisibleIconWhenTabSelected;
-    this.onVisibleTitleWhenTabSelected =
-        onVisibleTitleWhenTabSelected ?? this.onVisibleTitleWhenTabSelected;
+    _contentColor = contentColor ?? const Color(0xFF808080);
+    this.contentColorState = contentColorState;
+    _icon = icon;
+    this.iconState = iconState;
+    _iconTint = iconTint;
+    this.iconTintState = iconTintState;
+    _iconSize = size ?? 24;
+    this.iconSizeState = iconSizeState;
+    this.iconSpace = iconSpace ?? 6;
+    this.inline = inline ?? false;
+    _title = title;
+    this.titleState = titleState;
+    _titleSize = titleSize ?? 12;
+    this.titleSizeState = titleSizeState;
+    _titleWeight = titleWeight;
+    this.titleWeightState = titleWeightState;
+    this.onVisibleIconWhenTabSelected = onVisibleIconWhenTabSelected;
+    this.onVisibleTitleWhenTabSelected = onVisibleTitleWhenTabSelected;
     return this;
   }
 

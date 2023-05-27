@@ -1,3 +1,3 @@
-## 0.2.6
+## 0.2.7
 
-* Icon View sizing bug fixed
+* All views default properties maintains and initialized

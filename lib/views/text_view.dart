@@ -407,41 +407,38 @@ class TextViewController extends ViewController {
   }) {
     super.attach(view);
 
-    this.maxCharacters = maxCharacters ?? this.maxCharacters;
-    this.maxLines = maxLines ?? this.maxLines;
+    this.maxCharacters = maxCharacters ?? 0;
+    this.maxLines = maxLines;
 
-    this.letterSpacing = letterSpacing ?? this.letterSpacing;
-    this.lineSpacingExtra = lineSpacingExtra ?? this.lineSpacingExtra;
-    this.wordSpacing = wordSpacing ?? this.wordSpacing;
+    this.letterSpacing = letterSpacing;
+    this.lineSpacingExtra = lineSpacingExtra ?? 0;
+    this.wordSpacing = wordSpacing;
 
-    this.ellipsizeVisibility = ellipsizeVisibility ?? this.ellipsizeVisibility;
-    this.ellipsizeLetterSpace =
-        ellipsizeLetterSpace ?? this.ellipsizeLetterSpace;
-    this.ellipsizeText = ellipsizeText ?? this.ellipsizeText;
-    this.ellipsizeTextColor = ellipsizeTextColor ?? this.ellipsizeTextColor;
-    this.ellipsizeTextSize = ellipsizeTextSize ?? this.ellipsizeTextSize;
-    this.ellipsizeTextStyle = ellipsizeTextStyle ?? this.ellipsizeTextStyle;
-    this.ellipsizeTextWeight = ellipsizeTextWeight ?? this.ellipsizeTextWeight;
+    this.ellipsizeVisibility = ellipsizeVisibility ?? false;
+    this.ellipsizeLetterSpace = ellipsizeLetterSpace;
+    this.ellipsizeText = ellipsizeText;
+    this.ellipsizeTextColor = ellipsizeTextColor;
+    this.ellipsizeTextSize = ellipsizeTextSize;
+    this.ellipsizeTextStyle = ellipsizeTextStyle;
+    this.ellipsizeTextWeight = ellipsizeTextWeight;
 
-    this.fontFamily = fontFamily ?? this.fontFamily;
-    this.fontStyle = fontStyle ?? this.fontStyle;
-    this.fontWeight = fontWeight ?? this.fontWeight;
+    this.fontFamily = fontFamily;
+    this.fontStyle = fontStyle;
+    this.fontWeight = fontWeight;
 
-    this.text = text ?? this.text;
-    this.textAlign = textAlign ?? this.textAlign;
-    this.textColor = textColor ?? this.textColor;
-    this.textDecoration = textDecoration ?? this.textDecoration;
-    this.textDecorationColor = textDecorationColor ?? this.textDecorationColor;
-    this.textDecorationStyle = textDecorationStyle ?? this.textDecorationStyle;
-    this.textDecorationThickness =
-        textDecorationThickness ?? this.textDecorationThickness;
-    this.textDirection = textDirection ?? this.textDirection;
-    this.textLeadingDistribution =
-        textLeadingDistribution ?? this.textLeadingDistribution;
-    this.textOverflow = textOverflow ?? this.textOverflow;
-    this.textSize = textSize ?? this.textSize;
-    this.textSpans = textSpans ?? this.textSpans;
-    this.textStyle = textStyle ?? this.textStyle;
+    this.text = text;
+    this.textAlign = textAlign;
+    this.textColor = textColor;
+    this.textDecoration = textDecoration;
+    this.textDecorationColor = textDecorationColor;
+    this.textDecorationStyle = textDecorationStyle;
+    this.textDecorationThickness = textDecorationThickness;
+    this.textDirection = textDirection;
+    this.textLeadingDistribution = textLeadingDistribution;
+    this.textOverflow = textOverflow;
+    this.textSize = textSize ?? 14;
+    this.textSpans = textSpans;
+    this.textStyle = textStyle ?? const TextStyle();
     return this;
   }
 

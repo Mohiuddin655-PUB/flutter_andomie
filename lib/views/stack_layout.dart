@@ -119,8 +119,8 @@ class StackLayoutController extends ViewController {
     List<Widget>? children,
   }) {
     super.attach(view);
-    this.layoutGravity = layoutGravity ?? this.layoutGravity;
-    this.children = children ?? this.children;
+    this.layoutGravity = layoutGravity ?? Alignment.center;
+    this.children = children ?? [];
     return this;
   }
 }

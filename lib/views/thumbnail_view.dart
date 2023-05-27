@@ -103,10 +103,10 @@ class ThumbnailViewController extends ViewController {
     String? url,
   }) {
     super.attach(view);
-    this.placeholder = placeholder ?? this.placeholder;
-    this.placeholderType = placeholderType ?? this.placeholderType;
-    this.scaleType = scaleType ?? this.scaleType;
-    this.url = url ?? this.url;
+    this.placeholder = placeholder;
+    this.placeholderType = placeholderType ?? ImageType.asset;
+    this.scaleType = scaleType;
+    this.url = url;
     return this;
   }
 }

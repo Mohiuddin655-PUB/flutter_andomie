@@ -164,16 +164,16 @@ class AvatarViewController extends ViewController {
     double? borderOverlaySize,
   }) {
     super.attach(view);
-    this.url = url ?? this.url;
-    this.placeholder = placeholder ?? this.placeholder;
-    this.size = size ?? this.size;
-    this.cacheMode = cacheMode ?? this.cacheMode;
-    this.circular = circular ?? this.circular;
-    this.scaleType = scaleType ?? this.scaleType;
-    this.borderSize = borderSize ?? this.borderSize;
-    this.borderOverlay = borderOverlay ?? this.borderOverlay;
-    this.borderOverlayColor = borderOverlayColor ?? this.borderOverlayColor;
-    this.borderOverlaySize = borderOverlaySize ?? this.borderOverlaySize;
+    this.url = url;
+    this.placeholder = placeholder;
+    this.size = size ?? 40;
+    this.cacheMode = cacheMode;
+    this.circular = circular ?? true;
+    this.scaleType = scaleType ?? BoxFit.cover;
+    this.borderSize = borderSize ?? 0;
+    this.borderOverlay = borderOverlay ?? true;
+    this.borderOverlayColor = borderOverlayColor ?? Colors.black.withOpacity(0.5);
+    this.borderOverlaySize = borderOverlaySize ?? 0.2;
     return this;
   }
 

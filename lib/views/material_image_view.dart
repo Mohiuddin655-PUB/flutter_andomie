@@ -605,14 +605,14 @@ class MaterialImageViewController<T> extends ViewController {
     ImageType? placeholderType,
   }) {
     super.attach(view);
-    this.frameRatio = frameRatio ?? this.frameRatio;
-    this.frameRatioBuilder = frameBuilder ?? this.frameRatioBuilder;
-    this.itemBackground = itemBackground ?? this.itemBackground;
-    this.spaceBetween = itemSpace ?? this.spaceBetween;
-    this.imageType = itemType ?? this.imageType;
-    this.items = items ?? this.items;
-    this.placeholder = placeholder ?? this.placeholder;
-    this.placeholderType = placeholderType ?? this.placeholderType;
+    this.frameRatio = frameRatio;
+    this.frameRatioBuilder = frameBuilder;
+    this.itemBackground = itemBackground;
+    this.spaceBetween = itemSpace ?? 4;
+    this.imageType = itemType;
+    this.items = items ?? [];
+    this.placeholder = placeholder;
+    this.placeholderType = placeholderType;
     return this;
   }
 

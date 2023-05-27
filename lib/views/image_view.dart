@@ -166,12 +166,12 @@ class ImageViewController extends ViewController {
     BoxFit? scaleType,
   }) {
     super.attach(view);
-    this.cacheMode = cacheMode ?? this.cacheMode;
-    this.placeholder = placeholder ?? this.placeholder;
-    this.scaleType = scaleType ?? this.scaleType;
-    _image = image ?? _image;
-    _imageType = imageType ?? _imageType;
-    _placeholderType = placeholderType ?? _placeholderType;
+    this.cacheMode = cacheMode ?? true;
+    this.placeholder = placeholder;
+    this.scaleType = scaleType;
+    _image = image;
+    _imageType = imageType ?? ImageType.detect;
+    _placeholderType = placeholderType ?? ImageType.detect;
     return this;
   }
 

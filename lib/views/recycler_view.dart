@@ -531,14 +531,14 @@ class RecyclerViewController<T> extends ViewController {
     ScrollController? scrollController,
   }) {
     super.attach(view);
-    _itemCount = itemCount ?? _itemCount;
-    this.items = items ?? this.items;
-    this.direction = direction ?? this.direction;
-    this.layoutType = layoutType ?? this.layoutType;
-    this.snapCount = snapCount ?? this.snapCount;
-    this.scrollingType = scrollingType ?? this.scrollingType;
-    this.onPagingListener = onPagingListener ?? this.onPagingListener;
-    _scrollController = scrollController ?? _scrollController;
+    _itemCount = itemCount;
+    this.items = items ?? [];
+    this.direction = direction ?? Axis.vertical;
+    this.layoutType = layoutType ?? RecyclerLayoutType.linear;
+    this.snapCount = snapCount ?? 1;
+    this.scrollingType = scrollingType ?? RecyclerScrollingType.none;
+    this.onPagingListener = onPagingListener;
+    _scrollController = scrollController ?? ScrollController();
     return this;
   }
 

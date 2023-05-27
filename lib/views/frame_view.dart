@@ -821,8 +821,8 @@ class FrameViewController<T> {
   }) {
     this.frameBuilder = frameBuilder;
     this.itemBackground = itemBackground;
-    this.spaceBetween = itemSpace ?? this.spaceBetween;
-    this.items = items ?? this.items;
+    this.spaceBetween = itemSpace ?? 4;
+    this.items = items ?? [];
     return this;
   }
 

@@ -723,101 +723,101 @@ class ViewController {
     required OnViewNotifyListener? onLongClickHandle,
   }) {
     // VIEW CONDITIONAL PROPERTIES
-    this.activated = activated ?? this.activated;
-    this.enabled = enabled ?? this.enabled;
-    this.visibility = visibility ?? this.visibility;
+    this.activated = activated ?? false;
+    this.enabled = enabled ?? true;
+    this.visibility = visibility ?? true;
 
     // ANIMATION PROPERTIES
-    this.animation = animation ?? this.animation;
-    this.animationType = animationType ?? this.animationType;
+    this.animation = animation ?? 0;
+    this.animationType = animationType ?? Curves.linear;
 
     // VIEW SIZE PROPERTIES
-    this.flex = flex ?? this.flex;
-    _dimensionRatio = dimensionRatio ?? _dimensionRatio;
-    _width = width ?? _width;
-    _widthMax = widthMax ?? _widthMax;
-    _widthMin = widthMin ?? _widthMin;
-    _height = height ?? _height;
-    _heightMax = heightMax ?? _heightMax;
-    _heightMin = heightMin ?? _heightMin;
+    this.flex = flex ?? 0;
+    _dimensionRatio = dimensionRatio;
+    _width = width;
+    _widthMax = widthMax;
+    _widthMin = widthMin;
+    _height = height;
+    _heightMax = heightMax;
+    _heightMin = heightMin;
 
     // VIEW MARGIN PROPERTIES
-    this.margin = margin ?? this.margin;
-    this.marginVertical = marginVertical ?? this.marginVertical;
-    _marginStart = marginStart ?? _marginStart;
-    _marginEnd = marginEnd ?? _marginEnd;
-    _marginTop = marginTop ?? _marginTop;
-    _marginBottom = marginBottom ?? _marginBottom;
-    this.marginHorizontal = marginHorizontal ?? this.marginHorizontal;
+    this.margin = margin ?? 0;
+    this.marginVertical = marginVertical;
+    _marginStart = marginStart;
+    _marginEnd = marginEnd;
+    _marginTop = marginTop;
+    _marginBottom = marginBottom;
+    this.marginHorizontal = marginHorizontal;
 
     // VIEW PADDING PROPERTIES
-    this.padding = padding ?? this.padding;
-    _paddingStart = paddingStart ?? _paddingStart;
-    _paddingEnd = paddingEnd ?? _paddingEnd;
-    _paddingTop = paddingTop ?? _paddingTop;
-    _paddingBottom = paddingBottom ?? _paddingBottom;
-    this.paddingHorizontal = paddingHorizontal ?? this.paddingHorizontal;
-    this.paddingVertical = paddingVertical ?? this.paddingVertical;
+    this.padding = padding ?? 0;
+    _paddingStart = paddingStart;
+    _paddingEnd = paddingEnd;
+    _paddingTop = paddingTop;
+    _paddingBottom = paddingBottom;
+    this.paddingHorizontal = paddingHorizontal;
+    this.paddingVertical = paddingVertical;
 
     // VIEW BORDER PROPERTIES
-    this.borderColor = borderColor ?? this.borderColor;
-    this.borderGradient = borderGradient ?? this.borderGradient;
-    this.border = border ?? this.border;
-    _borderStart = borderStart ?? _borderStart;
-    _borderEnd = borderEnd ?? _borderEnd;
-    _borderTop = borderTop ?? _borderTop;
-    _borderBottom = borderBottom ?? _borderBottom;
-    this.borderHorizontal = borderHorizontal ?? this.borderHorizontal;
-    this.borderVertical = borderVertical ?? this.borderVertical;
+    this.borderColor = borderColor;
+    this.borderGradient = borderGradient;
+    this.border = border ?? 0;
+    _borderStart = borderStart;
+    _borderEnd = borderEnd;
+    _borderTop = borderTop;
+    _borderBottom = borderBottom;
+    this.borderHorizontal = borderHorizontal;
+    this.borderVertical = borderVertical;
 
     // VIEW BORDER RADIUS PROPERTIES
-    this.borderRadius = borderRadius ?? this.borderRadius;
-    _borderRadiusBL = borderRadiusBL ?? _borderRadiusBL;
-    _borderRadiusBR = borderRadiusBR ?? _borderRadiusBR;
-    _borderRadiusTL = borderRadiusTL ?? _borderRadiusTL;
-    _borderRadiusTL = borderRadiusTL ?? _borderRadiusTL;
+    this.borderRadius = borderRadius ?? 0;
+    _borderRadiusBL = borderRadiusBL;
+    _borderRadiusBR = borderRadiusBR;
+    _borderRadiusTL = borderRadiusTL;
+    _borderRadiusTL = borderRadiusTL;
 
     // VIEW SHADOW PROPERTIES
-    this.shadowColor = shadowColor ?? this.shadowColor;
-    this.shadow = shadow ?? this.shadow;
-    _shadowStart = shadowStart ?? _shadowStart;
-    _shadowEnd = shadowEnd ?? _shadowEnd;
-    __shadowTop = shadowTop ?? __shadowTop;
-    _shadowBottom = shadowBottom ?? _shadowBottom;
-    this.shadowHorizontal = shadowHorizontal ?? this.shadowHorizontal;
-    this.shadowVertical = shadowVertical ?? this.shadowVertical;
-    this.shadowBlurRadius = shadowBlurRadius ?? this.shadowBlurRadius;
-    this.shadowBlurStyle = shadowBlurStyle ?? this.shadowBlurStyle;
-    this.shadowSpreadRadius = shadowSpreadRadius ?? this.shadowSpreadRadius;
-    this.shadowType = shadowType ?? this.shadowType;
+    this.shadowColor = shadowColor;
+    this.shadow = shadow ?? 0;
+    _shadowStart = shadowStart;
+    _shadowEnd = shadowEnd;
+    __shadowTop = shadowTop;
+    _shadowBottom = shadowBottom;
+    this.shadowHorizontal = shadowHorizontal;
+    this.shadowVertical = shadowVertical;
+    this.shadowBlurRadius = shadowBlurRadius ?? 5;
+    this.shadowBlurStyle = shadowBlurStyle ?? BlurStyle.normal;
+    this.shadowSpreadRadius = shadowSpreadRadius ?? 0;
+    this.shadowType = shadowType ?? ViewShadowType.none;
 
     // VIEW DECORATION PROPERTIES
-    this.background = background ?? this.background;
-    this.foreground = foreground ?? this.foreground;
-    this.backgroundBlendMode = backgroundBlendMode ?? this.backgroundBlendMode;
-    this.foregroundBlendMode = foregroundBlendMode ?? this.foregroundBlendMode;
-    this.backgroundGradient = backgroundGradient ?? this.backgroundGradient;
-    this.foregroundGradient = foregroundGradient ?? this.foregroundGradient;
-    this.backgroundImage = backgroundImage ?? this.backgroundImage;
-    this.foregroundImage = foregroundImage ?? this.foregroundImage;
-    this.clipBehavior = clipBehavior ?? this.clipBehavior;
-    this.gravity = gravity ?? this.gravity;
-    this.transform = transform ?? this.transform;
-    this.transformGravity = transformGravity ?? this.transformGravity;
-    this.transform = transform ?? this.transform;
-    _position = position ?? _position;
-    this.positionType = positionType ?? this.positionType;
-    this.shape = shape ?? this.shape;
-    this.root = root ?? this.root;
-    this.child = child ?? this.child;
+    this.background = background;
+    this.foreground = foreground;
+    this.backgroundBlendMode = backgroundBlendMode;
+    this.foregroundBlendMode = foregroundBlendMode;
+    this.backgroundGradient = backgroundGradient;
+    this.foregroundGradient = foregroundGradient;
+    this.backgroundImage = backgroundImage;
+    this.foregroundImage = foregroundImage;
+    this.clipBehavior = clipBehavior ?? Clip.antiAlias;
+    this.gravity = gravity;
+    this.transform = transform;
+    this.transformGravity = transformGravity;
+    this.transform = transform;
+    _position = position;
+    this.positionType = positionType ?? ViewPositionType.none;
+    this.shape = shape ?? ViewShape.rectangular;
+    this.root = root ?? const ViewProperties();
+    this.child = child;
 
     // VIEW LISTENER PROPERTIES
-    this.onClick = onClick ?? this.onClick;
-    this.onDoubleClick = onDoubleClick ?? this.onDoubleClick;
-    this.onLongClick = onLongClick ?? this.onLongClick;
-    this.onClickHandle = onClickHandle ?? this.onClickHandle;
-    this.onDoubleClickHandle = onDoubleClickHandle ?? this.onDoubleClickHandle;
-    this.onLongClickHandle = onLongClickHandle ?? this.onLongClickHandle;
+    this.onClick = onClick;
+    this.onDoubleClick = onDoubleClick;
+    this.onLongClick = onLongClick;
+    this.onClickHandle = onClickHandle;
+    this.onDoubleClickHandle = onDoubleClickHandle;
+    this.onLongClickHandle = onLongClickHandle;
 
     return this;
   }
@@ -1085,7 +1085,7 @@ class ViewController {
 
   Duration get animationDuration => Duration(microseconds: animation);
 
-  Curve animationType;
+  Curve animationType = Curves.linear;
 
   void setAnimationType(Curve value) {
     animationType = value;

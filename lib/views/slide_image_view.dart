@@ -245,20 +245,19 @@ class SlideImageViewController<T> extends ViewController {
     int? selectionIndex,
     SIVIndexing<T>? selectionIndexBuilder,
   }) {
-    this.changedHandler = changedHandler ?? this.changedHandler;
-    this.counterBuilder = counterBuilder ?? this.counterBuilder;
-    this.counterPosition = counterPosition ?? this.counterPosition;
-    this.counterVisibility = counterVisibility ?? this.counterVisibility;
-    this.frameRatio = frameRatio ?? this.frameRatio;
-    this.itemBackground = itemBackground ?? this.itemBackground;
-    this.itemScaleType = itemScaleType ?? this.itemScaleType;
-    this.itemType = itemType ?? this.itemType;
-    this.items = items ?? this.items;
-    this.placeholder = placeholder ?? this.placeholder;
-    this.placeholderType = placeholderType ?? this.placeholderType;
-    this.selectionIndex = selectionIndex ?? this.selectionIndex;
-    this.selectionIndexBuilder =
-        selectionIndexBuilder ?? this.selectionIndexBuilder;
+    this.changedHandler = changedHandler;
+    this.counterBuilder = counterBuilder;
+    this.counterPosition = counterPosition ?? ViewPositionType.topEnd;
+    this.counterVisibility = counterVisibility ?? true;
+    this.frameRatio = frameRatio;
+    this.itemBackground = itemBackground;
+    this.itemScaleType = itemScaleType ?? BoxFit.cover;
+    this.itemType = itemType ?? ImageType.detect;
+    this.items = items ?? [];
+    this.placeholder = placeholder;
+    this.placeholderType = placeholderType ?? ImageType.detect;
+    this.selectionIndex = selectionIndex ?? 0;
+    this.selectionIndexBuilder = selectionIndexBuilder;
     this.index = _selectionIndex;
     this.pager = PageController(initialPage: index);
     this.counter = TextViewController();

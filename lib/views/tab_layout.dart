@@ -351,58 +351,53 @@ class TabLayoutController extends ViewController {
     bool Function(bool selected)? onVisibleTitleWhenTabSelected,
   }) {
     super.attach(view);
-    this.pagerController = pagerController ?? this.pagerController;
-    this.items = items ?? this.items;
+    this.pagerController = pagerController ?? ViewPagerController();
+    this.items = items ?? [];
 
     //TAB ICON PROPERTIES
-    this.tabIconSize = tabIconSize ?? this.tabIconSize;
-    this.tabIconSizeState = tabIconSizeState ?? this.tabIconSizeState;
-    this.tabIconSpace = tabIconSpace ?? this.tabIconSpace;
-    _tabIconTint = tabIconTint ?? _tabIconTint;
-    _tabIconTintState = tabIconTintState ?? _tabIconTintState;
+    this.tabIconSize = tabIconSize;
+    this.tabIconSizeState = tabIconSizeState;
+    this.tabIconSpace = tabIconSpace;
+    _tabIconTint = tabIconTint;
+    _tabIconTintState = tabIconTintState;
 
     // TAB MARGIN PROPERTIES
-    this.tabMargin = tabMargin ?? this.tabMargin;
-    _tabMarginStart = tabMarginStart ?? _tabMarginStart;
-    _tabMarginEnd = tabMarginEnd ?? _tabMarginEnd;
-    _tabMarginTop = tabMarginTop ?? _tabMarginTop;
-    _tabMarginBottom = tabMarginBottom ?? _tabMarginBottom;
-    this.tabMarginHorizontal = tabMarginHorizontal ?? this.tabMarginHorizontal;
-    this.tabMarginVertical = tabMarginVertical ?? this.tabMarginVertical;
+    this.tabMargin = tabMargin ?? 0;
+    _tabMarginStart = tabMarginStart;
+    _tabMarginEnd = tabMarginEnd;
+    _tabMarginTop = tabMarginTop;
+    _tabMarginBottom = tabMarginBottom;
+    this.tabMarginHorizontal = tabMarginHorizontal;
+    this.tabMarginVertical = tabMarginVertical;
 
     // TAB PADDING PROPERTIES
-    this.tabPadding = tabPadding ?? this.tabPadding;
-    this.tabPaddingStart = tabPaddingStart ?? this.tabPaddingStart;
-    this.tabPaddingEnd = tabPaddingEnd ?? this.tabPaddingEnd;
-    this.tabPaddingTop = tabPaddingTop ?? this.tabPaddingTop;
-    this.tabPaddingBottom = tabPaddingBottom ?? this.tabPaddingBottom;
-    this.tabPaddingHorizontal =
-        tabPaddingHorizontal ?? this.tabPaddingHorizontal;
-    this.tabPaddingVertical = tabPaddingVertical ?? this.tabPaddingVertical;
+    this.tabPadding = tabPadding ?? 0;
+    this.tabPaddingStart = tabPaddingStart;
+    this.tabPaddingEnd = tabPaddingEnd;
+    this.tabPaddingTop = tabPaddingTop;
+    this.tabPaddingBottom = tabPaddingBottom;
+    this.tabPaddingHorizontal = tabPaddingHorizontal;
+    this.tabPaddingVertical = tabPaddingVertical;
 
     // TAB TITLE PROPERTIES
-    this.tabContentColor = tabContentColor ?? this.tabContentColor;
-    this.tabContentColorState =
-        tabContentColorState ?? this.tabContentColorState;
-    this.tabTitleSize = tabTitleSize ?? this.tabTitleSize;
-    this.tabTitleSizeState = tabTitleSizeState ?? this.tabTitleSizeState;
-    this.tabTitleWeight = tabTitleWeight ?? this.tabTitleWeight;
-    this.tabTitleWeightState = tabTitleWeightState ?? this.tabTitleWeightState;
+    this.tabContentColor = tabContentColor;
+    this.tabContentColorState = tabContentColorState;
+    this.tabTitleSize = tabTitleSize ?? 12;
+    this.tabTitleSizeState = tabTitleSizeState;
+    this.tabTitleWeight = tabTitleWeight;
+    this.tabTitleWeightState = tabTitleWeightState;
 
     // TAB INDICATOR PROPERTIES
-    this.tabIndicator = tabIndicator ?? this.tabIndicator;
-    this.tabIndicatorColor = tabIndicatorColor ?? this.tabIndicatorColor;
-    this.tabIndicatorFullWidth =
-        tabIndicatorFullWidth ?? this.tabIndicatorFullWidth;
-    this.tabIndicatorHeight = tabIndicatorHeight ?? this.tabIndicatorHeight;
+    this.tabIndicator = tabIndicator;
+    this.tabIndicatorColor = tabIndicatorColor;
+    this.tabIndicatorFullWidth = tabIndicatorFullWidth ?? false;
+    this.tabIndicatorHeight = tabIndicatorHeight ?? 2;
 
     // TAB OTHER PROPERTIES
-    this.tabMode = tabMode ?? this.tabMode;
-    this.tabInlineLabel = tabInlineLabel ?? this.tabInlineLabel;
-    this.onVisibleIconWhenTabSelected =
-        onVisibleIconWhenTabSelected ?? this.onVisibleIconWhenTabSelected;
-    this.onVisibleTitleWhenTabSelected =
-        onVisibleTitleWhenTabSelected ?? this.onVisibleTitleWhenTabSelected;
+    this.tabMode = tabMode;
+    this.tabInlineLabel = tabInlineLabel ?? false;
+    this.onVisibleIconWhenTabSelected = onVisibleIconWhenTabSelected;
+    this.onVisibleTitleWhenTabSelected = onVisibleTitleWhenTabSelected;
     return this;
   }
 

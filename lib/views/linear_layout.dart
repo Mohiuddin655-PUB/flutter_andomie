@@ -241,15 +241,15 @@ class LinearLayoutController extends ViewController {
     OnViewChangeListener? onPagingListener,
   }) {
     super.attach(view);
-    this.orientation = orientation ?? this.orientation;
-    this.layoutGravity = layoutGravity ?? this.layoutGravity;
-    _mainGravity = mainGravity ?? _mainGravity;
-    _crossGravity = crossGravity ?? _crossGravity;
-    this.scrollable = scrollable ?? this.scrollable;
-    this.scrollingType = scrollingType ?? this.scrollingType;
-    _scrollController = scrollController ?? _scrollController;
-    this.children = children ?? this.children;
-    this.onPagingListener = onPagingListener ?? this.onPagingListener;
+    this.orientation = orientation ?? Axis.vertical;
+    this.layoutGravity = layoutGravity ?? LayoutGravity.start;
+    _mainGravity = mainGravity;
+    _crossGravity = crossGravity;
+    this.scrollable = scrollable ?? false;
+    this.scrollingType = scrollingType ?? LayoutScrollingType.none;
+    _scrollController = scrollController ?? ScrollController();
+    this.children = children ?? [];
+    this.onPagingListener = onPagingListener;
     return this;
   }
 

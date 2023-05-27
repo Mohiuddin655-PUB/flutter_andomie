@@ -133,8 +133,8 @@ class ExpensiveScrollViewController extends ViewController {
     ScrollingType? scrollingType,
   }) {
     super.attach(view);
-    this.orientation = orientation ?? this.orientation;
-    this.scrollingType = scrollingType ?? this.scrollingType;
+    this.orientation = orientation ?? Axis.vertical;
+    this.scrollingType = scrollingType ?? ScrollingType.none;
     return this;
   }
 }

@@ -122,9 +122,9 @@ class FlexibleViewController extends ViewController {
     FlexVisibleType? visibleType,
   }) {
     super.attach(view);
-    this.flexible = flexible ?? this.flexible;
-    this.flexPosition = flexPosition ?? this.flexPosition;
-    this.visibleType = visibleType ?? this.visibleType;
+    this.flexible = flexible ?? const SizedBox();
+    this.flexPosition = flexPosition ?? FlexPosition.start;
+    this.visibleType = visibleType ?? FlexVisibleType.front;
     return this;
   }
 }

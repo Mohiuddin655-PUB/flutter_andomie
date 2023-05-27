@@ -124,8 +124,8 @@ class ViewPagerController extends ViewController {
     OnPageChangeListener? onPageChange,
   }) {
     super.attach(view);
-    this.items = items ?? this.items;
-    this.onPageChange = onPageChange ?? this.onPageChange;
+    this.items = items ?? [];
+    this.onPageChange = onPageChange;
     return this;
   }
 
