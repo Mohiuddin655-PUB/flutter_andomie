@@ -52,33 +52,33 @@ class _AuthTestState extends State<AuthTest> {
                         ),
                       );
                     },
-                    child: const RawText(text: "Login"),
+                    child: const RawTextView(text: "Login"),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const RawText(text: "Register"),
+                    child: const RawTextView(text: "Register"),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const RawText(text: "Logout"),
+                    child: const RawTextView(text: "Logout"),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const RawText(text: "Login with Google"),
+                    child: const RawTextView(text: "Login with Google"),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const RawText(text: "Login with Facebook"),
+                    child: const RawTextView(text: "Login with Facebook"),
                   ),
                   ElevatedButton(
                     onPressed: () {},
-                    child: const RawText(text: "Login with Apple"),
+                    child: const RawTextView(text: "Login with Apple"),
                   ),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     alignment: Alignment.center,
-                    child: RawText(
+                    child: RawTextView(
                       text:
                           'Message : ${state.message}\n Error: ${state.exception}',
                       textAlign: TextAlign.center,

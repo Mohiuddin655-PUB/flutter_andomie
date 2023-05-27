@@ -40,7 +40,7 @@ class _DataTestState extends State<DataTest> {
                             ),
                           );
                         },
-                        child: const RawText(text: "Insert"),
+                        child: const RawTextView(text: "Insert"),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -59,7 +59,7 @@ class _DataTestState extends State<DataTest> {
                             ],
                           );
                         },
-                        child: const RawText(text: "Inserts"),
+                        child: const RawTextView(text: "Inserts"),
                       ),
                       ElevatedButton(
                         onPressed: () {
@@ -71,37 +71,37 @@ class _DataTestState extends State<DataTest> {
                             ),
                           );
                         },
-                        child: const RawText(text: "Update"),
+                        child: const RawTextView(text: "Update"),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           controller.delete("1");
                         },
-                        child: const RawText(text: "Delete"),
+                        child: const RawTextView(text: "Delete"),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           controller.clear();
                         },
-                        child: const RawText(text: "Clear"),
+                        child: const RawTextView(text: "Clear"),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           controller.get("1");
                         },
-                        child: const RawText(text: "Get"),
+                        child: const RawTextView(text: "Get"),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           controller.gets();
                         },
-                        child: const RawText(text: "Gets"),
+                        child: const RawTextView(text: "Gets"),
                       ),
                       ElevatedButton(
                         onPressed: () {
                           controller.isAvailable("1");
                         },
-                        child: const RawText(text: "Available"),
+                        child: const RawTextView(text: "Available"),
                       ),
                     ],
                   ),
@@ -111,7 +111,7 @@ class _DataTestState extends State<DataTest> {
                     alignment: Alignment.center,
                     color: Colors.grey.withAlpha(50),
                     margin: const EdgeInsets.symmetric(vertical: 24),
-                    child: RawText(
+                    child: RawTextView(
                       text: "Successful: ${state.isSuccessful},\n"
                           "No Internet: ${state.isInternetError},\n"
                           "Error: ${state.exception},\n"
@@ -133,7 +133,7 @@ class _DataTestState extends State<DataTest> {
                         stream: controller.live("1"),
                         builder: (context, snapshot) {
                           var value = snapshot.data ?? Response();
-                          return RawText(
+                          return RawTextView(
                             text: value.data.toString(),
                             textAlign: TextAlign.center,
                           );
@@ -149,7 +149,7 @@ class _DataTestState extends State<DataTest> {
                         stream: controller.lives(),
                         builder: (context, snapshot) {
                           var value = snapshot.data ?? Response();
-                          return RawText(
+                          return RawTextView(
                             text: value.result.toString(),
                             textAlign: TextAlign.center,
                           );

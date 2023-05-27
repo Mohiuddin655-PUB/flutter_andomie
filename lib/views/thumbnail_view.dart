@@ -77,7 +77,7 @@ class ThumbnailView extends YMRView<ThumbnailViewController> {
           splashColor: Colors.transparent,
           elevation: 0,
           onPressed: () => onClick?.call(context),
-          child: const RawIcon(
+          child: const RawIconView(
             icon: Icons.play_arrow_rounded,
             size: 32,
             tint: Colors.white,

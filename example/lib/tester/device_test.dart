@@ -9,7 +9,7 @@ class DeviceConfigTest extends StatelessWidget {
   Widget build(BuildContext context) {
     var config = SizeConfig(context);
     print("Device : ${config.deviceType}");
-    return const RawText(
+    return const RawTextView(
       text: "Device Type",
       textColor: Colors.black,
     );

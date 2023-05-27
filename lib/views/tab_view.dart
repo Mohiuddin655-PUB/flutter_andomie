@@ -202,7 +202,7 @@ class _TabViewIcon extends StatelessWidget {
         right: controller._iconSpacingX,
         bottom: controller._iconSpacingY,
       ),
-      child: RawIcon(
+      child: RawIconView(
         icon: controller.icon,
         size: controller.iconSize,
         tint: controller.iconTint,

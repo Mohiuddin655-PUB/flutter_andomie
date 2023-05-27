@@ -139,7 +139,7 @@ class IconView extends YMRView<IconViewController> {
 
   @override
   Widget? attach(BuildContext context, IconViewController controller) {
-    return RawIcon(
+    return RawIconView(
       fit: controller.fit,
       icon: controller.icon,
       size: controller.iconSize,
@@ -149,14 +149,14 @@ class IconView extends YMRView<IconViewController> {
   }
 }
 
-class RawIcon extends StatelessWidget {
+class RawIconView extends StatelessWidget {
   final BoxFit? fit;
   final dynamic icon;
   final double? size;
   final Color? tint;
   final BlendMode tintMode;
 
-  const RawIcon({
+  const RawIconView({
     super.key,
     required this.icon,
     this.fit,

@@ -1,3 +1,5 @@
-## 0.2.7
+## 0.2.8
 
-* All views default properties maintains and initialized
+* RawIcon to RawIconView renamed
+* RawImage to RawImageView renamed
+* RawText to RawTextView renamed

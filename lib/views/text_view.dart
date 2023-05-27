@@ -196,7 +196,7 @@ class _TextView<T extends TextViewController> extends StatelessWidget {
   }) : super(key: key);
 
   @override
-  Widget build(BuildContext context) => RawText(
+  Widget build(BuildContext context) => RawTextView(
         text: controller.text,
         textSpans: controller.isSpannable
             ? [
@@ -235,7 +235,7 @@ class _TextView<T extends TextViewController> extends StatelessWidget {
       );
 }
 
-class RawText extends StatelessWidget {
+class RawTextView extends StatelessWidget {
   final int? maxCharacters;
   final int? maxLines;
 
@@ -261,7 +261,7 @@ class RawText extends StatelessWidget {
   final List<TextSpan> textSpans;
   final TextStyle textStyle;
 
-  const RawText({
+  const RawTextView({
     super.key,
     this.maxCharacters,
     this.maxLines,

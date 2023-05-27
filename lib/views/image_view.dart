@@ -137,7 +137,7 @@ class ImageView<T extends ImageViewController> extends YMRView<T> {
       ) as T;
 
   @override
-  Widget? attach(BuildContext context, T controller) => RawImage(
+  Widget? attach(BuildContext context, T controller) => RawImageView(
         width: controller.width,
         height: controller.height,
         cacheMode: controller.cacheMode,
@@ -192,14 +192,14 @@ class ImageViewController extends ViewController {
       ImageType.from(placeholder, _placeholderType);
 }
 
-class RawImage extends StatelessWidget {
+class RawImageView extends StatelessWidget {
   final dynamic image;
   final ImageType imageType;
   final double? width, height;
   final BoxFit? scaleType;
   final bool cacheMode;
 
-  const RawImage({
+  const RawImageView({
     Key? key,
     this.width,
     this.height,
