@@ -234,7 +234,7 @@ class IconViewController extends ViewController {
   BoxFit fit = BoxFit.contain;
   dynamic _icon;
   ValueState<dynamic>? iconState;
-  double _iconSize = 40;
+  double _iconSize = 24;
   ValueState<double>? iconSizeState;
   Color _iconTint = const Color(0xFF808080);
   ValueState<Color>? tintState;
@@ -257,23 +257,17 @@ class IconViewController extends ViewController {
     Color? pressedColor,
   }) {
     super.attach(view);
-    this.fit = fit ?? this.fit;
-    _icon = icon ?? _icon;
-    this.iconState = iconState ?? this.iconState;
-    _iconSize = size ?? _iconSize;
-    _iconTint = iconTint ?? _iconTint;
-    tintState = iconTintState ?? tintState;
-    this.tintMode = tintMode ?? this.tintMode;
-    this.splashColor = splashColor ?? this.splashColor;
-    this.pressedColor = pressedColor ?? this.pressedColor;
+    this.fit = fit ?? BoxFit.contain;
+    _icon = icon;
+    this.iconState = iconState;
+    _iconSize = size ?? 24;
+    _iconTint = iconTint ?? const Color(0xFF808080);
+    tintState = iconTintState;
+    this.tintMode = tintMode ?? BlendMode.srcIn;
+    this.splashColor = splashColor ?? Colors.transparent;
+    this.pressedColor = pressedColor;
     return this;
   }
-
-  @override
-  double? get width => iconSize;
-
-  @override
-  double? get height => iconSize;
 
   @override
   double get borderRadius {
