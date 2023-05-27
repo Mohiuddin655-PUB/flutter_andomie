@@ -55,14 +55,14 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
       try {
         if (id.isNotEmpty) {
           final url = currentUrl(id, source);
-          final reference = await database.delete(url);
-          final code = reference.statusCode;
+          final result = await database.delete(url);
+          final code = result.statusCode;
           if (code == 200 || code == 201 || code == api.status.deleted) {
-            return response.withFeedback(reference.data);
+            return response.withFeedback(result.data);
           } else {
             return response.withFeedback(
-              reference,
-              exception: "Data unmodified [${reference.statusCode}]",
+              result,
+              exception: "Data unmodified [${result.statusCode}]",
               status: Status.unmodified,
             );
           }
@@ -76,9 +76,7 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
         return response.withException(_, status: Status.failure);
       }
     } else {
-      return response.withStatus(
-        Status.networkError,
-      );
+      return response.withStatus(Status.networkError);
     }
   }
 
@@ -93,16 +91,15 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
       try {
         if (id.isNotEmpty) {
           final url = currentUrl(id, source);
-          final reference = await database.get(url);
-          final data = reference.data;
-          final code = reference.statusCode;
+          final result = await database.get(url);
+          final data = result.data;
+          final code = result.statusCode;
           if ((code == 200 || code == api.status.ok) && data is Map) {
-            final result = build(data);
-            return response.modify(data: result);
+            return response.withData(build(data));
           } else {
             return response.modify(
-              snapshot: reference,
-              exception: "Data unmodified [${reference.statusCode}]",
+              snapshot: result,
+              exception: "Data unmodified [${result.statusCode}]",
               status: Status.unmodified,
             );
           }
@@ -116,9 +113,7 @@ abstract class ApiDataSourceImpl<T extends Entity> extends RemoteDataSource<T> {
         return response.withException(_, status: Status.failure);
       }
     } else {
-      return response.withStatus(
-        Status.networkError,
-      );
+      return response.withStatus(Status.networkError);
     }
   }
 

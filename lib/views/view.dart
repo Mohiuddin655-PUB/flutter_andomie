@@ -1,5 +1,6 @@
 part of '../widgets.dart';
 
+typedef OnViewToggle = Widget Function(BuildContext, bool);
 typedef OnViewBuilder<T> = Widget Function(BuildContext, T?);
 typedef OnViewChangeListener = Function(dynamic value);
 typedef OnViewClickListener = Function(BuildContext context);
@@ -19,7 +20,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
   final T? controller;
 
   final int? flex;
-  final bool? activated, enabled, visibility;
+  final bool? activated, enabled, toggle, visibility;
 
   final int? animation;
   final Curve? animationType;
@@ -69,6 +70,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
   final OnViewNotifyListener<T>? onClickHandle;
   final OnViewNotifyListener<T>? onDoubleClickHandle;
   final OnViewNotifyListener<T>? onLongClickHandle;
+  final OnViewToggle? onViewNotify;
 
   const YMRView({
     Key? key,
@@ -76,6 +78,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
     this.flex,
     this.activated,
     this.enabled,
+    this.toggle,
     this.visibility,
     this.animation,
     this.animationType,
@@ -148,6 +151,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
     this.onClickHandle,
     this.onDoubleClickHandle,
     this.onLongClickHandle,
+    this.onViewNotify,
   }) : super(key: key);
 
   void initialization(T controller) {}
@@ -184,6 +188,7 @@ class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
 
   @override
   void didUpdateWidget(covariant YMRView<T> oldWidget) {
+    controller.setNotifier(setState);
     controller = widget.initController(controller);
     super.didUpdateWidget(oldWidget);
   }
@@ -292,7 +297,7 @@ class _ViewDimension extends StatelessWidget {
   }
 }
 
-class _ViewListener extends StatelessWidget {
+class _ViewListener extends StatefulWidget {
   final ViewController controller;
   final Widget attachView;
 
@@ -303,21 +308,40 @@ class _ViewListener extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<_ViewListener> createState() => _ViewListenerState();
+}
+
+class _ViewListenerState extends State<_ViewListener> {
+
+  @override
   Widget build(BuildContext context) {
-    return controller.isObservable
+    return widget.controller.isObservable
         ? GestureDetector(
-            onTap: () => controller.onClickHandle != null
-                ? controller.onClickHandle?.call(controller)
-                : controller.onClick?.call(context),
-            onDoubleTap: () => controller.onDoubleClickHandle != null
-                ? controller.onDoubleClickHandle?.call(controller)
-                : controller.onDoubleClick?.call(context),
-            onLongPress: () => controller.onLongClickHandle != null
-                ? controller.onLongClickHandle?.call(controller)
-                : controller.onLongClick?.call(context),
-            child: attachView,
+            onTap: () {
+              if (widget.controller.toggle) {
+                setState(() {
+                  widget.controller.activated = !widget.controller.activated;
+                });
+              } else {
+                widget.controller.onClickHandle != null
+                    ? widget.controller.onClickHandle?.call(widget.controller)
+                    : widget.controller.onClick?.call(context);
+              }
+            },
+            onDoubleTap: () {
+              widget.controller.onDoubleClickHandle != null
+                  ? widget.controller.onDoubleClickHandle
+                      ?.call(widget.controller)
+                  : widget.controller.onDoubleClick?.call(context);
+            },
+            onLongPress: () {
+              widget.controller.onLongClickHandle != null
+                  ? widget.controller.onLongClickHandle?.call(widget.controller)
+                  : widget.controller.onLongClick?.call(context);
+            },
+            child: widget.attachView,
           )
-        : attachView;
+        : widget.attachView;
   }
 }
 
@@ -539,6 +563,7 @@ class ViewController {
   ViewController({
     this.activated = false,
     this.enabled = true,
+    this.toggle = false,
     this.root = const ViewProperties(),
     this.visibility = true,
     this.flex = 0,
@@ -613,6 +638,7 @@ class ViewController {
     OnViewClickListener? onClick,
     OnViewClickListener? onDoubleClick,
     OnViewClickListener? onLongClick,
+    OnViewToggle? onViewNotify,
   })  : _marginStart = marginStart,
         _marginEnd = marginEnd,
         _marginTop = marginTop,
@@ -648,6 +674,7 @@ class ViewController {
   ViewController properties({
     required bool? activated,
     required bool? enabled,
+    required bool? toggle,
     required bool? visibility,
     required int? animation,
     required Curve? animationType,
@@ -722,10 +749,12 @@ class ViewController {
     required OnViewNotifyListener? onClickHandle,
     required OnViewNotifyListener? onDoubleClickHandle,
     required OnViewNotifyListener? onLongClickHandle,
+    required OnViewToggle? onViewNotify,
   }) {
     // VIEW CONDITIONAL PROPERTIES
     this.activated = activated ?? false;
     this.enabled = enabled ?? true;
+    this.toggle = toggle ?? false;
     this.visibility = visibility ?? true;
 
     // ANIMATION PROPERTIES
@@ -826,6 +855,7 @@ class ViewController {
   ViewController init({
     bool? activated,
     bool? enabled,
+    bool? toggle,
     bool? visibility,
     int? animation,
     Curve? animationType,
@@ -900,10 +930,12 @@ class ViewController {
     OnViewNotifyListener? onClickNotify,
     OnViewNotifyListener? onDoubleClickNotify,
     OnViewNotifyListener? onLongClickNotify,
+    OnViewToggle? onViewNotify,
   }) {
     return properties(
       activated: activated,
       enabled: enabled,
+      toggle: toggle,
       visibility: visibility,
       animation: animation,
       animationType: animationType,
@@ -978,6 +1010,7 @@ class ViewController {
       onClickHandle: onClickNotify,
       onDoubleClickHandle: onDoubleClickNotify,
       onLongClickHandle: onLongClickNotify,
+      onViewNotify: onViewNotify,
     );
   }
 
@@ -985,6 +1018,7 @@ class ViewController {
   ViewController attach(YMRView view) => properties(
         activated: view.activated,
         enabled: view.enabled,
+        toggle: view.toggle,
         visibility: view.visibility,
         animation: view.animation,
         animationType: view.animationType,
@@ -1059,6 +1093,7 @@ class ViewController {
         onClickHandle: view.onClickHandle,
         onDoubleClickHandle: view.onDoubleClickHandle,
         onLongClickHandle: view.onLongClickHandle,
+        onViewNotify: view.onViewNotify,
       );
 
   bool activated = false;
@@ -1618,8 +1653,15 @@ class ViewController {
 
   ViewShape shape = ViewShape.rectangular;
 
-  void setViewType(ViewShape value) {
+  void setViewShape(ViewShape value) {
     shape = value;
+    notify;
+  }
+
+  bool toggle = false;
+
+  void setToggle(bool value) {
+    toggle = value;
     notify;
   }
 

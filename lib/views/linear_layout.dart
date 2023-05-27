@@ -1,66 +1,5 @@
 part of '../widgets.dart';
 
-enum LayoutGravity {
-  center(
-    main: MainAxisAlignment.center,
-    cross: CrossAxisAlignment.center,
-  ),
-  end(
-    main: MainAxisAlignment.end,
-    cross: CrossAxisAlignment.end,
-  ),
-  start(
-    main: MainAxisAlignment.start,
-    cross: CrossAxisAlignment.start,
-  ),
-  spaceAround(
-    main: MainAxisAlignment.spaceAround,
-    cross: CrossAxisAlignment.center,
-  ),
-  spaceBetween(
-    main: MainAxisAlignment.spaceBetween,
-    cross: CrossAxisAlignment.center,
-  ),
-  spaceEvenly(
-    main: MainAxisAlignment.spaceEvenly,
-    cross: CrossAxisAlignment.center,
-  ),
-  baseline(
-    main: MainAxisAlignment.center,
-    cross: CrossAxisAlignment.baseline,
-  ),
-  stretch(
-    main: MainAxisAlignment.center,
-    cross: CrossAxisAlignment.stretch,
-  ),
-  centerVertical(
-    main: MainAxisAlignment.center,
-    cross: CrossAxisAlignment.start,
-  ),
-  centerHorizontal(
-    main: MainAxisAlignment.start,
-    cross: CrossAxisAlignment.center,
-  );
-
-  final MainAxisAlignment main;
-  final CrossAxisAlignment cross;
-
-  const LayoutGravity({
-    required this.main,
-    required this.cross,
-  });
-}
-
-enum LayoutScrollingType {
-  bouncing(physics: BouncingScrollPhysics()),
-  page(physics: PageScrollPhysics()),
-  none;
-
-  final ScrollPhysics? physics;
-
-  const LayoutScrollingType({this.physics});
-}
-
 class LinearLayout extends YMRView<LinearLayoutController> {
   final Axis? orientation;
   final bool? scrollable;
@@ -74,7 +13,7 @@ class LinearLayout extends YMRView<LinearLayoutController> {
   final List<Widget>? children;
 
   const LinearLayout({
-    Key? key,
+    super.key,
     super.controller,
     super.animation,
     super.animationType,
@@ -160,7 +99,7 @@ class LinearLayout extends YMRView<LinearLayoutController> {
     this.scrollingType,
     this.scrollController,
     this.children,
-  }) : super(key: key);
+  });
 
   @override
   LinearLayoutController attachController() {
@@ -264,4 +203,65 @@ class LinearLayoutController extends ViewController {
       return _scrollController;
     }
   }
+}
+
+enum LayoutGravity {
+  center(
+    main: MainAxisAlignment.center,
+    cross: CrossAxisAlignment.center,
+  ),
+  end(
+    main: MainAxisAlignment.end,
+    cross: CrossAxisAlignment.end,
+  ),
+  start(
+    main: MainAxisAlignment.start,
+    cross: CrossAxisAlignment.start,
+  ),
+  spaceAround(
+    main: MainAxisAlignment.spaceAround,
+    cross: CrossAxisAlignment.center,
+  ),
+  spaceBetween(
+    main: MainAxisAlignment.spaceBetween,
+    cross: CrossAxisAlignment.center,
+  ),
+  spaceEvenly(
+    main: MainAxisAlignment.spaceEvenly,
+    cross: CrossAxisAlignment.center,
+  ),
+  baseline(
+    main: MainAxisAlignment.center,
+    cross: CrossAxisAlignment.baseline,
+  ),
+  stretch(
+    main: MainAxisAlignment.center,
+    cross: CrossAxisAlignment.stretch,
+  ),
+  centerVertical(
+    main: MainAxisAlignment.center,
+    cross: CrossAxisAlignment.start,
+  ),
+  centerHorizontal(
+    main: MainAxisAlignment.start,
+    cross: CrossAxisAlignment.center,
+  );
+
+  final MainAxisAlignment main;
+  final CrossAxisAlignment cross;
+
+  const LayoutGravity({
+    required this.main,
+    required this.cross,
+  });
+}
+
+enum LayoutScrollingType {
+  bouncing(physics: BouncingScrollPhysics()),
+  page(physics: PageScrollPhysics()),
+  none;
+
+  final ScrollPhysics? physics;
+
+  const LayoutScrollingType({this.physics});
 }

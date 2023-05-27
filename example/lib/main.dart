@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_andomie/widgets.dart';
 
 import 'di.dart';
 import 'tester/data_test.dart';
@@ -35,10 +36,20 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return  Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: DataTest(),
+        child: ToggleView(
+          width: 150,
+          height: 50,
+          background: Colors.red,
+          borderRadius: 24,
+          toggle: true,
+          onClick: (c){
+            print("object");
+          },
+        ),
+        //child: DataTest(),
       ),
     );
   }
