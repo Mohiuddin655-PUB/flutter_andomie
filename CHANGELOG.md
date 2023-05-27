@@ -1,5 +1,3 @@
-## 0.2.8
+## 0.2.9
 
-* RawIcon to RawIconView renamed
-* RawImage to RawImageView renamed
-* RawText to RawTextView renamed
+* Clipboard Helper created
