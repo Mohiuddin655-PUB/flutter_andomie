@@ -1,6 +1,6 @@
 name: flutter_andomie
 description: Collection of widget with advanced style and controlling system.
-version: 0.3.2
+version: 0.3.3
 repository: https://github.com/P-YMR/flutter_andomie.git
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
@@ -13,6 +13,8 @@ dependencies:
     sdk: flutter
 
   # Authentications
+  firebase_core: ^2.13.0
+  firebase_core_platform_interface: ^4.8.0
   firebase_auth: ^4.2.2
   flutter_facebook_auth: ^5.0.7
   google_sign_in: ^6.0.0

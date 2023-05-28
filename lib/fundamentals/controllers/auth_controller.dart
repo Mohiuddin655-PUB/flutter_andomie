@@ -16,9 +16,9 @@ class DefaultAuthController<T extends AuthResponse>
 
   User? get user => FirebaseAuth.instance.currentUser;
 
-  Future get isLoggedIn async {
+  Future isLoggedIn([AuthProvider? provider]) async {
     try {
-      emit(AuthResponse.loading());
+      emit(AuthResponse.loading(provider));
       final signedIn = await handler.isSignIn();
       if (signedIn) {
         emit(AuthResponse.authenticated(state.data));
@@ -38,7 +38,7 @@ class DefaultAuthController<T extends AuthResponse>
     } else if (!Validator.isValidPassword(password)) {
       emit(AuthResponse.failure("Password isn't valid!"));
     } else {
-      emit(AuthResponse.loading());
+      emit(AuthResponse.loading(AuthProvider.email));
       try {
         final response = await handler.signInWithEmailNPassword(
           email: email,
@@ -80,7 +80,7 @@ class DefaultAuthController<T extends AuthResponse>
     } else if (!Validator.isValidPassword(password)) {
       emit(AuthResponse.failure("Password isn't valid!"));
     } else {
-      emit(AuthResponse.loading());
+      emit(AuthResponse.loading(AuthProvider.email));
       try {
         final response = await handler.signUpWithEmailNPassword(
           email: email,
@@ -115,7 +115,7 @@ class DefaultAuthController<T extends AuthResponse>
   }
 
   Future signInByFacebook(AuthInfo entity) async {
-    emit(AuthResponse.loading());
+    emit(AuthResponse.loading(AuthProvider.facebook));
     try {
       final response = await handler.signInWithFacebook();
       final result = response.data;
@@ -148,7 +148,7 @@ class DefaultAuthController<T extends AuthResponse>
   }
 
   Future signInByGoogle(AuthInfo entity) async {
-    emit(AuthResponse.loading());
+    emit(AuthResponse.loading(AuthProvider.google));
     try {
       final response = await handler.signInWithGoogle();
       final result = response.data;
@@ -181,7 +181,7 @@ class DefaultAuthController<T extends AuthResponse>
   }
 
   Future signInByBiometric() async {
-    emit(AuthResponse.loading());
+    emit(AuthResponse.loading(AuthProvider.biometric));
     final response = await handler.signInWithBiometric();
     try {
       if (response.isSuccessful) {
@@ -213,8 +213,8 @@ class DefaultAuthController<T extends AuthResponse>
     }
   }
 
-  Future signOut() async {
-    emit(AuthResponse.loading());
+  Future signOut([AuthProvider? provider]) async {
+    emit(AuthResponse.loading(provider));
     try {
       final response = await handler.signOut();
       if (response.isSuccessful) {

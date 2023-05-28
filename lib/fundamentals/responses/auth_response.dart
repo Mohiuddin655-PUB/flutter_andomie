@@ -9,14 +9,14 @@ class AuthResponse<T extends AuthInfo> {
   final String? _message;
   final String? _error;
   final T? data;
-  final ResponseType? _type;
+  final AuthProvider? _provider;
 
   factory AuthResponse.initial() => const AuthResponse._(initial: true);
 
-  factory AuthResponse.loading() {
-    return const AuthResponse._(
-      loading: true,
-    );
+  factory AuthResponse.loading([
+    AuthProvider? provider,
+  ]) {
+    return AuthResponse._(loading: true, provider: provider);
   }
 
   factory AuthResponse.authenticated(T? data) {
@@ -49,7 +49,7 @@ class AuthResponse<T extends AuthInfo> {
     bool? failure,
     String? error,
     String? message,
-    ResponseType? type,
+    AuthProvider? provider,
   })  : _initial = initial,
         _loading = loading,
         _authenticated = authenticated,
@@ -57,7 +57,7 @@ class AuthResponse<T extends AuthInfo> {
         _failure = failure,
         _error = error,
         _message = message,
-        _type = type;
+        _provider = provider;
 
   bool get isInitial => _initial ?? false;
 
@@ -73,11 +73,13 @@ class AuthResponse<T extends AuthInfo> {
 
   bool get isMessage => message.isNotEmpty;
 
+  bool isCurrentProvider(AuthProvider value) => provider == value;
+
   String get error => _error ?? "";
 
   String get message => _message ?? "";
 
-  ResponseType get type => _type ?? ResponseType.initial;
+  AuthProvider get provider => _provider ?? AuthProvider.email;
 
   Map<String, dynamic> get source {
     return {
@@ -102,8 +104,8 @@ class AuthResponse<T extends AuthInfo> {
   }
 }
 
-enum ResponseType {
-  initial,
-  authenticated,
+enum AuthType {
+  email,
+  google,
   unauthenticated,
 }

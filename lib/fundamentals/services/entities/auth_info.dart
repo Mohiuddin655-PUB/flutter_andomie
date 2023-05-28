@@ -87,6 +87,7 @@ class AuthInfo extends Entity {
 }
 
 enum AuthProvider {
+  biometric,
   email,
   phone,
   facebook,
