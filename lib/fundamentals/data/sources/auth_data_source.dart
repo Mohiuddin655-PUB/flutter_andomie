@@ -133,7 +133,7 @@ class AuthDataSourceImpl extends AuthDataSource {
         final authentication = await result.authentication;
         final idToken = authentication.idToken;
         final accessToken = authentication.accessToken;
-        if (accessToken != null && idToken != null) {
+        if (accessToken != null || idToken != null) {
           final credential = GoogleAuthProvider.credential(
               idToken: idToken, accessToken: accessToken);
           final receivedData = auth.currentUser;
