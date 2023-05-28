@@ -1,3 +1,3 @@
-## 0.3.0
+## 0.3.1
 
-* StreamView created
+* Authentication minor bug fixed

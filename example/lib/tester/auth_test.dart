@@ -15,80 +15,102 @@ class AuthTest extends StatefulWidget {
 class _AuthTestState extends State<AuthTest> {
   var email = TextEditingController();
   var password = TextEditingController();
+  var controller = locator<DefaultAuthController>();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => locator<DefaultAuthController>(),
-      child: BlocBuilder<DefaultAuthController, Response<AuthInfo>>(
-        builder: (context, state) {
-          var controller = context.read<DefaultAuthController>();
-          var value = state.data;
-          return SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  EditText(
-                    controller: email,
-                    hint: "Email",
-                    initialValue: "mohin@gmail.com",
-                  ),
-                  const SizedBox(height: 12),
-                  EditText(
-                    controller: password,
-                    hint: "Password",
-                    initialValue: "123456",
-                  ),
-                  const SizedBox(height: 12),
-                  ElevatedButton(
-                    onPressed: () {
-                      controller.signInByEmail(
-                        AuthInfo(
-                          email: email.text,
-                          password: password.text,
-                        ),
-                      );
-                    },
-                    child: const RawTextView(text: "Login"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const RawTextView(text: "Register"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const RawTextView(text: "Logout"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const RawTextView(text: "Login with Google"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const RawTextView(text: "Login with Facebook"),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {},
-                    child: const RawTextView(text: "Login with Apple"),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    alignment: Alignment.center,
-                    child: RawTextView(
-                      text:
-                          'Message : ${state.message}\n Error: ${state.exception}',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
+      create: (context) => controller,
+      child: SizedBox(
+        width: double.infinity,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              EditText(
+                controller: email,
+                hint: "Email",
+                initialValue: '',
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 12),
+              EditText(
+                controller: password,
+                hint: "Password",
+                initialValue: '',
+              ),
+              const SizedBox(height: 12),
+              ElevatedButton(
+                child: const RawTextView(text: "Login"),
+                onPressed: () => controller.signInByEmail(
+                  AuthInfo(
+                    email: email.text,
+                    password: password.text,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                child: const RawTextView(text: "Register"),
+                onPressed: () => controller.signUpByEmail(
+                  AuthInfo(
+                    email: email.text,
+                    password: password.text,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                child: const RawTextView(text: "Logout"),
+                onPressed: () => controller.signOut(),
+              ),
+              ElevatedButton(
+                child: const RawTextView(text: "Login with Google"),
+                onPressed: () => controller.signInByGoogle(
+                  AuthInfo(
+                    email: email.text,
+                    password: password.text,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                child: const RawTextView(text: "Login with Facebook"),
+                onPressed: () => controller.signInByFacebook(
+                  AuthInfo(
+                    email: email.text,
+                    password: password.text,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                child: const RawTextView(text: "Login with Apple"),
+                onPressed: () => controller.signInByEmail(
+                  AuthInfo(
+                    email: email.text,
+                    password: password.text,
+                  ),
+                ),
+              ),
+              BlocBuilder<DefaultAuthController, AuthResponse<AuthInfo>>(
+                  builder: (context, state) {
+                var value = state.data;
+                return Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(24),
+                  alignment: Alignment.center,
+                  child: RawTextView(
+                    text: state.beautify,
+                    textAlign: TextAlign.center,
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
       ),
     );
   }

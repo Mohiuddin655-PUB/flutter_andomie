@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_andomie/widgets.dart';
 
 import 'di.dart';
+import 'tester/auth_test.dart';
 import 'tester/data_test.dart';
 
 void main() async {
@@ -36,20 +37,20 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return  const Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ToggleView(
-          width: 150,
-          height: 50,
-          background: Colors.red,
-          borderRadius: 24,
-          toggle: true,
-          onClick: (c){
-            print("object");
-          },
-        ),
-        //child: DataTest(),
+        // child: ToggleView(
+        //   width: 150,
+        //   height: 50,
+        //   background: Colors.red,
+        //   borderRadius: 24,
+        //   toggle: true,
+        //   onClick: (c){
+        //     print("object");
+        //   },
+        // ),
+        child: AuthTest(),
       ),
     );
   }

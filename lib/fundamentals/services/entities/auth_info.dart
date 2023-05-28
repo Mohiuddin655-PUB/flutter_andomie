@@ -79,6 +79,11 @@ class AuthInfo extends Entity {
       "provider": provider,
     };
   }
+
+  @override
+  String toString() {
+    return source.toString();
+  }
 }
 
 enum AuthProvider {

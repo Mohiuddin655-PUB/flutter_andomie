@@ -55,4 +55,3 @@ part 'views/view.dart';
 part 'views/view_pager.dart';
 
 part 'views/widget_wrapper.dart';
-part 'views/toggle_view.dart';
