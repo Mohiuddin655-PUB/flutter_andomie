@@ -7,20 +7,7 @@ import 'tester/auth_test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      options: kIsWeb
-          ? const FirebaseOptions(
-              apiKey: "AIzaSyAnDJmmToo0dPGEeAV9J-7bsghSaiByFjU",
-              authDomain: "flutter-ui-kits.firebaseapp.com",
-              databaseURL:
-                  "https://flutter-ui-kits-default-rtdb.firebaseio.com",
-              projectId: "flutter-ui-kits",
-              storageBucket: "flutter-ui-kits.appspot.com",
-              messagingSenderId: "807732577100",
-              appId: "1:807732577100:web:c6e2766be76043102945e9",
-              measurementId: "G-SW8PH1RQ0B",
-            )
-          : null);
+  await Firebase.initializeApp();
   await diInit();
   runApp(const Application());
 }

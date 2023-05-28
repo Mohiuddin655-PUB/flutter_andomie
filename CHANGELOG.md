@@ -1,3 +1,3 @@
-## 0.3.3
+## 0.3.5
 
-* Authentication minor bug fixed
+* Google Sign out and resign in bug fixed

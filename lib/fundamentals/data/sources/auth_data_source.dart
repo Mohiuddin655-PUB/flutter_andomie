@@ -4,12 +4,17 @@ class AuthDataSourceImpl extends AuthDataSource {
   final FacebookAuth facebookAuth;
   final FirebaseAuth firebaseAuth;
   final LocalAuthentication localAuth;
+  final GoogleSignIn googleAuth;
 
   AuthDataSourceImpl({
-    required this.facebookAuth,
-    required this.firebaseAuth,
-    required this.localAuth,
-  });
+    FacebookAuth? facebookAuth,
+    FirebaseAuth? firebaseAuth,
+    LocalAuthentication? localAuth,
+    GoogleSignIn? googleAuth,
+  })  : facebookAuth = facebookAuth ?? FacebookAuth.i,
+        firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
+        localAuth = localAuth ?? LocalAuthentication(),
+        googleAuth = googleAuth ?? GoogleSignIn(scopes: ['email']);
 
   @override
   Future<bool> isSignIn() async => firebaseAuth.currentUser?.uid != null;
@@ -17,7 +22,16 @@ class AuthDataSourceImpl extends AuthDataSource {
   @override
   Future<Response> signOut() async {
     final response = Response();
-    await firebaseAuth.signOut();
+    try {
+      await firebaseAuth.signOut();
+      if (await googleAuth.isSignedIn()) {
+        googleAuth.disconnect();
+        googleAuth.signOut();
+      }
+      ///await facebookAuth.logOut();
+    } catch (_){
+      return response.withException(_, status: Status.failure);
+    }
     return response.modify(data: true);
   }
 
@@ -122,7 +136,7 @@ class AuthDataSourceImpl extends AuthDataSource {
     final response = Response<Credential>();
     try {
       GoogleSignInAccount? result;
-      final auth = GoogleSignIn(scopes: ['email']);
+      final auth = googleAuth;
       final isSignedIn = await auth.isSignedIn();
       if (isSignedIn) {
         result = await auth.signInSilently();
