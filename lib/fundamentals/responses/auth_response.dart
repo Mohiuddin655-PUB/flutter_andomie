@@ -6,6 +6,7 @@ class AuthResponse<T extends AuthInfo> {
   final bool? _authenticated;
   final bool? _unauthenticated;
   final bool? _failure;
+  final String? _message;
   final String? _error;
   final T? data;
   final ResponseType? _type;
@@ -25,9 +26,10 @@ class AuthResponse<T extends AuthInfo> {
     );
   }
 
-  factory AuthResponse.unauthenticated() {
-    return const AuthResponse._(
+  factory AuthResponse.unauthenticated([String? message]) {
+    return AuthResponse._(
       unauthenticated: true,
+      message: message,
     );
   }
 
@@ -46,6 +48,7 @@ class AuthResponse<T extends AuthInfo> {
     bool? unauthenticated,
     bool? failure,
     String? error,
+    String? message,
     ResponseType? type,
   })  : _initial = initial,
         _loading = loading,
@@ -53,6 +56,7 @@ class AuthResponse<T extends AuthInfo> {
         _unauthenticated = unauthenticated,
         _failure = failure,
         _error = error,
+        _message = message,
         _type = type;
 
   bool get isInitial => _initial ?? false;
@@ -67,7 +71,11 @@ class AuthResponse<T extends AuthInfo> {
 
   bool get isError => error.isNotEmpty;
 
+  bool get isMessage => message.isNotEmpty;
+
   String get error => _error ?? "";
+
+  String get message => _message ?? "";
 
   ResponseType get type => _type ?? ResponseType.initial;
 
@@ -80,6 +88,7 @@ class AuthResponse<T extends AuthInfo> {
       "isFailure": isFailure,
       "isError": isError,
       "error": _error,
+      "message": _message,
       "data": data,
     };
   }

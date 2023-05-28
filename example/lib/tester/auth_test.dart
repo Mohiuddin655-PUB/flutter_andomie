@@ -74,6 +74,10 @@ class _AuthTestState extends State<AuthTest> {
                     onPressed: () => controller.signOut(),
                   ),
                   ElevatedButton(
+                    child: const RawTextView(text: "Is Logged in"),
+                    onPressed: () => controller.isLoggedIn,
+                  ),
+                  ElevatedButton(
                     child: const RawTextView(text: "Login with Google"),
                     onPressed: () => controller.signInByGoogle(
                       AuthInfo(
