@@ -17,29 +17,67 @@ class AuthDataSourceImpl extends AuthDataSource {
         googleAuth = googleAuth ?? GoogleSignIn(scopes: ['email']);
 
   @override
-  Future<bool> isSignIn() async => firebaseAuth.currentUser?.uid != null;
+  Future<bool> isSignIn([AuthProvider? provider]) async {
+    if (provider != null) {
+      switch (provider) {
+        case AuthProvider.email:
+        case AuthProvider.phone:
+          return firebaseAuth.currentUser != null;
+        case AuthProvider.facebook:
+          return (await facebookAuth.accessToken) != null;
+        case AuthProvider.google:
+          return googleAuth.isSignedIn();
+        case AuthProvider.biometric:
+        case AuthProvider.twitter:
+        case AuthProvider.apple:
+        case AuthProvider.custom:
+          return false;
+      }
+    }
+    return firebaseAuth.currentUser != null;
+  }
 
   @override
-  Future<Response> signOut() async {
+  Future<Response> signOut([AuthProvider? provider]) async {
     final response = Response();
     try {
-      await firebaseAuth.signOut();
-      if (await googleAuth.isSignedIn()) {
-        googleAuth.disconnect();
-        googleAuth.signOut();
+      if (provider != null) {
+        switch (provider) {
+          case AuthProvider.email:
+            break;
+          case AuthProvider.phone:
+            await firebaseAuth.signOut();
+            break;
+          case AuthProvider.facebook:
+            await facebookAuth.logOut();
+            break;
+          case AuthProvider.google:
+            await googleAuth.signOut();
+            break;
+          case AuthProvider.biometric:
+          case AuthProvider.twitter:
+          case AuthProvider.apple:
+          case AuthProvider.custom:
+            break;
+        }
+      } else {
+        await firebaseAuth.signOut();
+        if (await googleAuth.isSignedIn()) {
+          googleAuth.disconnect();
+          googleAuth.signOut();
+        }
       }
-      ///await facebookAuth.logOut();
-    } catch (_){
+    } catch (_) {
       return response.withException(_, status: Status.failure);
     }
-    return response.modify(data: true);
+    return response.withData(null);
   }
 
   @override
   String? get uid => user?.uid;
 
   @override
-  User? get user => firebaseAuth.currentUser;
+  User? get user => FirebaseAuth.instance.currentUser;
 
   @override
   Future<Response<UserCredential>> signUpWithEmailNPassword({

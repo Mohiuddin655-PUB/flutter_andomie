@@ -94,4 +94,5 @@ enum AuthProvider {
   google,
   twitter,
   apple,
+  custom,
 }

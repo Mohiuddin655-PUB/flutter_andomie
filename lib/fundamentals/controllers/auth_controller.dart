@@ -1,9 +1,8 @@
 part of 'controllers.dart';
 
-class DefaultAuthController<T extends AuthResponse>
-    extends Cubit<AuthResponse> {
+class DefaultAuthController<T extends AuthInfo> extends Cubit<AuthResponse<T>> {
   final AuthHandler handler;
-  final DataHandler<AuthInfo> userHandler;
+  final DataHandler<T> userHandler;
   final String Function(String uid)? createUid;
 
   DefaultAuthController({
@@ -19,7 +18,7 @@ class DefaultAuthController<T extends AuthResponse>
   Future isLoggedIn([AuthProvider? provider]) async {
     try {
       emit(AuthResponse.loading(provider));
-      final signedIn = await handler.isSignIn();
+      final signedIn = await handler.isSignIn(provider);
       if (signedIn) {
         emit(AuthResponse.authenticated(state.data));
       } else {
@@ -54,11 +53,8 @@ class DefaultAuthController<T extends AuthResponse>
               phone: result.phoneNumber,
               photo: result.photoURL,
               provider: AuthProvider.email.name,
-            );
-            await userHandler.insert(
-              user,
-              localMode: true,
-            );
+            ) as T;
+            await userHandler.insert(user, localMode: true);
             emit(AuthResponse.authenticated(user));
           } else {
             emit(AuthResponse.failure(response.exception));
@@ -96,11 +92,8 @@ class DefaultAuthController<T extends AuthResponse>
               phone: result.phoneNumber,
               photo: result.photoURL,
               provider: AuthProvider.email.name,
-            );
-            await userHandler.insert(
-              user,
-              cacheMode: true,
-            );
+            ) as T;
+            await userHandler.insert(user, cacheMode: true);
             emit(AuthResponse.authenticated(user));
           } else {
             emit(AuthResponse.failure(response.exception));
@@ -133,7 +126,7 @@ class DefaultAuthController<T extends AuthResponse>
             name: result.name,
             photo: result.photo,
             provider: AuthProvider.facebook.name,
-          );
+          ) as T;
           await userHandler.insert(user, cacheMode: true);
           emit(AuthResponse.authenticated(user));
         } else {
@@ -166,7 +159,7 @@ class DefaultAuthController<T extends AuthResponse>
             photo: result.photo,
             email: result.email,
             provider: AuthProvider.google.name,
-          );
+          ) as T;
           await userHandler.insert(user, cacheMode: true);
           emit(AuthResponse.authenticated(user));
         } else {
@@ -216,7 +209,7 @@ class DefaultAuthController<T extends AuthResponse>
   Future signOut([AuthProvider? provider]) async {
     emit(AuthResponse.loading(provider));
     try {
-      final response = await handler.signOut();
+      final response = await handler.signOut(provider);
       if (response.isSuccessful) {
         final userResponse = await userHandler.delete(
           createUid?.call(uid) ?? uid,

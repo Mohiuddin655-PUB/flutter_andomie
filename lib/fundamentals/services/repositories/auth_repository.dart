@@ -5,9 +5,9 @@ abstract class AuthRepository {
 
   User? get user;
 
-  Future<bool> isSignIn();
+  Future<bool> isSignIn([AuthProvider? provider]);
 
-  Future<Response<void>> signOut();
+  Future<Response<void>> signOut([AuthProvider? provider]);
 
   Future<Response<bool>> signInWithBiometric();
 

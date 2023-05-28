@@ -14,10 +14,10 @@ class AuthRepositoryImpl extends AuthRepository {
   User? get user => authDataSource.user;
 
   @override
-  Future<bool> isSignIn() => authDataSource.isSignIn();
+  Future<bool> isSignIn([AuthProvider? provider]) => authDataSource.isSignIn();
 
   @override
-  Future<Response> signOut() => authDataSource.signOut();
+  Future<Response> signOut([AuthProvider? provider]) => authDataSource.signOut();
 
   @override
   Future<Response<Credential>> signInWithFacebook() {

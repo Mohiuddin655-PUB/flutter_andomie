@@ -6,9 +6,9 @@ class AuthHandlerImpl extends AuthHandler {
   });
 
   @override
-  Future<bool> isSignIn() {
+  Future<bool> isSignIn([AuthProvider? provider]) {
     try {
-      return repository.isSignIn();
+      return repository.isSignIn(provider);
     } catch (_) {
       return Future.error("$_");
     }
@@ -57,9 +57,9 @@ class AuthHandlerImpl extends AuthHandler {
   }
 
   @override
-  Future<Response<void>> signOut() {
+  Future<Response<void>> signOut([AuthProvider? provider]) {
     try {
-      return repository.signOut();
+      return repository.signOut(provider);
     } catch (_) {
       return Future.error("$_");
     }
