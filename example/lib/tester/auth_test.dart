@@ -46,54 +46,61 @@ class _AuthTestState extends State<AuthTest> {
                 initialValue: '',
               ),
               const SizedBox(height: 12),
-              ElevatedButton(
-                child: const RawTextView(text: "Login"),
-                onPressed: () => controller.signInByEmail(
-                  AuthInfo(
-                    email: email.text,
-                    password: password.text,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 16,
+                runSpacing: 8,
+                children: [
+                  ElevatedButton(
+                    child: const RawTextView(text: "Login"),
+                    onPressed: () => controller.signInByEmail(
+                      AuthInfo(
+                        email: email.text,
+                        password: password.text,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              ElevatedButton(
-                child: const RawTextView(text: "Register"),
-                onPressed: () => controller.signUpByEmail(
-                  AuthInfo(
-                    email: email.text,
-                    password: password.text,
+                  ElevatedButton(
+                    child: const RawTextView(text: "Register"),
+                    onPressed: () => controller.signUpByEmail(
+                      AuthInfo(
+                        email: email.text,
+                        password: password.text,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              ElevatedButton(
-                child: const RawTextView(text: "Logout"),
-                onPressed: () => controller.signOut(),
-              ),
-              ElevatedButton(
-                child: const RawTextView(text: "Login with Google"),
-                onPressed: () => controller.signInByGoogle(
-                  AuthInfo(
-                    email: email.text,
-                    password: password.text,
+                  ElevatedButton(
+                    child: const RawTextView(text: "Logout"),
+                    onPressed: () => controller.signOut(),
                   ),
-                ),
-              ),
-              ElevatedButton(
-                child: const RawTextView(text: "Login with Facebook"),
-                onPressed: () => controller.signInByFacebook(
-                  AuthInfo(
-                    email: email.text,
-                    password: password.text,
+                  ElevatedButton(
+                    child: const RawTextView(text: "Login with Google"),
+                    onPressed: () => controller.signInByGoogle(
+                      AuthInfo(
+                        email: email.text,
+                        password: password.text,
+                      ),
+                    ),
                   ),
-                ),
-              ),
-              ElevatedButton(
-                child: const RawTextView(text: "Login with Apple"),
-                onPressed: () => controller.signInByEmail(
-                  AuthInfo(
-                    email: email.text,
-                    password: password.text,
+                  ElevatedButton(
+                    child: const RawTextView(text: "Login with Facebook"),
+                    onPressed: () => controller.signInByFacebook(
+                      AuthInfo(
+                        email: email.text,
+                        password: password.text,
+                      ),
+                    ),
                   ),
-                ),
+                  ElevatedButton(
+                    child: const RawTextView(text: "Login with Apple"),
+                    onPressed: () => controller.signInByEmail(
+                      AuthInfo(
+                        email: email.text,
+                        password: password.text,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               BlocBuilder<DefaultAuthController, AuthResponse<AuthInfo>>(
                   builder: (context, state) {
