@@ -90,9 +90,9 @@ class AuthDataSourceImpl extends AuthDataSource {
         email: email,
         password: password,
       );
-      return response.modify(data: result, message: "Sign up successful!");
+      return response.withData(result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.modify(exception: e.message);
+      return response.withException(e.message, status: Status.failure);
     }
   }
 
@@ -103,9 +103,9 @@ class AuthDataSourceImpl extends AuthDataSource {
     final response = Response<UserCredential>();
     try {
       final result = await firebaseAuth.signInWithCredential(credential);
-      return response.modify(data: result, message: "Sign up successful!");
+      return response.withData(result, message: "Sign up successful!");
     } on FirebaseAuthException catch (e) {
-      return response.modify(exception: e.message);
+      return response.withException(e.message, status: Status.failure);
     }
   }
 
@@ -120,16 +120,9 @@ class AuthDataSourceImpl extends AuthDataSource {
         email: email,
         password: password,
       );
-      return response.modify(
-        status: Status.ok,
-        data: result,
-        message: "Sign in successful!",
-      );
+      return response.withData(result, message: "Sign in successful!");
     } on FirebaseAuthException catch (e) {
-      return response.modify(
-        status: Status.networkError,
-        exception: e.message,
-      );
+      return response.withException(e.message, status: Status.failure);
     }
   }
 
@@ -151,21 +144,21 @@ class AuthDataSourceImpl extends AuthDataSource {
         if (accessToken != null) {
           final credential = FacebookAuthProvider.credential(accessToken.token);
           final fbData = await facebookAuth.getUserData();
-          final data = Credential.fromMap(fbData);
-          return response.modify(
-            data: data.copyWith(
-              accessToken: accessToken.token,
-              credential: credential,
-            ),
-          );
+          return response.withData(Credential.fromMap(fbData).copy(
+            accessToken: accessToken.token,
+            credential: credential,
+          ));
         } else {
-          return response.modify(exception: 'Token not valid!');
+          return response.withException(
+            'Token not valid!',
+            status: Status.error,
+          );
         }
       } else {
-        return response.modify(exception: 'Token not valid!');
+        return response.withException('Token not valid!', status: Status.error);
       }
     } on FirebaseAuthException catch (e) {
-      return response.modify(exception: e.message);
+      return response.withException(e.message, status: Status.failure);
     }
   }
 
@@ -186,30 +179,30 @@ class AuthDataSourceImpl extends AuthDataSource {
         final idToken = authentication.idToken;
         final accessToken = authentication.accessToken;
         if (accessToken != null || idToken != null) {
-          final credential = GoogleAuthProvider.credential(
-              idToken: idToken, accessToken: accessToken);
           final receivedData = auth.currentUser;
-          final data = Credential(
+          return response.withData(Credential(
             id: receivedData?.id,
             email: receivedData?.email,
             name: receivedData?.displayName,
             photo: receivedData?.photoUrl,
-          );
-          return response.modify(
-            data: data.copyWith(
-              accessToken: accessToken,
+            accessToken: accessToken,
+            idToken: idToken,
+            credential: GoogleAuthProvider.credential(
               idToken: idToken,
-              credential: credential,
+              accessToken: accessToken,
             ),
-          );
+          ));
         } else {
-          return response.modify(exception: 'Token not valid!');
+          return response.withException(
+            'Token not valid!',
+            status: Status.error,
+          );
         }
       } else {
-        return response.modify(exception: 'Sign in failed!');
+        return response.withException('Sign in failed!', status: Status.error);
       }
-    } on FirebaseAuthException catch (e) {
-      return response.modify(exception: e.message);
+    } on FirebaseAuthException catch (_) {
+      return response.withException(_.message, status: Status.failure);
     }
   }
 
@@ -218,7 +211,10 @@ class AuthDataSourceImpl extends AuthDataSource {
     final response = Response<bool>();
     try {
       if (!await localAuth.isDeviceSupported()) {
-        return response.modify(exception: "Device isn't supported!");
+        return response.withException(
+          "Device isn't supported!",
+          status: Status.notSupported,
+        );
       } else {
         if (await localAuth.canCheckBiometrics) {
           final authenticated = await localAuth.authenticate(
@@ -230,19 +226,22 @@ class AuthDataSourceImpl extends AuthDataSource {
             ),
           );
           if (authenticated) {
-            return response.modify(
-              message: "Biometric matched!",
-              data: true,
-            );
+            return response.withData(true);
           } else {
-            return response.modify(exception: "Biometric matching failed!");
+            return response.withException(
+              "Biometric matching failed!",
+              status: Status.notFound,
+            );
           }
         } else {
-          return response.modify(exception: "Can not check bio metrics!");
+          return response.withException(
+            "Can not check bio metrics!",
+            status: Status.undetected,
+          );
         }
       }
-    } catch (e) {
-      return response.modify(exception: e.toString());
+    } catch (_) {
+      return response.withException(_, status: Status.failure);
     }
   }
 }

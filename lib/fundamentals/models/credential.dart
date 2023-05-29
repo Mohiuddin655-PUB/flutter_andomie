@@ -37,7 +37,7 @@ class Credential {
     );
   }
 
-  Credential copyWith({
+  Credential copy({
     String? id,
     String? name,
     String? email,

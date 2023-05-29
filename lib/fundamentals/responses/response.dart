@@ -248,6 +248,9 @@ class Response<T> {
 
   Response<T> withStatus(Status status, {String? message}) {
     _status = status;
+    _successful = status.isSuccessful;
+    _loaded = _successful;
+    _loading = false;
     _message = message;
     return this;
   }
@@ -257,125 +260,152 @@ class Response<T> {
     String? message,
     String? exception,
     Status status = Status.ok,
+    bool loaded = true,
   }) {
-    this.feedback = feedback ?? this.feedback;
+    this.feedback = feedback;
     _status = status;
     _successful = status.isSuccessful;
-    _message = message ?? _message;
-    _exception = exception ?? _exception;
-    _complete = true;
-    _loaded = true;
+    _message = message;
+    _exception = exception;
+    _complete = loaded;
+    _loaded = loaded;
+    _loading = false;
     return this;
   }
 
-  Response<T> withData(T? data) {
-    this.status = Status.ok;
+  Response<T> withData(T? data, {String? message}) {
+    _status = Status.ok;
     _data = data;
+    _message = message;
     _successful = true;
     _complete = true;
     _loaded = true;
+    _loading = false;
     return this;
   }
 
-  Response<T> withResult(List<T>? result) {
-    this.status = Status.ok;
+  Response<T> withResult(List<T>? result, {String? message}) {
+    _status = Status.ok;
     _result = result;
+    _message = message;
     _successful = true;
     _complete = true;
     _loaded = true;
+    _loading = false;
     return this;
   }
 
-  Response<T> withMessage(String? message) {
-    this.status = Status.ok;
-    _message = message ?? _message;
+  Response<T> withMessage(String? message, {Status status = Status.ok}) {
+    _status = status;
+    _message = message;
     _successful = true;
-    _complete = true;
-    _loaded = true;
+    _loading = false;
     return this;
   }
 
-  Response<T> withSnapshot(dynamic snapshot) {
+  Response<T> withSnapshot(dynamic snapshot, {String? message}) {
     this.snapshot = snapshot;
+    _message = message;
+    _complete = true;
+    _loaded = true;
+    _loading = false;
     return this;
   }
 
   Response<T> withException(dynamic exception, {Status? status}) {
-    _status = status ?? _status;
+    _status = status;
     _exception = exception;
     _successful = false;
     _message = null;
+    _loading = false;
+    return this;
+  }
+
+  Response<T> withSuccessful(bool successful, {String? message}) {
+    _status = Status.ok;
+    _successful = successful;
+    _message = message;
     _complete = true;
     _loaded = true;
+    _loading = false;
     return this;
   }
 
-  Response<T> withSuccessful(bool successful) {
-    _successful = successful;
-    _complete = true;
-    return this;
-  }
-
-  Response<T> withProgress(double progress) {
+  Response<T> withProgress(double progress, {String? message}) {
+    _status = Status.running;
     _progress = progress;
+    _message = message;
     return this;
   }
 
-  Response<T> withAvailable(bool available) {
+  Response<T> withAvailable(bool available, {String? message}) {
     _available = available;
+    _loading = false;
+    _message = message;
     return this;
   }
 
-  Response<T> withComplete(bool complete) {
+  Response<T> withComplete(bool complete, {String? message}) {
     _complete = complete;
+    _loaded = true;
+    _loading = false;
+    _message = message;
     return this;
   }
 
-  Response<T> withCancel(bool cancel) {
+  Response<T> withCancel(bool cancel, {String? message}) {
     _cancel = cancel;
+    _loading = false;
+    _message = message;
     return this;
   }
 
   Response<T> withValid(bool valid) {
     _valid = valid;
     _loaded = true;
+    _loading = false;
     return this;
   }
 
   Response<T> withLoaded(bool loaded) {
     _loaded = loaded;
+    _loading = false;
     return this;
   }
 
   Response<T> withInternetError(String message) {
     withException(message, status: Status.networkError);
     _internetError = true;
-    _valid = false;
     return this;
   }
 
   Response<T> withPaused(bool paused) {
     _paused = paused;
+    _loading = false;
     return this;
   }
 
-  Response<T> withNullable(bool nullableObject) {
-    _nullable = nullableObject;
+  Response<T> withNullable(bool nullable) {
+    _nullable = nullable;
+    _loading = false;
     return this;
   }
 
   Response<T> withStopped(bool stopped) {
     _stopped = stopped;
+    _loading = false;
     return this;
   }
 
   Response<T> withFailed(bool failed) {
     _failed = failed;
+    _loading = false;
     return this;
   }
 
   Response<T> withTimeout(bool timeout) {
     _timeout = timeout;
+    _loading = false;
     return this;
   }
 
@@ -510,7 +540,7 @@ enum Status {
   networkError(10030, ResponseMessages.internetDisconnected),
   nullable(10040, ResponseMessages.invalidData),
   paused(10050, ResponseMessages.processPaused),
-  dataNotFound(10060, ResponseMessages.resultNotFound),
+  notFound(10060, ResponseMessages.notFound),
   stopped(10070, ResponseMessages.processStopped),
   running(10090, ""),
   timeOut(10080, ResponseMessages.tryAgain),
@@ -518,6 +548,8 @@ enum Status {
   invalid(10110, ResponseMessages.invalidData),
   undefined(10120, ResponseMessages.undefined),
   unmodified(10130, ResponseMessages.unmodified),
+  undetected(10140, ResponseMessages.unmodified),
+  notSupported(10100, ResponseMessages.errorFound),
   error(10100, ResponseMessages.errorFound);
 
   final int code;
@@ -537,7 +569,7 @@ extension ResponseStatusExtension on Status {
 
   bool get isPaused => this == Status.paused;
 
-  bool get isResultNotFound => this == Status.dataNotFound;
+  bool get isResultNotFound => this == Status.notFound;
 
   bool get isStopped => this == Status.stopped;
 
@@ -563,7 +595,7 @@ class ResponseMessages {
   static const String processFailed = "Process has failed, please try again!";
   static const String processPaused = "Process has paused!";
   static const String processStopped = "Process has stopped!";
-  static const String resultNotFound = "Result not found!";
+  static const String notFound = "Result not found!";
   static const String resultNotValid = "Result not valid!";
   static const String tryAgain = "Something went wrong, please try again?";
   static const String postingUnsuccessful =
@@ -577,7 +609,9 @@ class ResponseMessages {
   static const String invalidData = "Invalid data!";
   static const String undefined = "Undefined data!";
   static const String unmodified = "Unmodified data!";
+  static const String undetected = "Undetected data!";
   static const String dataNotValid = "Data not valid!";
   static const String successful = "Successful!";
   static const String errorFound = "Error found!";
+  static const String notSupported = "Not supported error found!";
 }

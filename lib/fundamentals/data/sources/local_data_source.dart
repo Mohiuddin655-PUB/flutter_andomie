@@ -206,7 +206,7 @@ abstract class LocalDataSourceImpl<T extends Entity>
           } else {
             controller.add(response.withException(
               "Data not found!",
-              status: Status.dataNotFound,
+              status: Status.notFound,
             ));
           }
         });
@@ -237,7 +237,7 @@ abstract class LocalDataSourceImpl<T extends Entity>
         } else {
           controller.add(response.withException(
             "Data not found!",
-            status: Status.dataNotFound,
+            status: Status.notFound,
           ));
         }
       });
@@ -264,7 +264,7 @@ abstract class LocalDataSourceImpl<T extends Entity>
       } else {
         return response.withException(
           "Data not inserted!",
-          status: Status.dataNotFound,
+          status: Status.notFound,
         );
       }
     } catch (_) {

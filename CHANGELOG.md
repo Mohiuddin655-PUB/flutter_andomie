@@ -1,3 +1,3 @@
-## 0.3.5
+## 0.3.6-alpha1
 
-* Google Sign out and resign in bug fixed
+* Google IsSignIn bug fixed
