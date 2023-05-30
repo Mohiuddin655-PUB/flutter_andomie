@@ -7,10 +7,13 @@ import 'dart:math' show min, max;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'core.dart';
+
+part 'builders/render_time_builder.dart';
 
 part 'views/avatar_view.dart';
 

@@ -20,7 +20,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
   final T? controller;
 
   final int? flex;
-  final bool? activated, enabled, toggle, visibility;
+  final bool? absorbMode, activated, enabled, visibility;
 
   final int? animation;
   final Curve? animationType;
@@ -76,9 +76,9 @@ class YMRView<T extends ViewController> extends StatefulWidget {
     Key? key,
     this.controller,
     this.flex,
+    this.absorbMode,
     this.activated,
     this.enabled,
-    this.toggle,
     this.visibility,
     this.animation,
     this.animationType,
@@ -312,34 +312,43 @@ class _ViewListener extends StatefulWidget {
 }
 
 class _ViewListenerState extends State<_ViewListener> {
-
   @override
   Widget build(BuildContext context) {
     return widget.controller.isObservable
         ? GestureDetector(
-            onTap: () {
-              if (widget.controller.toggle) {
-                setState(() {
-                  widget.controller.activated = !widget.controller.activated;
-                });
-              } else {
-                widget.controller.onClickHandle != null
-                    ? widget.controller.onClickHandle?.call(widget.controller)
-                    : widget.controller.onClick?.call(context);
-              }
-            },
-            onDoubleTap: () {
-              widget.controller.onDoubleClickHandle != null
-                  ? widget.controller.onDoubleClickHandle
-                      ?.call(widget.controller)
-                  : widget.controller.onDoubleClick?.call(context);
-            },
-            onLongPress: () {
-              widget.controller.onLongClickHandle != null
-                  ? widget.controller.onLongClickHandle?.call(widget.controller)
-                  : widget.controller.onLongClick?.call(context);
-            },
-            child: widget.attachView,
+            onTap: widget.controller.isClickable
+                ? () {
+                    if (widget.controller.isToggleClickable) {
+                      widget.controller.setActivated(
+                        !widget.controller.activated,
+                      );
+                    } else {
+                      widget.controller.onClickHandle != null
+                          ? widget.controller.onClickHandle
+                              ?.call(widget.controller)
+                          : widget.controller.onClick?.call(context);
+                    }
+                  }
+                : null,
+            onDoubleTap: widget.controller.isDoubleClickable
+                ? () {
+                    widget.controller.onDoubleClickHandle != null
+                        ? widget.controller.onDoubleClickHandle
+                            ?.call(widget.controller)
+                        : widget.controller.onDoubleClick?.call(context);
+                  }
+                : null,
+            onLongPress: widget.controller.isLongClickable
+                ? () {
+                    widget.controller.onLongClickHandle != null
+                        ? widget.controller.onLongClickHandle
+                            ?.call(widget.controller)
+                        : widget.controller.onLongClick?.call(context);
+                  }
+                : null,
+            child: widget.controller.absorbMode
+                ? AbsorbPointer(child: widget.attachView)
+                : widget.attachView,
           )
         : widget.attachView;
   }
@@ -561,9 +570,9 @@ class _ViewBorder extends StatelessWidget {
 
 class ViewController {
   ViewController({
+    this.absorbMode = false,
     this.activated = false,
     this.enabled = true,
-    this.toggle = false,
     this.root = const ViewProperties(),
     this.visibility = true,
     this.flex = 0,
@@ -672,9 +681,9 @@ class ViewController {
         _onLongClick = onLongClick;
 
   ViewController properties({
+    required bool? absorbMode,
     required bool? activated,
     required bool? enabled,
-    required bool? toggle,
     required bool? visibility,
     required int? animation,
     required Curve? animationType,
@@ -752,9 +761,9 @@ class ViewController {
     required OnViewToggle? onViewNotify,
   }) {
     // VIEW CONDITIONAL PROPERTIES
+    this.absorbMode = absorbMode ?? false;
     this.activated = activated ?? false;
     this.enabled = enabled ?? true;
-    this.toggle = toggle ?? false;
     this.visibility = visibility ?? true;
 
     // ANIMATION PROPERTIES
@@ -853,9 +862,9 @@ class ViewController {
   }
 
   ViewController init({
+    bool? absorbMode,
     bool? activated,
     bool? enabled,
-    bool? toggle,
     bool? visibility,
     int? animation,
     Curve? animationType,
@@ -933,9 +942,9 @@ class ViewController {
     OnViewToggle? onViewNotify,
   }) {
     return properties(
+      absorbMode: absorbMode,
       activated: activated,
       enabled: enabled,
-      toggle: toggle,
       visibility: visibility,
       animation: animation,
       animationType: animationType,
@@ -1016,9 +1025,9 @@ class ViewController {
 
   @mustCallSuper
   ViewController attach(YMRView view) => properties(
+        absorbMode: view.absorbMode,
         activated: view.activated,
         enabled: view.enabled,
-        toggle: view.toggle,
         visibility: view.visibility,
         animation: view.animation,
         animationType: view.animationType,
@@ -1095,6 +1104,13 @@ class ViewController {
         onLongClickHandle: view.onLongClickHandle,
         onViewNotify: view.onViewNotify,
       );
+
+  bool absorbMode = false;
+
+  void setAbsorbMode(bool value) {
+    absorbMode = value;
+    notify;
+  }
 
   bool activated = false;
 
@@ -1658,13 +1674,6 @@ class ViewController {
     notify;
   }
 
-  bool toggle = false;
-
-  void setToggle(bool value) {
-    toggle = value;
-    notify;
-  }
-
   bool visibility = true;
 
   void setVisibility(bool value) {
@@ -1703,6 +1712,16 @@ class ViewController {
     _onLongClick = listener;
   }
 
+  OnViewToggle? _onToggleClick;
+
+  OnViewToggle? get onToggleClick => enabled ? _onToggleClick : null;
+
+  set onToggleClick(OnViewToggle? listener) => _onToggleClick ??= listener;
+
+  void setOnToggleClickListener(OnViewToggle listener) {
+    _onToggleClick = listener;
+  }
+
   OnViewNotifyListener? onClickHandle, onDoubleClickHandle, onLongClickHandle;
 
   OnViewNotifyBuilder? _onNotifier;
@@ -1713,13 +1732,17 @@ class ViewController {
 
   bool get isObservable {
     return root.observer &&
-        (onClick != null ||
-            onDoubleClick != null ||
-            onLongClick != null ||
-            onClickHandle != null ||
-            onDoubleClickHandle != null ||
-            onLongClickHandle != null);
+        (isClickable || isDoubleClickable || isLongClickable);
   }
+
+  bool get isClickable => onClick != null || onClickHandle != null;
+
+  bool get isDoubleClickable =>
+      onDoubleClick != null || onDoubleClickHandle != null;
+
+  bool get isLongClickable => onLongClick != null || onLongClickHandle != null;
+
+  bool get isToggleClickable => onToggleClick != null;
 
   bool get isPositional {
     return root.position &&

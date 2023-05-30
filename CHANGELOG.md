@@ -1,3 +1,3 @@
-## 0.3.6-alpha1
+## 0.3.6
 
-* Google IsSignIn bug fixed
+* View Listener bug fixed
