@@ -58,3 +58,7 @@ part 'views/view.dart';
 part 'views/view_pager.dart';
 
 part 'views/widget_wrapper.dart';
+
+part 'widgets/button.dart';
+
+part 'widgets/toggle_button.dart';

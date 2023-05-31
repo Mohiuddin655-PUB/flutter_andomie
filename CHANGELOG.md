@@ -1,3 +1,3 @@
-## 0.3.7-alpha1
+## 0.3.7-alpha2
 
 * Add view ripple mode

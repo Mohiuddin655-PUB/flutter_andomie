@@ -180,7 +180,7 @@ class _Text extends StatelessWidget {
   const _Text({
     Key? key,
     required this.controller,
-  }): super(key: key);
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
