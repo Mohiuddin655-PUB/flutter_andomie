@@ -10,9 +10,6 @@ class IconView extends YMRView<IconViewController> {
   final ValueState<Color>? tintState;
   final BlendMode? tintMode;
 
-  final Color? splashColor;
-  final Color? pressedColor;
-
   const IconView({
     super.key,
     super.controller,
@@ -51,16 +48,21 @@ class IconView extends YMRView<IconViewController> {
     super.shadowTop,
     super.shadowBottom,
     super.background,
+    super.backgroundState,
+    super.backgroundBlendMode,
+    super.backgroundGradient,
+    super.backgroundGradientState,
+    super.backgroundImage,
+    super.backgroundImageState,
     super.foreground,
     super.borderColor,
+    super.pressedColor,
+    super.rippleColor,
     super.shadowColor,
     super.gravity,
     super.transformGravity,
-    super.backgroundBlendMode,
     super.foregroundBlendMode,
-    super.backgroundImage,
     super.foregroundImage,
-    super.backgroundGradient,
     super.foregroundGradient,
     super.borderGradient,
     super.transform,
@@ -76,6 +78,7 @@ class IconView extends YMRView<IconViewController> {
     super.onDoubleClickHandle,
     super.onLongClick,
     super.onLongClickHandle,
+    super.onToggleClick,
     this.icon,
     this.fit,
     this.iconState,
@@ -84,8 +87,6 @@ class IconView extends YMRView<IconViewController> {
     this.tint,
     this.tintState,
     this.tintMode,
-    this.splashColor,
-    this.pressedColor,
   });
 
   @override
@@ -105,35 +106,6 @@ class IconView extends YMRView<IconViewController> {
       iconTint: tint,
       iconTintState: tintState,
       tintMode: tintMode,
-      pressedColor: pressedColor,
-      splashColor: splashColor,
-    );
-  }
-
-  @override
-  ViewProperties get properties => super.properties.modify(observer: false, background: false);
-
-  @override
-  Widget build(
-    BuildContext context,
-    IconViewController controller,
-    Widget parent,
-  ) {
-    return Column(
-      children: [
-        Material(
-          borderRadius: BorderRadius.circular(controller.borderRadius),
-          color: controller.background,
-          clipBehavior: Clip.antiAlias,
-          child: InkWell(
-            splashColor: controller.splashColor,
-            hoverColor: controller.pressedColor,
-            highlightColor: controller.pressedColor,
-            onTap: () => controller.onClick?.call(context),
-            child: AbsorbPointer(child: parent),
-          ),
-        ),
-      ],
     );
   }
 
@@ -239,8 +211,6 @@ class IconViewController extends ViewController {
   Color _iconTint = const Color(0xFF808080);
   ValueState<Color>? tintState;
   BlendMode tintMode = BlendMode.srcIn;
-  Color? splashColor = Colors.transparent;
-  Color? pressedColor;
 
   @override
   IconViewController attach(
@@ -253,8 +223,6 @@ class IconViewController extends ViewController {
     Color? iconTint,
     ValueState<Color>? iconTintState,
     BlendMode? tintMode,
-    Color? splashColor,
-    Color? pressedColor,
   }) {
     super.attach(view);
     this.fit = fit ?? BoxFit.contain;
@@ -264,8 +232,6 @@ class IconViewController extends ViewController {
     _iconTint = iconTint ?? const Color(0xFF808080);
     tintState = iconTintState;
     this.tintMode = tintMode ?? BlendMode.srcIn;
-    this.splashColor = splashColor ?? Colors.transparent;
-    this.pressedColor = pressedColor;
     return this;
   }
 

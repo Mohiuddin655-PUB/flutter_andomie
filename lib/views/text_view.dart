@@ -37,6 +37,7 @@ class TextView<T extends TextViewController> extends YMRView<T> {
   const TextView({
     Key? key,
     super.controller,
+    super.absorbMode,
     super.flex,
     super.activated,
     super.enabled,
@@ -88,6 +89,10 @@ class TextView<T extends TextViewController> extends YMRView<T> {
     super.background,
     super.foreground,
     super.borderColor,
+    super.rippleColor,
+    super.pressedColor,
+    super.hoverColor,
+    super.elevation,
     super.shadowColor,
     super.gravity,
     super.transformGravity,

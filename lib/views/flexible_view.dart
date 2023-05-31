@@ -52,7 +52,7 @@ class FlexibleView extends YMRView<FlexibleViewController> {
     super.marginBottom,
     super.marginStart,
     super.marginEnd,
-    super.visibility = true,
+    super.visibility,
     super.child,
     this.flexible,
     this.flexPosition = FlexPosition.start,

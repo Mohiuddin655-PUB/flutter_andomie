@@ -15,6 +15,7 @@ class LinearLayout extends YMRView<LinearLayoutController> {
   const LinearLayout({
     super.key,
     super.controller,
+    super.absorbMode,
     super.animation,
     super.animationType,
     super.flex,
@@ -66,7 +67,10 @@ class LinearLayout extends YMRView<LinearLayoutController> {
     super.background,
     super.foreground,
     super.borderColor,
+    super.hoverColor,
+    super.pressedColor,
     super.shadowColor,
+    super.rippleColor,
     super.gravity,
     super.transformGravity,
     super.backgroundBlendMode,

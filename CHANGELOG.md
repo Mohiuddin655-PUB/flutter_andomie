@@ -1,3 +1,3 @@
-## 0.3.6
+## 0.3.7-alpha1
 
-* View Listener bug fixed
+* Add view ripple mode

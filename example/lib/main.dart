@@ -3,11 +3,12 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 
 import 'di.dart';
+import 'tester/widget_test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await diInit();
+  // await Firebase.initializeApp();
+  // await diInit();
   runApp(const Application());
 }
 
@@ -45,7 +46,7 @@ class Home extends StatelessWidget {
         //     print("object");
         //   },
         // ),
-        child: AuthTest(),
+        child: ViewTest(),
       ),
     );
   }
