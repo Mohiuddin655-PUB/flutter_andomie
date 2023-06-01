@@ -1,9 +1,13 @@
 part of '../widgets.dart';
 
-typedef OnViewToggle = Function(bool);
-typedef OnViewBuilder<T> = Widget Function(BuildContext, T?);
+typedef OnViewBuilder<T> = Widget Function(BuildContext context, T? controller);
 typedef OnViewChangeListener = Function(dynamic value);
 typedef OnViewClickListener = Function(BuildContext context);
+typedef OnViewToggleListener = Function(bool value);
+typedef OnViewToggleHandler<T extends ViewController> = Function(
+  BuildContext context,
+  T controller,
+);
 typedef OnViewAttachBuilder<T extends ViewController> = Widget? Function(
   BuildContext context,
   T controller,
@@ -17,13 +21,34 @@ typedef OnViewNotifier = void Function(VoidCallback fn);
 typedef OnViewNotifyListener<T extends ViewController> = Function(T controller);
 
 class ViewController {
-  /// Ripple properties
+  late BuildContext context;
+
+  ThemeData get theme => Theme.of(context);
+
   double elevation = 0;
+  double _ripple = 10;
+
   Color? hoverColor;
   Color? pressedColor;
-  Color rippleColor = Colors.transparent;
+  Color _rippleColor = Colors.white;
 
-  /// Background
+  double get ripple {
+    if (_ripple > 0) {
+      if (_ripple > 100) {
+        return 100;
+      } else {
+        return _ripple;
+      }
+    } else {
+      return 0;
+    }
+  }
+
+  set rippleColor(Color value) => _rippleColor = value;
+
+  Color get rippleColor {
+    return _rippleColor.withOpacity(ripple / 100);
+  }
 
   Color? _background;
   ValueState<Color>? backgroundState;
@@ -39,13 +64,15 @@ class ViewController {
 
   set backgroundImage(DecorationImage? value) => _backgroundImage = value;
 
-  Color? get background => backgroundState?.selected(activated) ?? _background;
+  Color? get background =>
+      backgroundState?.activated(activated, enabled) ?? _background;
 
   Gradient? get backgroundGradient =>
-      backgroundGradientState?.selected(activated) ?? _backgroundGradient;
+      backgroundGradientState?.activated(activated, enabled) ??
+      _backgroundGradient;
 
   DecorationImage? get backgroundImage =>
-      backgroundImageState?.selected(activated) ?? _backgroundImage;
+      backgroundImageState?.activated(activated, enabled) ?? _backgroundImage;
 
   bool absorbMode = false;
 
@@ -151,7 +178,7 @@ class ViewController {
 
   double? _width;
 
-  double? get width => isSquire || isCircular ? squireSize : _width;
+  double? get width => isSquire || isCircular ? maxSize : _width;
 
   double? _widthMax;
 
@@ -163,7 +190,7 @@ class ViewController {
 
   double? _height;
 
-  double? get height => isSquire || isCircular ? squireSize : _height;
+  double? get height => isSquire || isCircular ? maxSize : _height;
 
   double? _heightMax;
 
@@ -174,6 +201,8 @@ class ViewController {
   double get heightMin => _heightMin ?? 0.0;
 
   double margin = 0;
+
+  double get marginAll => marginStart + marginEnd + marginTop + marginBottom;
 
   double? _marginStart;
 
@@ -196,6 +225,9 @@ class ViewController {
   double? marginVertical;
 
   double padding = 0;
+
+  double get paddingAll =>
+      paddingStart + paddingEnd + paddingTop + paddingBottom;
 
   double? _paddingStart;
 
@@ -284,15 +316,18 @@ class ViewController {
 
   set onLongClick(OnViewClickListener? listener) => _onLongClick ??= listener;
 
-  OnViewToggle? _onToggleClick;
+  OnViewToggleListener? _onToggleClick;
 
-  OnViewToggle? get onToggleClick => enabled ? _onToggleClick : null;
+  OnViewToggleListener? get onToggleClick => enabled ? _onToggleClick : null;
 
-  set onToggleClick(OnViewToggle? listener) => _onToggleClick ??= listener;
+  set onToggleClick(OnViewToggleListener? listener) =>
+      _onToggleClick ??= listener;
 
   OnViewNotifyListener? onClickHandle, onDoubleClickHandle, onLongClickHandle;
 
   OnViewNotifier? _onNotifier;
+
+  bool get isHeight => height != null;
 
   bool get isObservable {
     return root.observer &&
@@ -306,12 +341,7 @@ class ViewController {
 
   bool get isLongClickable => onLongClick != null || onLongClickHandle != null;
 
-  bool get isRippled =>
-      root.ripple &&
-      (isObservable ||
-          rippleColor != Colors.transparent ||
-          pressedColor != null ||
-          hoverColor != null);
+  bool get isRippled => root.ripple && _ripple > 0 && isObservable;
 
   bool get isToggleClickable => onToggleClick != null;
 
@@ -336,13 +366,11 @@ class ViewController {
   }
 
   bool get isMargin {
-    final x = marginStart + marginEnd + marginTop + marginBottom;
-    return root.margin && x > 0;
+    return root.margin && marginAll > 0;
   }
 
   bool get isPadding {
-    final x = paddingStart + paddingEnd + paddingTop + paddingBottom;
-    return root.padding && x > 0;
+    return root.padding && paddingAll > 0;
   }
 
   bool get isConstraints =>
@@ -360,8 +388,7 @@ class ViewController {
   bool get isOverlayShadow =>
       root.shadow && shadowType == ViewShadowType.overlay;
 
-  bool get isCircular =>
-      !isRippled && root.shape && shape == ViewShape.circular;
+  bool get isCircular => root.shape && shape == ViewShape.circular;
 
   bool get isRadius {
     var a = root.radius;
@@ -374,24 +401,28 @@ class ViewController {
     return shape == ViewShape.squire;
   }
 
-  double get squireSize {
+  double get maxSize {
     return max(_width ?? 0, _height ?? 0);
   }
 
-  OnViewNotifier? get notifier {
-    return _onNotifier;
+  double get minSize {
+    return min(_width ?? 0, _height ?? 0);
   }
 
-  void get notify {
+  void get _notify {
     if (_onNotifier != null) {
       _onNotifier?.call(() {});
     }
   }
 
+  ViewDefaultProperties defaultProperties = const ViewDefaultProperties();
+
   ViewController({
+    this.root = const ViewProperties(),
     this.hoverColor,
     this.pressedColor,
-    this.rippleColor = Colors.transparent,
+    double ripple = 10,
+    Color rippleColor = Colors.transparent,
     Color? background,
     this.backgroundState,
     this.backgroundBlendMode,
@@ -399,7 +430,6 @@ class ViewController {
     this.backgroundGradientState,
     DecorationImage? backgroundImage,
     this.backgroundImageState,
-    this.root = const ViewProperties(),
     this.absorbMode = false,
     this.activated = false,
     this.enabled = true,
@@ -473,8 +503,10 @@ class ViewController {
     OnViewClickListener? onClick,
     OnViewClickListener? onDoubleClick,
     OnViewClickListener? onLongClick,
-    OnViewToggle? onViewNotify,
-  })  : _background = background,
+    OnViewToggleListener? onViewNotify,
+  })  : _ripple = ripple,
+        _rippleColor = rippleColor,
+        _background = background,
         _backgroundGradient = backgroundGradient,
         _backgroundImage = backgroundImage,
         _marginStart = marginStart,
@@ -518,6 +550,7 @@ class ViewController {
     required int? flex,
     required double? dimensionRatio,
     required double? elevation,
+    required double? ripple,
     required double? width,
     required double? widthMax,
     required double? widthMin,
@@ -594,12 +627,12 @@ class ViewController {
     required OnViewNotifyListener? onClickHandle,
     required OnViewNotifyListener? onDoubleClickHandle,
     required OnViewNotifyListener? onLongClickHandle,
-    required OnViewToggle? onToggleClick,
+    required OnViewToggleListener? onToggleClick,
   }) {
-    // Ripple properties
     this.hoverColor = hoverColor;
     this.pressedColor = pressedColor;
-    this.rippleColor = rippleColor ?? Colors.transparent;
+    _ripple = ripple ?? 10;
+    this.rippleColor = rippleColor ?? Colors.white;
 
     // VIEW CONDITIONAL PROPERTIES
     this.absorbMode = absorbMode ?? false;
@@ -688,9 +721,11 @@ class ViewController {
     _position = position;
     this.positionType = positionType ?? ViewPositionType.none;
     this.shape = shape ?? ViewShape.rectangular;
-    this.root = root ?? const ViewProperties();
     this.visibility = visibility ?? ViewVisibility.visible;
     this.child = child;
+
+    // Properties
+    this.root = root ?? const ViewProperties();
 
     // Value States
     this.backgroundState = backgroundState;
@@ -709,184 +744,8 @@ class ViewController {
     return this;
   }
 
-  ViewController init({
-    bool? absorbMode,
-    bool? activated,
-    bool? enabled,
-    int? animation,
-    Curve? animationType,
-    int? flex,
-    double? dimensionRatio,
-    double? elevation,
-    double? width,
-    double? widthMax,
-    double? widthMin,
-    double? height,
-    double? heightMax,
-    double? heightMin,
-    double? margin,
-    double? marginHorizontal,
-    double? marginVertical,
-    double? marginTop,
-    double? marginBottom,
-    double? marginStart,
-    double? marginEnd,
-    double? padding,
-    double? paddingHorizontal,
-    double? paddingVertical,
-    double? paddingTop,
-    double? paddingBottom,
-    double? paddingStart,
-    double? paddingEnd,
-    double? border,
-    double? borderHorizontal,
-    double? borderVertical,
-    double? borderTop,
-    double? borderBottom,
-    double? borderStart,
-    double? borderEnd,
-    double? borderRadius,
-    double? borderRadiusBL,
-    double? borderRadiusBR,
-    double? borderRadiusTL,
-    double? borderRadiusTR,
-    double? shadow,
-    double? shadowBlurRadius,
-    double? shadowSpreadRadius,
-    double? shadowHorizontal,
-    double? shadowVertical,
-    double? shadowStart,
-    double? shadowEnd,
-    double? shadowTop,
-    double? shadowBottom,
-    Color? background,
-    Color? borderColor,
-    Color? foreground,
-    Color? hoverColor,
-    Color? pressedColor,
-    Color? rippleColor,
-    Color? shadowColor,
-    Alignment? gravity,
-    Alignment? transformGravity,
-    BlendMode? backgroundBlendMode,
-    BlendMode? foregroundBlendMode,
-    DecorationImage? backgroundImage,
-    DecorationImage? foregroundImage,
-    Gradient? backgroundGradient,
-    Gradient? foregroundGradient,
-    Gradient? borderGradient,
-    Matrix4? transform,
-    BlurStyle? shadowBlurStyle,
-    Clip? clipBehavior,
-    ViewShadowType? shadowType,
-    ViewPosition? position,
-    ViewPositionType? positionType,
-    ViewShape? shape,
-    ViewVisibility? visibility,
-    ViewProperties? root,
-    Widget? child,
-    ValueState<Color>? backgroundState,
-    ValueState<Gradient>? backgroundGradientState,
-    ValueState<DecorationImage>? backgroundImageState,
-    OnViewClickListener? onClick,
-    OnViewClickListener? onDoubleClick,
-    OnViewClickListener? onLongClick,
-    OnViewNotifyListener? onClickNotify,
-    OnViewNotifyListener? onDoubleClickNotify,
-    OnViewNotifyListener? onLongClickNotify,
-    OnViewToggle? onToggleClick,
-  }) {
-    return properties(
-      absorbMode: absorbMode,
-      activated: activated,
-      enabled: enabled,
-      animation: animation,
-      animationType: animationType,
-      flex: flex,
-      dimensionRatio: dimensionRatio,
-      elevation: elevation,
-      width: width,
-      widthMax: widthMax,
-      widthMin: widthMin,
-      height: height,
-      heightMax: heightMax,
-      heightMin: heightMin,
-      margin: margin,
-      marginHorizontal: marginHorizontal,
-      marginVertical: marginVertical,
-      marginTop: marginTop,
-      marginBottom: marginBottom,
-      marginStart: marginStart,
-      marginEnd: marginEnd,
-      padding: padding,
-      paddingHorizontal: paddingHorizontal,
-      paddingVertical: paddingVertical,
-      paddingTop: paddingTop,
-      paddingBottom: paddingBottom,
-      paddingStart: paddingStart,
-      paddingEnd: paddingEnd,
-      border: border,
-      borderHorizontal: borderHorizontal,
-      borderVertical: borderVertical,
-      borderTop: borderTop,
-      borderBottom: borderBottom,
-      borderStart: borderStart,
-      borderEnd: borderEnd,
-      borderRadius: borderRadius,
-      borderRadiusBL: borderRadiusBL,
-      borderRadiusBR: borderRadiusBR,
-      borderRadiusTL: borderRadiusTL,
-      borderRadiusTR: borderRadiusTR,
-      shadow: shadow,
-      shadowBlurRadius: shadowBlurRadius,
-      shadowSpreadRadius: shadowSpreadRadius,
-      shadowHorizontal: shadowHorizontal,
-      shadowVertical: shadowVertical,
-      shadowStart: shadowStart,
-      shadowEnd: shadowEnd,
-      shadowTop: shadowTop,
-      shadowBottom: shadowBottom,
-      background: background,
-      backgroundState: backgroundState,
-      borderColor: borderColor,
-      foreground: foreground,
-      hoverColor: hoverColor,
-      pressedColor: pressedColor,
-      rippleColor: rippleColor,
-      shadowColor: shadowColor,
-      gravity: gravity,
-      transformGravity: transformGravity,
-      backgroundBlendMode: backgroundBlendMode,
-      foregroundBlendMode: foregroundBlendMode,
-      backgroundImage: backgroundImage,
-      backgroundImageState: backgroundImageState,
-      foregroundImage: foregroundImage,
-      backgroundGradient: backgroundGradient,
-      backgroundGradientState: backgroundGradientState,
-      foregroundGradient: foregroundGradient,
-      borderGradient: borderGradient,
-      transform: transform,
-      shadowBlurStyle: shadowBlurStyle,
-      clipBehavior: clipBehavior,
-      shadowType: shadowType,
-      position: position,
-      positionType: positionType,
-      shape: shape,
-      visibility: visibility,
-      root: root,
-      child: child,
-      onClick: onClick,
-      onDoubleClick: onDoubleClick,
-      onLongClick: onLongClick,
-      onClickHandle: onClickNotify,
-      onDoubleClickHandle: onDoubleClickNotify,
-      onLongClickHandle: onLongClickNotify,
-      onToggleClick: onToggleClick,
-    );
-  }
-
   @mustCallSuper
-  ViewController attach(YMRView view) => properties(
+  ViewController fromView(YMRView view) => properties(
         absorbMode: view.absorbMode,
         activated: view.activated,
         enabled: view.enabled,
@@ -895,6 +754,7 @@ class ViewController {
         flex: view.flex,
         dimensionRatio: view.dimensionRatio,
         elevation: view.elevation,
+        ripple: view.ripple,
         width: view.width,
         widthMax: view.widthMax,
         widthMin: view.widthMin,
@@ -963,385 +823,389 @@ class ViewController {
         positionType: view.positionType,
         shape: view.shape,
         visibility: view.visibility,
-        root: view.properties,
         child: view.child,
+        root: view.properties,
         onClick: view.onClick,
         onDoubleClick: view.onDoubleClick,
         onLongClick: view.onLongClick,
-        onClickHandle: view.onClickHandle,
-        onDoubleClickHandle: view.onDoubleClickHandle,
-        onLongClickHandle: view.onLongClickHandle,
-        onToggleClick: view.onToggleClick,
+        onClickHandle: view.onClickHandler,
+        onDoubleClickHandle: view.onDoubleClickHandler,
+        onLongClickHandle: view.onLongClickHandler,
+        onToggleClick: view.onToggle,
       );
 
   void setAbsorbMode(bool value) {
     absorbMode = value;
-    notify;
+    _notify;
   }
 
   void setActivated(bool value) {
     activated = value;
-    notify;
+    _notify;
   }
 
   void setAlignment(Alignment? value) {
     gravity = value;
-    notify;
+    _notify;
   }
 
   void setAnimation(int value) {
     animation = value;
-    notify;
+    _notify;
   }
 
   void setAnimationType(Curve value) {
     animationType = value;
-    notify;
+    _notify;
   }
 
   void setBackground(Color? value) {
     _background = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundState(ValueState<Color>? value) {
     backgroundState = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundGradient(Gradient? value) {
     _backgroundGradient = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundGradientState(ValueState<Gradient>? value) {
     backgroundGradientState = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundBlendMode(BlendMode? value) {
     backgroundBlendMode = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundImage(DecorationImage? value) {
     _backgroundImage = value;
-    notify;
+    _notify;
   }
 
   void setBackgroundImageState(ValueState<DecorationImage>? value) {
     backgroundImageState = value;
-    notify;
+    _notify;
   }
 
   void setClipBehavior(Clip value) {
     clipBehavior = value;
-    notify;
+    _notify;
   }
 
   void setDimensionRatio(double? value) {
     _dimensionRatio = value;
-    notify;
+    _notify;
   }
 
   void setElevation(double value) {
     elevation = value;
-    notify;
+    _notify;
   }
 
   void setForeground(Color? value) {
     foreground = value;
-    notify;
+    _notify;
   }
 
   void setForegroundGradient(Gradient? value) {
     foregroundGradient = value;
-    notify;
+    _notify;
   }
 
   void setForegroundBlendMode(BlendMode? value) {
     foregroundBlendMode = value;
-    notify;
+    _notify;
   }
 
   void setForegroundImage(DecorationImage? value) {
     foregroundImage = value;
-    notify;
+    _notify;
   }
 
   void setBorderColor(Color? value) {
     borderColor = value;
-    notify;
+    _notify;
   }
 
   void setBorderGradient(Gradient? value) {
     borderGradient = value;
-    notify;
+    _notify;
   }
 
   void setBorder(double value) {
     border = value;
-    notify;
+    _notify;
   }
 
   void setBorderHorizontal(double? value) {
     borderHorizontal = value;
-    notify;
+    _notify;
   }
 
   void setBorderVertical(double? value) {
     borderVertical = value;
-    notify;
+    _notify;
   }
 
   void setBorderTop(double? value) {
     _borderTop = value;
-    notify;
+    _notify;
   }
 
   void setBorderBottom(double? value) {
     _borderBottom = value;
-    notify;
+    _notify;
   }
 
   void setBorderStart(double? value) {
     _borderStart = value;
-    notify;
+    _notify;
   }
 
   void setBorderEnd(double? value) {
     _borderEnd = value;
-    notify;
+    _notify;
   }
 
   void setBorderRadius(double value) {
     borderRadius = value;
-    notify;
+    _notify;
   }
 
   void setBorderRadiusBL(double? value) {
     _borderRadiusBL = value;
-    notify;
+    _notify;
   }
 
   void setBorderRadiusBR(double? value) {
     _borderRadiusBR = value;
-    notify;
+    _notify;
   }
 
   void setBorderRadiusTL(double? value) {
     _borderRadiusTL = value;
-    notify;
+    _notify;
   }
 
   void setBorderRadiusTR(double? value) {
     _borderRadiusTR = value;
-    notify;
+    _notify;
   }
 
   void setChild(Widget? value) {
     child = value;
-    notify;
+    _notify;
   }
 
   void setEnabled(bool value) {
     enabled = value;
-    notify;
+    _notify;
   }
 
   void setFlex(int value) {
     flex = value;
-    notify;
+    _notify;
   }
 
   void setWidth(double? value) {
     _width = value;
-    notify;
+    _notify;
   }
 
   void setMaxWidth(double? value) {
     _widthMax = value;
-    notify;
+    _notify;
   }
 
   void setMinWidth(double? value) {
     _widthMin = value;
-    notify;
+    _notify;
   }
 
   void setHeight(double? value) {
     _height = value;
-    notify;
+    _notify;
   }
 
   void setMaxHeight(double? value) {
     _heightMax = value;
-    notify;
+    _notify;
   }
 
   void setMinHeight(double? value) {
     _heightMin = value;
-    notify;
+    _notify;
   }
 
   void setMargin(double value) {
     margin = value;
-    notify;
+    _notify;
   }
 
   void setMarginStart(double? value) {
     _marginStart = value;
-    notify;
+    _notify;
   }
 
   void setMarginEnd(double? value) {
     _marginEnd = value;
-    notify;
+    _notify;
   }
 
   void setMarginTop(double? value) {
     _marginTop = value;
-    notify;
+    _notify;
   }
 
   void setMarginBottom(double? value) {
     _marginBottom = value;
-    notify;
+    _notify;
   }
 
   void setMarginHorizontal(double? value) {
     marginHorizontal = value;
-    notify;
+    _notify;
   }
 
   void setMarginVertical(double? value) {
     marginVertical = value;
-    notify;
+    _notify;
   }
 
   void setPadding(double value) {
     padding = value;
-    notify;
+    _notify;
   }
 
   void setPaddingStart(double? value) {
     _paddingStart = value;
-    notify;
+    _notify;
   }
 
   void setPaddingEnd(double? value) {
     _paddingEnd = value;
-    notify;
+    _notify;
   }
 
   void setPaddingTop(double? value) {
     _paddingTop = value;
-    notify;
+    _notify;
   }
 
   void setPaddingBottom(double? value) {
     _paddingBottom = value;
-    notify;
+    _notify;
   }
 
   void setPaddingHorizontal(double? value) {
     paddingHorizontal = value;
-    notify;
+    _notify;
   }
 
   void setPaddingVertical(double? value) {
     paddingVertical = value;
-    notify;
+    _notify;
   }
 
   void setPosition(ViewPosition? value) {
     _position = value;
-    notify;
+    _notify;
   }
 
   void setPositionType(ViewPositionType value) {
     positionType = value;
-    notify;
+    _notify;
   }
 
   void setTransform(Matrix4 value) {
     transform = value;
-    notify;
+    _notify;
   }
 
   void setTransformAlignment(Alignment value) {
     transformGravity = value;
-    notify;
+    _notify;
   }
 
   void setShadow(double value) {
     shadow = value;
-    notify;
+    _notify;
   }
 
   void setShadowColor(Color value) {
     shadowColor = value;
-    notify;
+    _notify;
   }
 
   void setShadowBlurRadius(double value) {
     shadowBlurRadius = value;
-    notify;
+    _notify;
   }
 
   void setShadowBlurStyle(BlurStyle value) {
     shadowBlurStyle = value;
-    notify;
+    _notify;
   }
 
   void setShadowSpreadRadius(double value) {
     shadowSpreadRadius = value;
-    notify;
+    _notify;
   }
 
   void setShadowType(ViewShadowType value) {
     shadowType = value;
-    notify;
+    _notify;
   }
 
   void setShadowHorizontal(double? value) {
     shadowHorizontal = value;
-    notify;
+    _notify;
   }
 
   void setShadowVertical(double? value) {
     shadowVertical = value;
-    notify;
+    _notify;
   }
 
   void setShadowStart(double? value) {
     _shadowStart = value;
-    notify;
+    _notify;
   }
 
   void setShadowEnd(double? value) {
     _shadowEnd = value;
-    notify;
+    _notify;
   }
 
   void setShadowTop(double? value) {
     _shadowTop = value;
-    notify;
+    _notify;
   }
 
   void setShadowBottom(double? value) {
     _shadowBottom = value;
-    notify;
+    _notify;
   }
 
   void setViewShape(ViewShape value) {
     shape = value;
-    notify;
+    _notify;
   }
 
   void setVisibility(ViewVisibility value) {
     visibility = value;
-    notify;
+    _notify;
+  }
+
+  void setDefaults(ViewDefaultProperties properties) {
+    defaultProperties = properties;
   }
 
   void setOnClickListener(OnViewClickListener listener) {
@@ -1356,21 +1220,21 @@ class ViewController {
     _onLongClick = listener;
   }
 
-  void setOnToggleClickListener(OnViewToggle listener) {
+  void setOnToggleClickListener(OnViewToggleListener listener) {
     _onToggleClick = listener;
   }
 
-  void setNotifier(OnViewNotifier? notifier) {
+  void _setNotifier(OnViewNotifier? notifier) {
     _onNotifier = notifier;
   }
 
-  void onToggleNotify() {
+  void _onToggleNotify() {
     activated = !activated;
     onToggleClick?.call(activated);
-    notify;
+    _notify;
   }
 
-  void onNotify() => notify;
+  void onNotify() => _notify;
 }
 
 enum ViewPositionType {
@@ -1411,10 +1275,10 @@ enum ViewShape {
 
 class ValueState<T> {
   final T _primary;
-  final T _activated;
-  final T _disabled;
-  final T _focused;
-  final T _selected;
+  final T? _activated;
+  final T? _disabled;
+  final T? _focused;
+  final T? _selected;
 
   const ValueState._({
     required T primary,
@@ -1423,10 +1287,20 @@ class ValueState<T> {
     T? focused,
     T? selected,
   })  : _primary = primary,
-        _activated = activated ?? primary,
-        _disabled = disabled ?? primary,
-        _focused = focused ?? primary,
-        _selected = selected ?? primary;
+        _activated = activated,
+        _disabled = disabled,
+        _focused = focused,
+        _selected = selected;
+
+  T get primaryValue => _primary;
+
+  T? get activatedValue => _activated;
+
+  T? get disabledValue => _disabled;
+
+  T? get focusedValue => _focused;
+
+  T? get selectedValue => _selected;
 
   factory ValueState.active({
     required T activated,
@@ -1459,12 +1333,13 @@ class ValueState<T> {
   }) {
     return ValueState._(
       primary: unselected,
+      activated: selected,
       selected: selected,
       disabled: disabled,
     );
   }
 
-  T activated(bool activated, [bool enabled = true]) {
+  T? activated(bool activated, [bool enabled = true]) {
     if (enabled) {
       return activated ? _activated : _primary;
     } else {
@@ -1472,7 +1347,7 @@ class ValueState<T> {
     }
   }
 
-  T focused(bool focused, [bool enabled = true]) {
+  T? focused(bool focused, [bool enabled = true]) {
     if (enabled) {
       return focused ? _focused : _primary;
     } else {
@@ -1480,24 +1355,13 @@ class ValueState<T> {
     }
   }
 
-  T selected(bool selected, [bool enabled = true]) {
+  T? selected(bool selected, [bool enabled = true]) {
     if (enabled) {
-      return selected ? _selected : _primary;
+      return selected ? _selected ?? _activated : _primary;
     } else {
       return _disabled;
     }
   }
-}
-
-enum StateType {
-  none,
-  error,
-  selected,
-  unselected,
-  focused,
-  unfocused,
-  enabled,
-  disabled,
 }
 
 enum ViewVisibility {
@@ -1588,6 +1452,14 @@ class ViewProperties {
   }
 }
 
+class ViewDefaultProperties {
+  final ValueState<Color>? background;
+
+  const ViewDefaultProperties({
+    this.background,
+  });
+}
+
 class YMRView<T extends ViewController> extends StatefulWidget {
   final T? controller;
 
@@ -1599,6 +1471,8 @@ class YMRView<T extends ViewController> extends StatefulWidget {
 
   final double? elevation;
   final double? dimensionRatio;
+  final double? ripple;
+
   final double? width, widthMax, widthMin;
   final double? height, heightMax, heightMin;
 
@@ -1647,10 +1521,10 @@ class YMRView<T extends ViewController> extends StatefulWidget {
   final Widget? child;
 
   final OnViewClickListener? onClick, onDoubleClick, onLongClick;
-  final OnViewNotifyListener<T>? onClickHandle;
-  final OnViewNotifyListener<T>? onDoubleClickHandle;
-  final OnViewNotifyListener<T>? onLongClickHandle;
-  final OnViewToggle? onToggleClick;
+  final OnViewNotifyListener<T>? onClickHandler;
+  final OnViewNotifyListener<T>? onDoubleClickHandler;
+  final OnViewNotifyListener<T>? onLongClickHandler;
+  final OnViewToggleListener? onToggle;
 
   const YMRView({
     Key? key,
@@ -1664,6 +1538,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
     this.animationType,
     this.elevation,
     this.dimensionRatio,
+    this.ripple,
     this.width,
     this.widthMax,
     this.widthMin,
@@ -1735,19 +1610,21 @@ class YMRView<T extends ViewController> extends StatefulWidget {
     this.onClick,
     this.onDoubleClick,
     this.onLongClick,
-    this.onClickHandle,
-    this.onDoubleClickHandle,
-    this.onLongClickHandle,
-    this.onToggleClick,
+    this.onClickHandler,
+    this.onDoubleClickHandler,
+    this.onLongClickHandler,
+    this.onToggle,
   }) : super(key: key);
 
   void init(T controller) {}
 
-  T attachController() => ViewController() as T;
+  T initController() => ViewController() as T;
 
-  T initController(T controller) => controller.attach(this) as T;
+  T attachController(T controller) => controller.fromView(this) as T;
 
   void onViewCreated(BuildContext context, T controller) {}
+
+  void onToggleHandler(BuildContext context, T controller) {}
 
   Widget root(BuildContext context, T controller, Widget parent) => parent;
 
@@ -1768,9 +1645,9 @@ class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
 
   @override
   void initState() {
-    controller = widget.controller ?? widget.attachController();
-    controller.setNotifier(setState);
-    controller = widget.initController(controller);
+    controller = widget.controller ?? widget.initController();
+    controller._setNotifier(setState);
+    controller = widget.attachController(controller);
     widget.init(controller);
     super.initState();
   }
@@ -1789,7 +1666,7 @@ class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    widget.onViewCreated(context, controller);
+    controller.context = context;
     return controller.visibility.isVisibleOrInvisible
         ? widget.root(
             context,
@@ -1802,6 +1679,7 @@ class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
                   controller: controller,
                   attachView: _ViewListener(
                     controller: controller,
+                    onToggleHandler: widget.onToggleHandler,
                     attachView: _ViewChild(
                       controller: controller,
                       attach: widget.attach(context, controller),
@@ -1888,72 +1766,88 @@ class _ViewDimension extends StatelessWidget {
   }
 }
 
-class _ViewListener extends StatelessWidget {
-  final ViewController controller;
+class _ViewListener<T extends ViewController> extends StatelessWidget {
+  final T controller;
   final Widget attachView;
+  final OnViewToggleHandler<T> onToggleHandler;
 
   const _ViewListener({
     Key? key,
     required this.controller,
     required this.attachView,
+    required this.onToggleHandler,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return controller.isObservable
         ? controller.isRippled
-            ? Material(
-                elevation: controller.elevation,
-                borderRadius: controller.isRadius
-                    ? BorderRadius.only(
-                        topLeft: Radius.circular(
-                          controller.borderRadiusTLF,
-                        ),
-                        topRight: Radius.circular(
-                          controller.borderRadiusTRF,
-                        ),
-                        bottomLeft: Radius.circular(
-                          controller.borderRadiusBLF,
-                        ),
-                        bottomRight: Radius.circular(
-                          controller.borderRadiusBRF,
-                        ),
+            ? Padding(
+                padding: controller.isMargin
+                    ? EdgeInsets.only(
+                        left: controller.marginStart,
+                        right: controller.marginEnd,
+                        top: controller.marginTop,
+                        bottom: controller.marginBottom,
                       )
-                    : null,
-                color: controller.background,
-                clipBehavior: controller.clipBehavior,
-                child: InkWell(
-                  splashColor: controller.rippleColor,
-                  hoverColor: controller.hoverColor,
-                  highlightColor: controller.pressedColor,
-                  onTap: controller.isClickable
-                      ? () {
-                          if (controller.isToggleClickable) {
-                            controller.onToggleNotify();
-                          } else {
-                            controller.onClickHandle != null
-                                ? controller.onClickHandle?.call(controller)
-                                : controller.onClick?.call(context);
+                    : EdgeInsets.zero,
+                child: Material(
+                  elevation: controller.elevation,
+                  borderRadius: controller.isRippled
+                      ? controller.isCircular
+                          ? BorderRadius.circular(controller.maxSize)
+                          : BorderRadius.only(
+                              topLeft: Radius.circular(
+                                controller.borderRadiusTLF,
+                              ),
+                              topRight: Radius.circular(
+                                controller.borderRadiusTRF,
+                              ),
+                              bottomLeft: Radius.circular(
+                                controller.borderRadiusBLF,
+                              ),
+                              bottomRight: Radius.circular(
+                                controller.borderRadiusBRF,
+                              ),
+                            )
+                      : null,
+                  color: controller.background,
+                  clipBehavior: controller.clipBehavior,
+                  child: InkWell(
+                    splashColor: controller.rippleColor,
+                    hoverColor: controller.hoverColor,
+                    highlightColor: controller.pressedColor,
+                    onTap: controller.isClickable
+                        ? () {
+                            if (controller.isToggleClickable) {
+                              controller._onToggleNotify();
+                              onToggleHandler(context, controller);
+                            } else {
+                              controller.onClickHandle != null
+                                  ? controller.onClickHandle?.call(controller)
+                                  : controller.onClick?.call(context);
+                            }
                           }
-                        }
-                      : null,
-                  onDoubleTap: controller.isDoubleClickable
-                      ? () {
-                          controller.onDoubleClickHandle != null
-                              ? controller.onDoubleClickHandle?.call(controller)
-                              : controller.onDoubleClick?.call(context);
-                        }
-                      : null,
-                  onLongPress: controller.isLongClickable
-                      ? () {
-                          controller.onLongClickHandle != null
-                              ? controller.onLongClickHandle?.call(controller)
-                              : controller.onLongClick?.call(context);
-                        }
-                      : null,
-                  child: controller.absorbMode
-                      ? AbsorbPointer(child: attachView)
-                      : attachView,
+                        : null,
+                    onDoubleTap: controller.isDoubleClickable
+                        ? () {
+                            controller.onDoubleClickHandle != null
+                                ? controller.onDoubleClickHandle
+                                    ?.call(controller)
+                                : controller.onDoubleClick?.call(context);
+                          }
+                        : null,
+                    onLongPress: controller.isLongClickable
+                        ? () {
+                            controller.onLongClickHandle != null
+                                ? controller.onLongClickHandle?.call(controller)
+                                : controller.onLongClick?.call(context);
+                          }
+                        : null,
+                    child: controller.absorbMode
+                        ? AbsorbPointer(child: attachView)
+                        : attachView,
+                  ),
                 ),
               )
             : GestureDetector(
@@ -2011,7 +1905,7 @@ class _ViewChild extends StatelessWidget {
     final isCircular = controller.isCircular;
     final isRadius = controller.isBorderRadius;
     final isRippled = controller.isRippled;
-    final isMargin = controller.isMargin;
+    final isMargin = controller.isMargin && !isRippled;
     final isPadding = controller.isPadding;
     final isBorder = controller.isBorder;
     final isShadow = controller.isShadow;
@@ -2019,7 +1913,7 @@ class _ViewChild extends StatelessWidget {
 
     final borderRadius = isRippled
         ? null
-        : isRadius
+        : isRadius && !isCircular
             ? BorderRadius.only(
                 topLeft: Radius.circular(
                   controller.borderRadiusTLF,
@@ -2108,7 +2002,7 @@ class _ViewChild extends StatelessWidget {
                                       ),
                                   ]
                                 : null,
-                            shape: isCircular
+                            shape: isCircular && !isRippled
                                 ? BoxShape.circle
                                 : BoxShape.rectangle,
                           )

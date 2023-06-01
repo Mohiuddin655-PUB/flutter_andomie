@@ -89,11 +89,11 @@ class LinearLayout extends YMRView<LinearLayoutController> {
     super.shape,
     super.child,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
     this.onPagingListener,
     this.layoutGravity,
     this.orientation,
@@ -106,13 +106,13 @@ class LinearLayout extends YMRView<LinearLayoutController> {
   });
 
   @override
-  LinearLayoutController attachController() {
+  LinearLayoutController initController() {
     return LinearLayoutController();
   }
 
   @override
-  LinearLayoutController initController(LinearLayoutController controller) {
-    return controller.attach(
+  LinearLayoutController attachController(LinearLayoutController controller) {
+    return controller.fromView(
       this,
       crossGravity: crossGravity,
       mainGravity: mainGravity,
@@ -171,7 +171,7 @@ class LinearLayoutController extends ViewController {
   OnViewChangeListener? onPagingListener;
 
   @override
-  LinearLayoutController attach(
+  LinearLayoutController fromView(
     YMRView<ViewController> view, {
     Axis? orientation,
     LayoutGravity? layoutGravity,
@@ -183,7 +183,7 @@ class LinearLayoutController extends ViewController {
     List<Widget>? children,
     OnViewChangeListener? onPagingListener,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.orientation = orientation ?? Axis.vertical;
     this.layoutGravity = layoutGravity ?? LayoutGravity.start;
     _mainGravity = mainGravity;

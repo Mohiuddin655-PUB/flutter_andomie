@@ -78,15 +78,15 @@ class MaterialImageView<T extends Object>
   }) : super(key: key);
 
   @override
-  MaterialImageViewController<T> attachController() {
+  MaterialImageViewController<T> initController() {
     return MaterialImageViewController<T>();
   }
 
   @override
-  MaterialImageViewController<T> initController(
+  MaterialImageViewController<T> attachController(
     MaterialImageViewController<T> controller,
   ) {
-    return controller.attach(
+    return controller.fromView(
       this,
       frameRatio: frameRatio,
       frameBuilder: frameRatioBuilder,
@@ -593,7 +593,7 @@ class MaterialImageViewController<T> extends ViewController {
   ImageType? placeholderType;
 
   @override
-  MaterialImageViewController<T> attach(
+  MaterialImageViewController<T> fromView(
     YMRView<ViewController> view, {
     double? frameRatio,
     MIVFrameRatioBuilder? frameBuilder,
@@ -604,7 +604,7 @@ class MaterialImageViewController<T> extends ViewController {
     dynamic placeholder,
     ImageType? placeholderType,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.frameRatio = frameRatio;
     this.frameRatioBuilder = frameBuilder;
     this.itemBackground = itemBackground;

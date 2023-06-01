@@ -95,15 +95,15 @@ class RecyclerView<T> extends YMRView<RecyclerViewController<T>> {
   }) : super(key: key);
 
   @override
-  RecyclerViewController<T> attachController() {
+  RecyclerViewController<T> initController() {
     return RecyclerViewController<T>();
   }
 
   @override
-  RecyclerViewController<T> initController(
+  RecyclerViewController<T> attachController(
     RecyclerViewController<T> controller,
   ) {
-    return controller.attach(
+    return controller.fromView(
       this,
       items: items,
       direction: direction,
@@ -519,7 +519,7 @@ class RecyclerViewController<T> extends ViewController {
   }
 
   @override
-  RecyclerViewController<T> attach(
+  RecyclerViewController<T> fromView(
     YMRView<ViewController> view, {
     Axis? direction,
     List<T>? items,
@@ -530,7 +530,7 @@ class RecyclerViewController<T> extends ViewController {
     OnViewChangeListener? onPagingListener,
     ScrollController? scrollController,
   }) {
-    super.attach(view);
+    super.fromView(view);
     _itemCount = itemCount;
     this.items = items ?? [];
     this.direction = direction ?? Axis.vertical;
@@ -593,40 +593,40 @@ class RecyclerViewController<T> extends ViewController {
   void removeItem(T? item) {
     if (item != null) {
       items.remove(item);
-      notify;
+      _notify;
     }
   }
 
   void removeAt(int index) {
     if (index >= 0 && index < items.length) {
       items.removeAt(index);
-      notify;
+      _notify;
     }
   }
 
   void setItems(List<T> value) {
     items = value;
-    notify;
+    _notify;
   }
 
   void setDirection(Axis value) {
     direction = value;
-    notify;
+    _notify;
   }
 
   void setItemCount(int value) {
     _itemCount = value;
-    notify;
+    _notify;
   }
 
   void setSnapCount(int value) {
     snapCount = value;
-    notify;
+    _notify;
   }
 
   void setRecyclerType(RecyclerLayoutType value) {
     layoutType = value;
-    notify;
+    _notify;
   }
 
   void _dispose() {

@@ -60,13 +60,13 @@ class FlexibleView extends YMRView<FlexibleViewController> {
   }) : super(key: key);
 
   @override
-  FlexibleViewController attachController() {
+  FlexibleViewController initController() {
     return FlexibleViewController();
   }
 
   @override
-  FlexibleViewController initController(FlexibleViewController controller) {
-    return controller.attach(
+  FlexibleViewController attachController(FlexibleViewController controller) {
+    return controller.fromView(
       this,
       flexible: flexible,
       flexPosition: flexPosition,
@@ -115,13 +115,13 @@ class FlexibleViewController extends ViewController {
   bool get isFront => visibleType == FlexVisibleType.front;
 
   @override
-  FlexibleViewController attach(
+  FlexibleViewController fromView(
     YMRView<ViewController> view, {
     Widget? flexible,
     FlexPosition? flexPosition,
     FlexVisibleType? visibleType,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.flexible = flexible ?? const SizedBox();
     this.flexPosition = flexPosition ?? FlexPosition.start;
     this.visibleType = visibleType ?? FlexVisibleType.front;

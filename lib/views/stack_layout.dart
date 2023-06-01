@@ -76,23 +76,23 @@ class StackLayout extends YMRView<StackLayoutController> {
     super.shape,
     super.child,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
     this.layoutGravity,
     this.children,
   }) : super(key: key);
 
   @override
-  StackLayoutController attachController() {
+  StackLayoutController initController() {
     return StackLayoutController();
   }
 
   @override
-  StackLayoutController initController(StackLayoutController controller) {
-    return controller.attach(
+  StackLayoutController attachController(StackLayoutController controller) {
+    return controller.fromView(
       this,
       layoutGravity: layoutGravity,
       children: children,
@@ -113,12 +113,12 @@ class StackLayoutController extends ViewController {
   List<Widget> children = [];
 
   @override
-  StackLayoutController attach(
+  StackLayoutController fromView(
     YMRView<ViewController> view, {
     Alignment? layoutGravity,
     List<Widget>? children,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.layoutGravity = layoutGravity ?? Alignment.center;
     this.children = children ?? [];
     return this;

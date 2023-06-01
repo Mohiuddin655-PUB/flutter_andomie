@@ -32,7 +32,7 @@ class _ViewNotifierState extends State<ViewNotifier> {
   @override
   void initState() {
     controller = widget.controller ?? NotifierViewController();
-    controller.setNotifier(setState);
+    controller._setNotifier(setState);
     initController();
     super.initState();
   }

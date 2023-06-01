@@ -1,29 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_andomie/widgets.dart';
+part of '../widgets.dart';
 
-class Button extends YMRView<ButtonController> {
-  final String? text;
-  final double? textSize;
-  final FontWeight? textWeight;
-  final TextStyle? textStyle;
+class Button extends TextView<ButtonController> {
+  final bool? centerText;
   final dynamic icon;
-  final double? iconSize;
-  final bool? expended;
-  final EdgeInsetsGeometry? iconPadding;
-  final IconAlignment? iconAlignment;
-  final bool? textAllCaps;
-  final Color? textColor;
-
-  final ValueState<String>? textState;
   final ValueState<dynamic>? iconState;
-  final ValueState<Color>? colorState;
+  final double? iconSize;
+  final ValueState<double>? iconSizeState;
+  final bool? iconFlexible;
+  final double? iconSpace;
+  final IconAlignment? iconAlignment;
 
   const Button({
     super.key,
     super.controller,
     super.absorbMode,
-    super.animation,
-    super.animationType,
     super.flex,
     super.activated,
     super.enabled,
@@ -92,85 +82,69 @@ class Button extends YMRView<ButtonController> {
     super.position,
     super.positionType,
     super.shadowType,
-    super.shape,
-    super.child,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
-    this.text,
-    this.textSize,
-    this.textWeight,
-    this.textStyle,
+    super.onLongClickHandler,
+    super.text,
+    super.textSize,
+    super.fontWeight,
+    super.textStyle,
+    super.textAllCaps,
+    super.textColor,
+    super.textState,
+    this.centerText,
+    this.iconFlexible,
     this.icon,
-    this.iconSize,
-    this.expended,
-    this.iconPadding,
-    this.iconAlignment,
-    this.textAllCaps,
-    this.textColor,
-    this.textState,
     this.iconState,
-    this.colorState,
+    this.iconSize,
+    this.iconSizeState,
+    this.iconSpace,
+    this.iconAlignment,
   });
 
   @override
-  ButtonController attachController() {
+  ButtonController initController() {
     return ButtonController();
   }
 
   @override
-  ButtonController initController(ButtonController controller) {
-    return controller.attach(
-      this,
-      text: text,
-      textSize: textSize,
-      textWeight: textWeight,
-      textState: textState,
-      icon: icon,
-      iconSize: iconSize,
-      expended: expended,
-      iconPadding: iconPadding,
-      iconAlignment: iconAlignment,
-      textAllCaps: textAllCaps,
-      textColor: textColor,
-      textStyle: textStyle,
-      iconState: iconState,
-      colorState: colorState,
-    );
+  ButtonController attachController(ButtonController controller) {
+    return controller.fromButton(this);
   }
 
   @override
   Widget? attach(BuildContext context, ButtonController controller) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        _Icon(
-          controller: controller,
-          visible: controller.icon != null &&
-              controller.iconAlignment == IconAlignment.start,
-          padding: controller.iconPadding,
-        ),
-        if (controller.icon != null &&
-            controller.iconAlignment == IconAlignment.start &&
-            controller.expended)
-          const Spacer(),
-        _Text(controller: controller),
-        if (controller.icon != null &&
-            controller.iconAlignment == IconAlignment.end &&
-            controller.expended)
-          const Spacer(),
-        _Icon(
-          controller: controller,
-          visible: controller.icon != null &&
-              controller.iconAlignment == IconAlignment.end,
-          padding: controller.iconPadding,
-        ),
-      ],
-    );
+    return controller.isCenterText
+        ? Stack(
+            alignment: Alignment.center,
+            children: [
+              _Text(controller: controller),
+              _Icon(
+                controller: controller,
+                visible: controller.icon != null,
+              ),
+            ],
+          )
+        : Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              _Icon(
+                controller: controller,
+                visible: controller.isStartIconVisible,
+              ),
+              if (controller.isStartIconFlex) const Spacer(),
+              _Text(controller: controller),
+              if (controller.isEndIconFlex) const Spacer(),
+              _Icon(
+                controller: controller,
+                visible: controller.isEndIconVisible,
+              ),
+            ],
+          );
   }
 }
 
@@ -184,12 +158,12 @@ class _Text extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return RawTextView(
+    return TextView(
       text: controller.text,
       textAlign: TextAlign.center,
       textColor: controller.color,
       textSize: controller.textSize,
-      fontWeight: controller.textWeight,
+      fontWeight: controller.fontWeight,
       textStyle: controller.textStyle,
     );
   }
@@ -198,100 +172,104 @@ class _Text extends StatelessWidget {
 class _Icon extends StatelessWidget {
   final ButtonController controller;
   final bool visible;
-  final EdgeInsetsGeometry? padding;
 
   const _Icon({
     Key? key,
     required this.controller,
     this.visible = true,
-    this.padding,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Visibility(
-      visible: visible,
-      child: Container(
-        padding: padding,
-        child: RawIconView(
-          icon: controller.icon,
-          tint: controller.color,
-          size: controller.iconSize,
-        ),
-      ),
+    return IconView(
+      visibility: visible ? ViewVisibility.visible : ViewVisibility.gone,
+      marginStart: !controller.isCenterText && controller.isEndIconVisible
+          ? controller.iconSpace
+          : null,
+      marginEnd: !controller.isCenterText && controller.isStartIconVisible
+          ? controller.iconSpace
+          : null,
+      position: controller.isCenterText
+          ? ViewPosition(
+              left: controller.isStartIconVisible ? 0 : null,
+              right: controller.isEndIconVisible ? 0 : null,
+            )
+          : null,
+      icon: controller.icon,
+      tint: controller.color,
+      size: controller.iconSize,
     );
   }
 }
 
-enum IconAlignment {
-  start,
-  end,
-}
-
-enum ButtonState {
-  disabled,
-  enabled,
-}
-
-class ButtonController extends ViewController {
-  String? _text;
-  double textSize = 14;
-  FontWeight? textWeight;
-  TextStyle textStyle = const TextStyle();
+class ButtonController extends TextViewController {
+  bool centerText = false;
   dynamic _icon;
-  double? iconSize;
-  bool expended = false;
-  EdgeInsetsGeometry? iconPadding;
-  IconAlignment? iconAlignment;
-  bool textAllCaps = false;
-  Color? textColor;
-
-  ValueState<String>? textState;
   ValueState<dynamic>? iconState;
-  ValueState<Color>? colorState;
+  double? _iconSize;
+  ValueState<double>? iconSizeState;
+  bool expended = false;
+  double iconSpace = 16;
+  IconAlignment iconAlignment = IconAlignment.end;
 
-  @override
-  ButtonController attach(
-    YMRView<ViewController> view, {
-    String? text,
-    double? textSize,
-    FontWeight? textWeight,
-    TextStyle? textStyle,
-    dynamic icon,
-    double? iconSize,
-    bool? expended,
-    EdgeInsetsGeometry? iconPadding,
-    IconAlignment? iconAlignment,
-    bool? textAllCaps,
-    Color? textColor,
-    ValueState<String>? textState,
-    ValueState<dynamic>? iconState,
-    ValueState<Color>? colorState,
-  }) {
-    super.attach(view);
-    _text = text;
-    this.textSize = textSize ?? 14;
-    this.textWeight = textWeight;
-    this.textStyle = textStyle = const TextStyle();
-    _icon = icon;
-    this.iconSize = iconSize;
-    this.expended = expended ?? false;
-    this.iconPadding = iconPadding;
-    this.iconAlignment = iconAlignment;
-    this.textAllCaps = textAllCaps ?? false;
-    this.textColor = textColor;
-    this.textState = textState;
-    this.iconState = iconState;
-    this.colorState = colorState;
+  ButtonController fromButton(Button view) {
+    super.fromTextView(view);
+    centerText = view.centerText ?? false;
+    _icon = view.icon;
+    iconState = view.iconState;
+    _iconSize = view.iconSize;
+    iconSizeState = view.iconSizeState;
+    expended = view.iconFlexible ?? false;
+    iconSpace = view.iconSpace ?? 16;
+    iconAlignment = view.iconAlignment ?? IconAlignment.end;
     return this;
-  }
-
-  String get text {
-    var value = textState?.activated(activated, enabled) ?? _text ?? "";
-    return textAllCaps ? value.toUpperCase() : value;
   }
 
   dynamic get icon => iconState?.activated(activated, enabled) ?? _icon;
 
-  Color? get color => colorState?.activated(activated, enabled) ?? textColor;
+  double get iconSize =>
+      iconSizeState?.activated(activated, enabled) ?? _iconSize ?? textSize;
+
+  bool get isCenterText => centerText;
+
+  get isStartIconVisible => iconAlignment.isStart && icon != null;
+
+  bool get isEndIconVisible => iconAlignment.isEnd && icon != null;
+
+  bool get isStartIconFlex => isStartIconVisible && expended;
+
+  bool get isEndIconFlex => isEndIconVisible && expended;
+
+  Color? get color {
+    var I = textColorState?.activated(activated, enabled) ?? textColor;
+    if (I == null) {
+      return enabled ? Colors.white : Colors.grey.shade400;
+    }
+    return I;
+  }
+
+  @override
+  Color? get background {
+    if (super.background == null) {
+      return enabled ? theme.primaryColor : Colors.grey.shade200;
+    }
+    return super.background;
+  }
+
+  @override
+  double? get paddingHorizontal => super.paddingHorizontal ?? 24;
+
+  @override
+  double? get paddingVertical => super.paddingVertical ?? 12;
+
+  @override
+  double? get height => super.isPadding ? null : super.height;
+}
+
+enum IconAlignment { start, end }
+
+extension IconAlignException on IconAlignment {
+  bool get isStart => this == IconAlignment.start;
+
+  bool get isEnd => this == IconAlignment.end;
 }

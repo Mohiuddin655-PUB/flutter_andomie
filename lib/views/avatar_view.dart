@@ -42,11 +42,11 @@ class AvatarView extends YMRView<AvatarViewController> {
     super.borderGradient,
     super.transform,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
     this.url,
     this.placeholder,
     this.size,
@@ -59,13 +59,13 @@ class AvatarView extends YMRView<AvatarViewController> {
   });
 
   @override
-  AvatarViewController attachController() {
+  AvatarViewController initController() {
     return AvatarViewController();
   }
 
   @override
-  AvatarViewController initController(AvatarViewController controller) {
-    return controller.attach(
+  AvatarViewController attachController(AvatarViewController controller) {
+    return controller.fromView(
       this,
       borderOverlay: borderOverlay,
       borderOverlayColor: borderOverlayColor,
@@ -149,7 +149,7 @@ class AvatarViewController extends ViewController {
   double borderOverlaySize = 0.2;
 
   @override
-  AvatarViewController attach(
+  AvatarViewController fromView(
     YMRView<ViewController> view, {
     String? url,
     dynamic placeholder,
@@ -163,7 +163,7 @@ class AvatarViewController extends ViewController {
     Color? borderOverlayColor,
     double? borderOverlaySize,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.url = url;
     this.placeholder = placeholder;
     this.size = size ?? 40;

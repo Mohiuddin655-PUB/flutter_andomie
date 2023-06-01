@@ -21,8 +21,11 @@ class TextView<T extends TextViewController> extends YMRView<T> {
   final FontWeight? fontWeight;
 
   final String? text;
+  final ValueState<String>? textState;
   final TextAlign? textAlign;
+  final bool? textAllCaps;
   final Color? textColor;
+  final ValueState<Color>? textColorState;
   final TextDecoration? textDecoration;
   final Color? textDecorationColor;
   final TextDecorationStyle? textDecorationStyle;
@@ -87,20 +90,24 @@ class TextView<T extends TextViewController> extends YMRView<T> {
     super.shadowTop,
     super.shadowBottom,
     super.background,
+    super.backgroundState,
+    super.backgroundBlendMode,
+    super.backgroundGradient,
+    super.backgroundGradientState,
+    super.backgroundImage,
+    super.backgroundImageState,
     super.foreground,
     super.borderColor,
     super.rippleColor,
     super.pressedColor,
     super.hoverColor,
     super.elevation,
+    super.ripple,
     super.shadowColor,
     super.gravity,
     super.transformGravity,
-    super.backgroundBlendMode,
     super.foregroundBlendMode,
-    super.backgroundImage,
     super.foregroundImage,
-    super.backgroundGradient,
     super.foregroundGradient,
     super.borderGradient,
     super.transform,
@@ -109,11 +116,12 @@ class TextView<T extends TextViewController> extends YMRView<T> {
     super.shadowType,
     super.shape,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
+    super.onToggle,
     this.maxCharacters,
     this.maxLines,
     this.letterSpacing,
@@ -129,9 +137,12 @@ class TextView<T extends TextViewController> extends YMRView<T> {
     this.fontFamily,
     this.fontStyle,
     this.fontWeight,
-    required this.text,
+    this.text,
+    this.textState,
     this.textAlign,
+    this.textAllCaps,
     this.textColor,
+    this.textColorState,
     this.textDecoration,
     this.textDecorationColor,
     this.textDecorationStyle,
@@ -145,43 +156,13 @@ class TextView<T extends TextViewController> extends YMRView<T> {
   }) : super(key: key);
 
   @override
-  T attachController() {
+  T initController() {
     return TextViewController() as T;
   }
 
   @override
-  T initController(T controller) {
-    return controller.attach(
-      this,
-      ellipsizeVisibility: ellipsizeVisibility,
-      ellipsizeLetterSpace: ellipsizeLetterSpace,
-      ellipsizeText: ellipsizeText,
-      ellipsizeTextColor: ellipsizeTextColor,
-      ellipsizeTextSize: ellipsizeTextSize,
-      ellipsizeTextStyle: ellipsizeTextStyle,
-      ellipsizeTextWeight: ellipsizeTextWeight,
-      fontFamily: fontFamily,
-      fontStyle: fontStyle,
-      fontWeight: fontWeight,
-      letterSpacing: letterSpacing,
-      lineSpacingExtra: lineSpacingExtra,
-      maxCharacters: maxCharacters,
-      maxLines: maxLines,
-      text: text,
-      textAlign: textAlign,
-      textColor: textColor,
-      textDecoration: textDecoration,
-      textDecorationColor: textDecorationColor,
-      textDecorationStyle: textDecorationStyle,
-      textDecorationThickness: textDecorationThickness,
-      textDirection: textDirection,
-      textLeadingDistribution: textLeadingDistribution,
-      textOverflow: textOverflow,
-      textSize: textSize,
-      textSpans: textSpans,
-      textStyle: textStyle,
-      wordSpacing: wordSpacing,
-    ) as T;
+  T attachController(T controller) {
+    return controller.fromTextView(this) as T;
   }
 
   @override
@@ -365,8 +346,11 @@ class TextViewController extends ViewController {
   FontWeight? fontWeight;
 
   String? _text;
+  ValueState<String>? textState;
   TextAlign? textAlign;
-  Color? textColor;
+  bool textAllCaps = false;
+  Color? _textColor;
+  ValueState<Color>? textColorState;
   TextDecoration? textDecoration;
   Color? textDecorationColor;
   TextDecorationStyle? textDecorationStyle;
@@ -378,86 +362,65 @@ class TextViewController extends ViewController {
   List<TextSpan>? textSpans;
   TextStyle textStyle = const TextStyle();
 
-  @override
-  TextViewController attach(
-    YMRView view, {
-    int? maxCharacters,
-    int? maxLines,
-    double? letterSpacing,
-    double? lineSpacingExtra,
-    double? wordSpacing,
-    String? ellipsizeText,
-    bool? ellipsizeVisibility,
-    double? ellipsizeLetterSpace,
-    Color? ellipsizeTextColor,
-    double? ellipsizeTextSize,
-    FontStyle? ellipsizeTextStyle,
-    FontWeight? ellipsizeTextWeight,
-    String? fontFamily,
-    FontStyle? fontStyle,
-    FontWeight? fontWeight,
-    String? text,
-    TextAlign? textAlign,
-    Color? textColor,
-    TextDecoration? textDecoration,
-    Color? textDecorationColor,
-    TextDecorationStyle? textDecorationStyle,
-    double? textDecorationThickness,
-    TextDirection? textDirection,
-    TextLeadingDistribution? textLeadingDistribution,
-    TextOverflow? textOverflow,
-    double? textSize,
-    List<TextSpan>? textSpans,
-    TextStyle? textStyle,
-  }) {
-    super.attach(view);
+  TextViewController fromTextView(TextView view) {
+    super.fromView(view);
 
-    this.maxCharacters = maxCharacters ?? 0;
-    this.maxLines = maxLines;
+    maxCharacters = view.maxCharacters ?? 0;
+    maxLines = view.maxLines;
 
-    this.letterSpacing = letterSpacing;
-    this.lineSpacingExtra = lineSpacingExtra ?? 0;
-    this.wordSpacing = wordSpacing;
+    letterSpacing = view.letterSpacing;
+    lineSpacingExtra = view.lineSpacingExtra ?? 0;
+    wordSpacing = view.wordSpacing;
 
-    this.ellipsizeVisibility = ellipsizeVisibility ?? false;
-    this.ellipsizeLetterSpace = ellipsizeLetterSpace;
-    this.ellipsizeText = ellipsizeText;
-    this.ellipsizeTextColor = ellipsizeTextColor;
-    this.ellipsizeTextSize = ellipsizeTextSize;
-    this.ellipsizeTextStyle = ellipsizeTextStyle;
-    this.ellipsizeTextWeight = ellipsizeTextWeight;
+    ellipsizeVisibility = view.ellipsizeVisibility ?? false;
+    ellipsizeLetterSpace = view.ellipsizeLetterSpace;
+    ellipsizeText = view.ellipsizeText;
+    ellipsizeTextColor = view.ellipsizeTextColor;
+    ellipsizeTextSize = view.ellipsizeTextSize;
+    ellipsizeTextStyle = view.ellipsizeTextStyle;
+    ellipsizeTextWeight = view.ellipsizeTextWeight;
 
-    this.fontFamily = fontFamily;
-    this.fontStyle = fontStyle;
-    this.fontWeight = fontWeight;
+    fontFamily = view.fontFamily;
+    fontStyle = view.fontStyle;
+    fontWeight = view.fontWeight;
 
-    this.text = text;
-    this.textAlign = textAlign;
-    this.textColor = textColor;
-    this.textDecoration = textDecoration;
-    this.textDecorationColor = textDecorationColor;
-    this.textDecorationStyle = textDecorationStyle;
-    this.textDecorationThickness = textDecorationThickness;
-    this.textDirection = textDirection;
-    this.textLeadingDistribution = textLeadingDistribution;
-    this.textOverflow = textOverflow;
-    this.textSize = textSize ?? 14;
-    this.textSpans = textSpans;
-    this.textStyle = textStyle ?? const TextStyle();
+    text = view.text;
+    textState = view.textState;
+    textAlign = view.textAlign;
+    textAllCaps = view.textAllCaps ?? false;
+    textColor = view.textColor;
+    textColorState = view.textColorState;
+    textDecoration = view.textDecoration;
+    textDecorationColor = view.textDecorationColor;
+    textDecorationStyle = view.textDecorationStyle;
+    textDecorationThickness = view.textDecorationThickness;
+    textDirection = view.textDirection;
+    textLeadingDistribution = view.textLeadingDistribution;
+    textOverflow = view.textOverflow;
+    textSize = view.textSize ?? 14;
+    textSpans = view.textSpans;
+    textStyle = view.textStyle ?? const TextStyle();
+
     return this;
   }
 
   set text(String? value) => _text = value;
 
   String get text {
-    final value = _text ?? "";
+    final value = textState?.activated(activated, enabled) ?? _text ?? "";
     if (maxCharacters > 0) {
       return value.substring(
         0,
         value.length > maxCharacters ? maxCharacters : value.length,
       );
     }
-    return value;
+    return textAllCaps ? value.toUpperCase() : value;
+  }
+
+  set textColor(Color? value) => _textColor = value;
+
+  Color? get textColor {
+    return textColorState?.activated(activated, enabled) ?? _textColor;
   }
 
   double? get spacingFactor {
@@ -478,106 +441,116 @@ class TextViewController extends ViewController {
 
   void setEllipsizeLetterSpace(double? value) {
     ellipsizeLetterSpace = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeText(String? value) {
     ellipsizeText = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeTextColor(Color? value) {
     ellipsizeTextColor = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeTextSize(double? value) {
     ellipsizeTextSize = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeTextStyle(FontStyle? value) {
     ellipsizeTextStyle = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeTextWeight(FontWeight value) {
     ellipsizeTextWeight = value;
-    notify;
+    _notify;
   }
 
   void setEllipsizeVisibility(bool value) {
     ellipsizeVisibility = value;
-    notify;
+    _notify;
   }
 
   void setFontWeight(FontWeight value) {
     fontWeight = value;
-    notify;
+    _notify;
   }
 
   void setLetterSpacing(double value) {
     letterSpacing = value;
-    notify;
+    _notify;
   }
 
   void setLineSpacingExtra(double value) {
     lineSpacingExtra = value;
-    notify;
+    _notify;
   }
 
   void setMaxLines(int? value) {
     maxLines = value;
-    notify;
+    _notify;
   }
 
   void setText(String value) {
     text = value;
-    notify;
+    _notify;
+  }
+
+  void setTextState(ValueState<String> value) {
+    textState = value;
+    _notify;
   }
 
   void setTextAlign(TextAlign value) {
     textAlign = value;
-    notify;
+    _notify;
   }
 
   void setTextColor(Color value) {
     textColor = value;
-    notify;
+    _notify;
+  }
+
+  void setTextColorState(ValueState<Color> value) {
+    textColorState = value;
+    _notify;
   }
 
   void setTextDirection(TextDirection value) {
     textDirection = value;
-    notify;
+    _notify;
   }
 
   void setTextLength(int value) {
     maxCharacters = value;
-    notify;
+    _notify;
   }
 
   void setTextOverflow(TextOverflow value) {
     textOverflow = value;
-    notify;
+    _notify;
   }
 
   void setTextSize(double value) {
     textSize = value;
-    notify;
+    _notify;
   }
 
   void setTextSpans(List<TextSpan> value) {
     textSpans = value;
-    notify;
+    _notify;
   }
 
   void setTextWeight(FontWeight value) {
     fontWeight = value;
-    notify;
+    _notify;
   }
 
   void setWordSpacing(double value) {
     wordSpacing = value;
-    notify;
+    _notify;
   }
 }

@@ -25,7 +25,7 @@ class IconView extends YMRView<IconViewController> {
     super.marginBottom,
     super.marginStart,
     super.marginEnd,
-    super.padding = 8,
+    super.padding,
     super.borderSize,
     super.borderHorizontal,
     super.borderVertical,
@@ -73,12 +73,12 @@ class IconView extends YMRView<IconViewController> {
     super.shadowType,
     super.shape,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
-    super.onToggleClick,
+    super.onLongClickHandler,
+    super.onToggle,
     this.icon,
     this.fit,
     this.iconState,
@@ -90,13 +90,13 @@ class IconView extends YMRView<IconViewController> {
   });
 
   @override
-  IconViewController attachController() {
+  IconViewController initController() {
     return IconViewController();
   }
 
   @override
-  IconViewController initController(IconViewController controller) {
-    return controller.attach(
+  IconViewController attachController(IconViewController controller) {
+    return controller.fromView(
       this,
       fit: fit,
       icon: icon,
@@ -213,7 +213,7 @@ class IconViewController extends ViewController {
   BlendMode tintMode = BlendMode.srcIn;
 
   @override
-  IconViewController attach(
+  IconViewController fromView(
     YMRView<ViewController> view, {
     BoxFit? fit,
     dynamic icon,
@@ -224,7 +224,7 @@ class IconViewController extends ViewController {
     ValueState<Color>? iconTintState,
     BlendMode? tintMode,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.fit = fit ?? BoxFit.contain;
     _icon = icon;
     this.iconState = iconState;
@@ -248,21 +248,21 @@ class IconViewController extends ViewController {
 
   void setIcon(dynamic value) {
     _icon = value;
-    notify;
+    _notify;
   }
 
   void setIconSize(double value) {
     _iconSize = value;
-    notify;
+    _notify;
   }
 
   void setIconTint(Color value) {
     _iconTint = value;
-    notify;
+    _notify;
   }
 
   void setIconTintState(ValueState<Color>? value) {
     tintState = value;
-    notify;
+    _notify;
   }
 }

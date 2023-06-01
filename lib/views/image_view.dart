@@ -121,12 +121,12 @@ class ImageView<T extends ImageViewController> extends YMRView<T> {
   }) : super(key: key);
 
   @override
-  T attachController() {
+  T initController() {
     return ImageViewController() as T;
   }
 
   @override
-  T initController(T controller) => controller.attach(
+  T attachController(T controller) => controller.fromView(
         this,
         cacheMode: cacheMode,
         placeholder: placeholder,
@@ -156,7 +156,7 @@ class ImageViewController extends ViewController {
   BoxFit? scaleType;
 
   @override
-  ImageViewController attach(
+  ImageViewController fromView(
     YMRView<ViewController> view, {
     bool? cacheMode,
     dynamic image,
@@ -165,7 +165,7 @@ class ImageViewController extends ViewController {
     ImageType? placeholderType,
     BoxFit? scaleType,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.cacheMode = cacheMode ?? true;
     this.placeholder = placeholder;
     this.scaleType = scaleType;

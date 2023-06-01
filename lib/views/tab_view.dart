@@ -91,11 +91,11 @@ class TabView extends YMRView<TabViewController> {
     super.shadowType,
     super.shape,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
     this.contentColor,
     this.contentColorState,
     this.icon,
@@ -117,13 +117,13 @@ class TabView extends YMRView<TabViewController> {
   });
 
   @override
-  TabViewController attachController() {
+  TabViewController initController() {
     return TabViewController();
   }
 
   @override
-  TabViewController initController(TabViewController controller) {
-    return controller.attach(
+  TabViewController attachController(TabViewController controller) {
+    return controller.fromView(
       this,
       contentColor: contentColor,
       contentColorState: contentColorState,
@@ -252,7 +252,7 @@ class TabViewController extends ViewController {
   bool Function(bool selected)? onVisibleTitleWhenTabSelected;
 
   @override
-  TabViewController attach(
+  TabViewController fromView(
     YMRView<ViewController> view, {
     Color? contentColor,
     ValueState<Color>? contentColorState,
@@ -273,7 +273,7 @@ class TabViewController extends ViewController {
     bool Function(bool selected)? onVisibleIconWhenTabSelected,
     bool Function(bool selected)? onVisibleTitleWhenTabSelected,
   }) {
-    super.attach(view);
+    super.fromView(view);
     _contentColor = contentColor ?? const Color(0xFF808080);
     this.contentColorState = contentColorState;
     _icon = icon;

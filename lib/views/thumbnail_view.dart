@@ -39,13 +39,13 @@ class ThumbnailView extends YMRView<ThumbnailViewController> {
   }) : super(key: key);
 
   @override
-  ThumbnailViewController attachController() {
+  ThumbnailViewController initController() {
     return ThumbnailViewController();
   }
 
   @override
-  ThumbnailViewController initController(ThumbnailViewController controller) {
-    return controller.attach(
+  ThumbnailViewController attachController(ThumbnailViewController controller) {
+    return controller.fromView(
       this,
       placeholder: placeholder,
       placeholderType: placeholderType,
@@ -95,14 +95,14 @@ class ThumbnailViewController extends ViewController {
   BoxFit? scaleType;
 
   @override
-  ThumbnailViewController attach(
+  ThumbnailViewController fromView(
     YMRView<ViewController> view, {
     dynamic placeholder,
     ImageType? placeholderType,
     BoxFit? scaleType,
     String? url,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.placeholder = placeholder;
     this.placeholderType = placeholderType ?? ImageType.asset;
     this.scaleType = scaleType;

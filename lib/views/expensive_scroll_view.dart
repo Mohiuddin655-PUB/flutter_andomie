@@ -94,14 +94,14 @@ class ExpensiveScrollView extends YMRView<ExpensiveScrollViewController> {
   }) : super(key: key);
 
   @override
-  ExpensiveScrollViewController attachController() {
+  ExpensiveScrollViewController initController() {
     return ExpensiveScrollViewController();
   }
 
   @override
-  ExpensiveScrollViewController initController(
+  ExpensiveScrollViewController attachController(
       ExpensiveScrollViewController controller) {
-    return controller.attach(
+    return controller.fromView(
       this,
       orientation: orientation,
       scrollingType: scrollingType,
@@ -127,12 +127,12 @@ class ExpensiveScrollViewController extends ViewController {
   ScrollingType scrollingType = ScrollingType.none;
 
   @override
-  ExpensiveScrollViewController attach(
+  ExpensiveScrollViewController fromView(
     YMRView<ViewController> view, {
     Axis? orientation,
     ScrollingType? scrollingType,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.orientation = orientation ?? Axis.vertical;
     this.scrollingType = scrollingType ?? ScrollingType.none;
     return this;

@@ -80,11 +80,11 @@ class ViewPager extends YMRView<ViewPagerController> {
   });
 
   @override
-  ViewPagerController attachController() => ViewPagerController();
+  ViewPagerController initController() => ViewPagerController();
 
   @override
-  ViewPagerController initController(ViewPagerController controller) {
-    return controller.attach(
+  ViewPagerController attachController(ViewPagerController controller) {
+    return controller.fromView(
       this,
       items: items,
       onPageChange: onPageChange,
@@ -118,12 +118,12 @@ class ViewPagerController extends ViewController {
   }
 
   @override
-  ViewPagerController attach(
+  ViewPagerController fromView(
     YMRView<ViewController> view, {
     List<Widget>? items,
     OnPageChangeListener? onPageChange,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.items = items ?? [];
     this.onPageChange = onPageChange;
     return this;

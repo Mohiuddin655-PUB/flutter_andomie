@@ -76,23 +76,23 @@ class StreamView<T> extends YMRView<StreamViewController> {
     super.shadowType,
     super.shape,
     super.onClick,
-    super.onClickHandle,
+    super.onClickHandler,
     super.onDoubleClick,
-    super.onDoubleClickHandle,
+    super.onDoubleClickHandler,
     super.onLongClick,
-    super.onLongClickHandle,
+    super.onLongClickHandler,
     required this.stream,
     required this.builder,
   });
 
   @override
-  StreamViewController attachController() {
+  StreamViewController initController() {
     return StreamViewController();
   }
 
   @override
-  StreamViewController initController(StreamViewController controller) {
-    return controller.attach(this);
+  StreamViewController attachController(StreamViewController controller) {
+    return controller.fromView(this);
   }
 
   @override
@@ -109,10 +109,10 @@ class StreamView<T> extends YMRView<StreamViewController> {
 
 class StreamViewController extends ViewController {
   @override
-  StreamViewController attach(
+  StreamViewController fromView(
     YMRView<ViewController> view,
   ) {
-    super.attach(view);
+    super.fromView(view);
     return this;
   }
 }

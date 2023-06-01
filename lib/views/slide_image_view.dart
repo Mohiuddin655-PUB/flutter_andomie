@@ -69,15 +69,15 @@ class SlideImageView<T> extends YMRView<SlideImageViewController<T>> {
   }) : super(key: key);
 
   @override
-  SlideImageViewController<T> attachController() {
+  SlideImageViewController<T> initController() {
     return SlideImageViewController<T>();
   }
 
   @override
-  SlideImageViewController<T> initController(
+  SlideImageViewController<T> attachController(
     SlideImageViewController<T> controller,
   ) {
-    return controller.attach(
+    return controller.fromView(
       this,
       counterBuilder: counterBuilder,
       counterPosition: counterPosition,
@@ -232,7 +232,7 @@ class SlideImageViewController<T> extends ViewController {
   int index = 0;
 
   @override
-  SlideImageViewController<T> attach(
+  SlideImageViewController<T> fromView(
     YMRView<ViewController> view, {
     SIVChangedHandler<T>? changedHandler,
     SIVCounterBuilder<T>? counterBuilder,
@@ -265,7 +265,7 @@ class SlideImageViewController<T> extends ViewController {
     this.pager = PageController(initialPage: index);
     this.counter = TextViewController();
     this.notifyCounter = NotifierViewController();
-    super.attach(view);
+    super.fromView(view);
     return this;
   }
 

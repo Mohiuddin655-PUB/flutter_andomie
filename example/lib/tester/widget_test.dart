@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/widgets.dart';
 
@@ -8,31 +10,26 @@ class ViewTest extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 12,
+      child: Column(
         children: [
           Button(
-            width: 120,
             icon: Icons.add,
             iconSize: 18,
-            expended: true,
+            iconSpace: 0,
             text: "Click",
             borderRadius: 24,
-            onClick: (c){
-
-            },
+            width: 100,
+            onClick: (c) {},
           ),
-          ToggleButton(
-            width: 120,
+          Button(
+            marginTop: 12,
             icon: Icons.add,
             iconSize: 18,
-            expended: true,
-            text: "Click",
-            borderRadius: 24,
-            onClick: (c){
-
-            },
+            width: 200,
+            text: "Google",
+            centerText: true,
+            borderRadius: 50,
+            onClick: (c) {},
           ),
         ],
       ),

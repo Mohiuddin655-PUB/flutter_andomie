@@ -146,7 +146,7 @@ class TabLayout extends YMRView<TabLayoutController> {
   });
 
   @override
-  TabLayoutController attachController() {
+  TabLayoutController initController() {
     return TabLayoutController();
   }
 
@@ -159,8 +159,8 @@ class TabLayout extends YMRView<TabLayoutController> {
   }
 
   @override
-  TabLayoutController initController(TabLayoutController controller) {
-    return controller.attach(
+  TabLayoutController attachController(TabLayoutController controller) {
+    return controller.fromView(
       this,
       pagerController: pagerController,
       items: tabs,
@@ -312,7 +312,7 @@ class TabLayoutController extends ViewController {
       _tabIconTintState ?? tabContentColorState;
 
   @override
-  TabLayoutController attach(
+  TabLayoutController fromView(
     YMRView<ViewController> view, {
     ViewPagerController? pagerController,
     List<TabItem>? items,
@@ -350,7 +350,7 @@ class TabLayoutController extends ViewController {
     bool Function(bool selected)? onVisibleIconWhenTabSelected,
     bool Function(bool selected)? onVisibleTitleWhenTabSelected,
   }) {
-    super.attach(view);
+    super.fromView(view);
     this.pagerController = pagerController ?? ViewPagerController();
     this.items = items ?? [];
 
