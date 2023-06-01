@@ -21,16 +21,146 @@ typedef OnViewNotifier = void Function(VoidCallback fn);
 typedef OnViewNotifyListener<T extends ViewController> = Function(T controller);
 
 class ViewController {
+  @mustCallSuper
+  ViewController fromView(YMRView view) {
+    hoverColor = view.hoverColor;
+    pressedColor = view.pressedColor;
+    _ripple = view.ripple ?? 10;
+    rippleColor = view.rippleColor ?? Colors.white;
+
+    // VIEW CONDITIONAL PROPERTIES
+    absorbMode = view.absorbMode ?? false;
+    activated = view.activated ?? false;
+    enabled = view.enabled ?? true;
+
+    // ANIMATION PROPERTIES
+    animation = view.animation ?? 0;
+    animationType = view.animationType ?? Curves.linear;
+
+    // VIEW SIZE PROPERTIES
+    flex = view.flex ?? 0;
+    _dimensionRatio = view.dimensionRatio;
+    elevation = view.elevation ?? 0;
+    _width = view.width;
+    _widthMax = view.widthMax;
+    _widthMin = view.widthMin;
+    _height = view.height;
+    _heightMax = view.heightMax;
+    _heightMin = view.heightMin;
+
+    // VIEW MARGIN PROPERTIES
+    margin = view.margin ?? 0;
+    marginVertical = view.marginVertical;
+    _marginStart = view.marginStart;
+    _marginEnd = view.marginEnd;
+    _marginTop = view.marginTop;
+    _marginBottom = view.marginBottom;
+    marginHorizontal = view.marginHorizontal;
+
+    // VIEW PADDING PROPERTIES
+    padding = view.padding ?? 0;
+    _paddingStart = view.paddingStart;
+    _paddingEnd = view.paddingEnd;
+    _paddingTop = view.paddingTop;
+    _paddingBottom = view.paddingBottom;
+    paddingHorizontal = view.paddingHorizontal;
+    paddingVertical = view.paddingVertical;
+
+    // VIEW BORDER PROPERTIES
+    borderColor = view.borderColor;
+    borderGradient = view.borderGradient;
+    border = view.borderSize ?? 0;
+    _borderStart = view.borderStart;
+    _borderEnd = view.borderEnd;
+    _borderTop = view.borderTop;
+    _borderBottom = view.borderBottom;
+    borderHorizontal = view.borderHorizontal;
+    borderVertical = view.borderVertical;
+
+    // VIEW BORDER RADIUS PROPERTIES
+    borderRadius = view.borderRadius ?? 0;
+    _borderRadiusBL = view.borderRadiusBL;
+    _borderRadiusBR = view.borderRadiusBR;
+    _borderRadiusTL = view.borderRadiusTL;
+    _borderRadiusTL = view.borderRadiusTL;
+
+    // VIEW SHADOW PROPERTIES
+    shadowColor = view.shadowColor;
+    shadow = view.shadow ?? 0;
+    _shadowStart = view.shadowStart;
+    _shadowEnd = view.shadowEnd;
+    _shadowTop = view.shadowTop;
+    _shadowBottom = view.shadowBottom;
+    shadowHorizontal = view.shadowHorizontal;
+    shadowVertical = view.shadowVertical;
+    shadowBlurRadius = view.shadowBlurRadius ?? 5;
+    shadowBlurStyle = view.shadowBlurStyle ?? BlurStyle.normal;
+    shadowSpreadRadius = view.shadowSpreadRadius ?? 0;
+    shadowType = view.shadowType ?? ViewShadowType.none;
+
+    // VIEW DECORATION PROPERTIES
+    _background = view.background;
+    foreground = view.foreground;
+    backgroundBlendMode = view.backgroundBlendMode;
+    foregroundBlendMode = view.foregroundBlendMode;
+    _backgroundGradient = view.backgroundGradient;
+    foregroundGradient = view.foregroundGradient;
+    _backgroundImage = view.backgroundImage;
+    foregroundImage = view.foregroundImage;
+    clipBehavior = view.clipBehavior ?? Clip.antiAlias;
+    gravity = view.gravity;
+    transform = view.transform;
+    transformGravity = view.transformGravity;
+    transform = view.transform;
+    _position = view.position;
+    positionType = view.positionType ?? ViewPositionType.none;
+    shape = view.shape ?? ViewShape.rectangular;
+    visibility = view.visibility ?? ViewVisibility.visible;
+    child = view.child;
+
+    // Properties
+    roots = view.roots;
+
+    // Value States
+    backgroundState = view.backgroundState;
+    backgroundImageState = view.backgroundImageState;
+    backgroundGradientState = view.backgroundGradientState;
+
+    // VIEW LISTENER PROPERTIES
+    onClick = view.onClick;
+    onDoubleClick = view.onDoubleClick;
+    onLongClick = view.onLongClick;
+    onClickHandler = view.onClickHandler;
+    onDoubleClickHandler = view.onDoubleClickHandler;
+    onLongClickHandler = view.onLongClickHandler;
+    onToggle = view.onToggle;
+
+    return this;
+  }
+
   late BuildContext context;
+
+  ViewRoots roots = const ViewRoots();
+
+  ViewDefaultProperties defaultProperties = const ViewDefaultProperties();
 
   ThemeData get theme => Theme.of(context);
 
   double elevation = 0;
   double _ripple = 10;
 
+  Color? _background;
   Color? hoverColor;
   Color? pressedColor;
   Color _rippleColor = Colors.white;
+
+  BlendMode? backgroundBlendMode;
+  Gradient? _backgroundGradient;
+  DecorationImage? _backgroundImage;
+
+  ValueState<Color>? backgroundState;
+  ValueState<Gradient>? backgroundGradientState;
+  ValueState<DecorationImage>? backgroundImageState;
 
   double get ripple {
     if (_ripple > 0) {
@@ -44,19 +174,11 @@ class ViewController {
     }
   }
 
-  set rippleColor(Color value) => _rippleColor = value;
-
   Color get rippleColor {
     return _rippleColor.withOpacity(ripple / 100);
   }
 
-  Color? _background;
-  ValueState<Color>? backgroundState;
-  BlendMode? backgroundBlendMode;
-  Gradient? _backgroundGradient;
-  ValueState<Gradient>? backgroundGradientState;
-  DecorationImage? _backgroundImage;
-  ValueState<DecorationImage>? backgroundImageState;
+  set rippleColor(Color value) => _rippleColor = value;
 
   set background(Color? value) => _background = value;
 
@@ -94,7 +216,7 @@ class ViewController {
 
   double get dimensionRatio => _dimensionRatio ?? 0;
 
-  bool get isDimensional => root.ratio && dimensionRatio > 0;
+  bool get isDimensional => roots.ratio && dimensionRatio > 0;
 
   Color? foreground;
 
@@ -291,8 +413,6 @@ class ViewController {
 
   double get shadowBottom => _shadowBottom ?? shadowVertical ?? shadow;
 
-  ViewProperties root = const ViewProperties();
-
   ViewShape shape = ViewShape.rectangular;
 
   ViewVisibility visibility = ViewVisibility.visible;
@@ -318,63 +438,64 @@ class ViewController {
 
   OnViewToggleListener? _onToggleClick;
 
-  OnViewToggleListener? get onToggleClick => enabled ? _onToggleClick : null;
+  OnViewToggleListener? get onToggle => enabled ? _onToggleClick : null;
 
-  set onToggleClick(OnViewToggleListener? listener) =>
-      _onToggleClick ??= listener;
+  set onToggle(OnViewToggleListener? listener) => _onToggleClick ??= listener;
 
-  OnViewNotifyListener? onClickHandle, onDoubleClickHandle, onLongClickHandle;
+  OnViewNotifyListener? onClickHandler,
+      onDoubleClickHandler,
+      onLongClickHandler;
 
   OnViewNotifier? _onNotifier;
 
   bool get isHeight => height != null;
 
   bool get isObservable {
-    return root.observer &&
+    return roots.observer &&
         (isClickable || isDoubleClickable || isLongClickable);
   }
 
-  bool get isClickable => onClick != null || onClickHandle != null;
+  bool get isClickable => onClick != null || onClickHandler != null;
 
   bool get isDoubleClickable =>
-      onDoubleClick != null || onDoubleClickHandle != null;
+      onDoubleClick != null || onDoubleClickHandler != null;
 
-  bool get isLongClickable => onLongClick != null || onLongClickHandle != null;
+  bool get isLongClickable => onLongClick != null || onLongClickHandler != null;
 
-  bool get isRippled => root.ripple && _ripple > 0 && isObservable;
+  bool get isRippled => roots.ripple && _ripple > 0 && isObservable;
 
-  bool get isToggleClickable => onToggleClick != null;
+  bool get isToggleClickable => onToggle != null;
 
   bool get isPositional {
-    return root.position &&
+    return roots.position &&
         (_position != null || positionType != ViewPositionType.none);
   }
 
   bool get isExpendable {
-    return root.flex && flex > 0;
+    return roots.flex && flex > 0;
   }
 
   bool get isBorder {
     final x = borderStart + borderEnd + borderTop + borderBottom;
-    return root.border && x > 0;
+    return roots.border && x > 0;
   }
 
   bool get isBorderRadius {
     final x =
         borderRadiusBLF + borderRadiusBRF + borderRadiusTLF + borderRadiusTRF;
-    return root.radius && x > 0;
+    return roots.radius && x > 0;
   }
 
   bool get isMargin {
-    return root.margin && marginAll > 0;
+    return roots.margin && marginAll > 0;
   }
 
   bool get isPadding {
-    return root.padding && paddingAll > 0;
+    return roots.padding && paddingAll > 0;
   }
 
   bool get isConstraints =>
-      root.constraints &&
+      roots.constraints &&
       (_widthMax != null ||
           _widthMin != null ||
           _heightMax != null ||
@@ -382,16 +503,16 @@ class ViewController {
 
   bool get isShadow {
     final x = shadowStart + shadowEnd + shadowTop + shadowBottom;
-    return root.shadow && (x > 0 || shadowType == ViewShadowType.overlay);
+    return roots.shadow && (x > 0 || shadowType == ViewShadowType.overlay);
   }
 
   bool get isOverlayShadow =>
-      root.shadow && shadowType == ViewShadowType.overlay;
+      roots.shadow && shadowType == ViewShadowType.overlay;
 
-  bool get isCircular => root.shape && shape == ViewShape.circular;
+  bool get isCircular => roots.shape && shape == ViewShape.circular;
 
   bool get isRadius {
-    var a = root.radius;
+    var a = roots.radius;
     var b = !isCircular;
     var c = isBorderRadius;
     return a && b && c;
@@ -414,425 +535,6 @@ class ViewController {
       _onNotifier?.call(() {});
     }
   }
-
-  ViewDefaultProperties defaultProperties = const ViewDefaultProperties();
-
-  ViewController({
-    this.root = const ViewProperties(),
-    this.hoverColor,
-    this.pressedColor,
-    double ripple = 10,
-    Color rippleColor = Colors.transparent,
-    Color? background,
-    this.backgroundState,
-    this.backgroundBlendMode,
-    Gradient? backgroundGradient,
-    this.backgroundGradientState,
-    DecorationImage? backgroundImage,
-    this.backgroundImageState,
-    this.absorbMode = false,
-    this.activated = false,
-    this.enabled = true,
-    this.visibility = ViewVisibility.visible,
-    this.flex = 0,
-    double? dimensionRatio,
-    this.elevation = 0,
-    double? width,
-    double? widthMax,
-    double? widthMin,
-    double? height,
-    double? heightMax,
-    double? heightMin,
-    this.animation = 0,
-    this.animationType = Curves.linear,
-    this.margin = 0,
-    this.marginHorizontal,
-    this.marginVertical,
-    double? marginTop,
-    double? marginBottom,
-    double? marginStart,
-    double? marginEnd,
-    this.padding = 0,
-    this.paddingHorizontal,
-    this.paddingVertical,
-    double? paddingTop,
-    double? paddingBottom,
-    double? paddingStart,
-    double? paddingEnd,
-    this.border = 0,
-    this.borderHorizontal,
-    this.borderVertical,
-    double? borderTop,
-    double? borderBottom,
-    double? borderStart,
-    double? borderEnd,
-    this.borderRadius = 0,
-    double? borderRadiusBL,
-    double? borderRadiusBR,
-    double? borderRadiusTL,
-    double? borderRadiusTR,
-    this.shadow = 0,
-    this.shadowBlurRadius = 0,
-    this.shadowSpreadRadius = 0,
-    this.shadowHorizontal,
-    this.shadowVertical,
-    double? shadowStart,
-    double? shadowEnd,
-    double? shadowTop,
-    double? shadowBottom,
-    this.foreground,
-    this.borderColor,
-    this.shadowColor,
-    this.gravity,
-    this.transformGravity,
-    this.foregroundBlendMode,
-    this.foregroundImage,
-    this.foregroundGradient,
-    this.borderGradient,
-    this.transform,
-    this.shadowBlurStyle = BlurStyle.normal,
-    this.clipBehavior = Clip.antiAlias,
-    this.shadowType = ViewShadowType.none,
-    ViewPosition? position,
-    this.positionType = ViewPositionType.none,
-    this.shape = ViewShape.rectangular,
-    this.child,
-    this.onClickHandle,
-    this.onDoubleClickHandle,
-    this.onLongClickHandle,
-    OnViewClickListener? onClick,
-    OnViewClickListener? onDoubleClick,
-    OnViewClickListener? onLongClick,
-    OnViewToggleListener? onViewNotify,
-  })  : _ripple = ripple,
-        _rippleColor = rippleColor,
-        _background = background,
-        _backgroundGradient = backgroundGradient,
-        _backgroundImage = backgroundImage,
-        _marginStart = marginStart,
-        _marginEnd = marginEnd,
-        _marginTop = marginTop,
-        _marginBottom = marginBottom,
-        _paddingStart = paddingStart,
-        _paddingEnd = paddingEnd,
-        _paddingTop = paddingTop,
-        _paddingBottom = paddingBottom,
-        _position = position,
-        _shadowBottom = shadowBottom,
-        _shadowTop = shadowTop,
-        _shadowEnd = shadowEnd,
-        _shadowStart = shadowStart,
-        _heightMin = heightMin,
-        _heightMax = heightMax,
-        _widthMin = widthMin,
-        _widthMax = widthMax,
-        _width = width,
-        _height = height,
-        _borderRadiusTR = borderRadiusTR,
-        _borderRadiusTL = borderRadiusTL,
-        _borderRadiusBR = borderRadiusBR,
-        _borderRadiusBL = borderRadiusBL,
-        _borderEnd = borderEnd,
-        _borderStart = borderStart,
-        _borderBottom = borderBottom,
-        _borderTop = borderTop,
-        _dimensionRatio = dimensionRatio,
-        _onClick = onClick,
-        _onDoubleClick = onDoubleClick,
-        _onLongClick = onLongClick;
-
-  ViewController properties({
-    required bool? absorbMode,
-    required bool? activated,
-    required bool? enabled,
-    required int? animation,
-    required Curve? animationType,
-    required int? flex,
-    required double? dimensionRatio,
-    required double? elevation,
-    required double? ripple,
-    required double? width,
-    required double? widthMax,
-    required double? widthMin,
-    required double? height,
-    required double? heightMax,
-    required double? heightMin,
-    required double? margin,
-    required double? marginHorizontal,
-    required double? marginVertical,
-    required double? marginTop,
-    required double? marginBottom,
-    required double? marginStart,
-    required double? marginEnd,
-    required double? padding,
-    required double? paddingHorizontal,
-    required double? paddingVertical,
-    required double? paddingTop,
-    required double? paddingBottom,
-    required double? paddingStart,
-    required double? paddingEnd,
-    required double? border,
-    required double? borderHorizontal,
-    required double? borderVertical,
-    required double? borderTop,
-    required double? borderBottom,
-    required double? borderStart,
-    required double? borderEnd,
-    required double? borderRadius,
-    required double? borderRadiusBL,
-    required double? borderRadiusBR,
-    required double? borderRadiusTL,
-    required double? borderRadiusTR,
-    required double? shadow,
-    required double? shadowBlurRadius,
-    required double? shadowSpreadRadius,
-    required double? shadowHorizontal,
-    required double? shadowVertical,
-    required double? shadowStart,
-    required double? shadowEnd,
-    required double? shadowTop,
-    required double? shadowBottom,
-    required Color? background,
-    required Color? borderColor,
-    required Color? foreground,
-    required Color? hoverColor,
-    required Color? pressedColor,
-    required Color? rippleColor,
-    required Color? shadowColor,
-    required Alignment? gravity,
-    required Alignment? transformGravity,
-    required BlendMode? backgroundBlendMode,
-    required BlendMode? foregroundBlendMode,
-    required DecorationImage? backgroundImage,
-    required DecorationImage? foregroundImage,
-    required Gradient? backgroundGradient,
-    required Gradient? foregroundGradient,
-    required Gradient? borderGradient,
-    required Matrix4? transform,
-    required BlurStyle? shadowBlurStyle,
-    required Clip? clipBehavior,
-    required ViewShadowType? shadowType,
-    required ViewPosition? position,
-    required ViewPositionType? positionType,
-    required ViewProperties? root,
-    required ViewShape? shape,
-    required ViewVisibility? visibility,
-    required Widget? child,
-    required ValueState<Color>? backgroundState,
-    required ValueState<Gradient>? backgroundGradientState,
-    required ValueState<DecorationImage>? backgroundImageState,
-    required OnViewClickListener? onClick,
-    required OnViewClickListener? onDoubleClick,
-    required OnViewClickListener? onLongClick,
-    required OnViewNotifyListener? onClickHandle,
-    required OnViewNotifyListener? onDoubleClickHandle,
-    required OnViewNotifyListener? onLongClickHandle,
-    required OnViewToggleListener? onToggleClick,
-  }) {
-    this.hoverColor = hoverColor;
-    this.pressedColor = pressedColor;
-    _ripple = ripple ?? 10;
-    this.rippleColor = rippleColor ?? Colors.white;
-
-    // VIEW CONDITIONAL PROPERTIES
-    this.absorbMode = absorbMode ?? false;
-    this.activated = activated ?? false;
-    this.enabled = enabled ?? true;
-
-    // ANIMATION PROPERTIES
-    this.animation = animation ?? 0;
-    this.animationType = animationType ?? Curves.linear;
-
-    // VIEW SIZE PROPERTIES
-    this.flex = flex ?? 0;
-    _dimensionRatio = dimensionRatio;
-    this.elevation = elevation ?? 0;
-    _width = width;
-    _widthMax = widthMax;
-    _widthMin = widthMin;
-    _height = height;
-    _heightMax = heightMax;
-    _heightMin = heightMin;
-
-    // VIEW MARGIN PROPERTIES
-    this.margin = margin ?? 0;
-    this.marginVertical = marginVertical;
-    _marginStart = marginStart;
-    _marginEnd = marginEnd;
-    _marginTop = marginTop;
-    _marginBottom = marginBottom;
-    this.marginHorizontal = marginHorizontal;
-
-    // VIEW PADDING PROPERTIES
-    this.padding = padding ?? 0;
-    _paddingStart = paddingStart;
-    _paddingEnd = paddingEnd;
-    _paddingTop = paddingTop;
-    _paddingBottom = paddingBottom;
-    this.paddingHorizontal = paddingHorizontal;
-    this.paddingVertical = paddingVertical;
-
-    // VIEW BORDER PROPERTIES
-    this.borderColor = borderColor;
-    this.borderGradient = borderGradient;
-    this.border = border ?? 0;
-    _borderStart = borderStart;
-    _borderEnd = borderEnd;
-    _borderTop = borderTop;
-    _borderBottom = borderBottom;
-    this.borderHorizontal = borderHorizontal;
-    this.borderVertical = borderVertical;
-
-    // VIEW BORDER RADIUS PROPERTIES
-    this.borderRadius = borderRadius ?? 0;
-    _borderRadiusBL = borderRadiusBL;
-    _borderRadiusBR = borderRadiusBR;
-    _borderRadiusTL = borderRadiusTL;
-    _borderRadiusTL = borderRadiusTL;
-
-    // VIEW SHADOW PROPERTIES
-    this.shadowColor = shadowColor;
-    this.shadow = shadow ?? 0;
-    _shadowStart = shadowStart;
-    _shadowEnd = shadowEnd;
-    _shadowTop = shadowTop;
-    _shadowBottom = shadowBottom;
-    this.shadowHorizontal = shadowHorizontal;
-    this.shadowVertical = shadowVertical;
-    this.shadowBlurRadius = shadowBlurRadius ?? 5;
-    this.shadowBlurStyle = shadowBlurStyle ?? BlurStyle.normal;
-    this.shadowSpreadRadius = shadowSpreadRadius ?? 0;
-    this.shadowType = shadowType ?? ViewShadowType.none;
-
-    // VIEW DECORATION PROPERTIES
-    _background = background;
-    this.foreground = foreground;
-    this.backgroundBlendMode = backgroundBlendMode;
-    this.foregroundBlendMode = foregroundBlendMode;
-    _backgroundGradient = backgroundGradient;
-    this.foregroundGradient = foregroundGradient;
-    _backgroundImage = backgroundImage;
-    this.foregroundImage = foregroundImage;
-    this.clipBehavior = clipBehavior ?? Clip.antiAlias;
-    this.gravity = gravity;
-    this.transform = transform;
-    this.transformGravity = transformGravity;
-    this.transform = transform;
-    _position = position;
-    this.positionType = positionType ?? ViewPositionType.none;
-    this.shape = shape ?? ViewShape.rectangular;
-    this.visibility = visibility ?? ViewVisibility.visible;
-    this.child = child;
-
-    // Properties
-    this.root = root ?? const ViewProperties();
-
-    // Value States
-    this.backgroundState = backgroundState;
-    this.backgroundImageState = backgroundImageState;
-    this.backgroundGradientState = backgroundGradientState;
-
-    // VIEW LISTENER PROPERTIES
-    this.onClick = onClick;
-    this.onDoubleClick = onDoubleClick;
-    this.onLongClick = onLongClick;
-    this.onClickHandle = onClickHandle;
-    this.onDoubleClickHandle = onDoubleClickHandle;
-    this.onLongClickHandle = onLongClickHandle;
-    this.onToggleClick = onToggleClick;
-
-    return this;
-  }
-
-  @mustCallSuper
-  ViewController fromView(YMRView view) => properties(
-        absorbMode: view.absorbMode,
-        activated: view.activated,
-        enabled: view.enabled,
-        animation: view.animation,
-        animationType: view.animationType,
-        flex: view.flex,
-        dimensionRatio: view.dimensionRatio,
-        elevation: view.elevation,
-        ripple: view.ripple,
-        width: view.width,
-        widthMax: view.widthMax,
-        widthMin: view.widthMin,
-        height: view.height,
-        heightMax: view.heightMax,
-        heightMin: view.heightMin,
-        margin: view.margin,
-        marginHorizontal: view.marginHorizontal,
-        marginVertical: view.marginVertical,
-        marginTop: view.marginTop,
-        marginBottom: view.marginBottom,
-        marginStart: view.marginStart,
-        marginEnd: view.marginEnd,
-        padding: view.padding,
-        paddingHorizontal: view.paddingHorizontal,
-        paddingVertical: view.paddingVertical,
-        paddingTop: view.paddingTop,
-        paddingBottom: view.paddingBottom,
-        paddingStart: view.paddingStart,
-        paddingEnd: view.paddingEnd,
-        border: view.borderSize,
-        borderHorizontal: view.borderHorizontal,
-        borderVertical: view.borderVertical,
-        borderTop: view.borderTop,
-        borderBottom: view.borderBottom,
-        borderStart: view.borderStart,
-        borderEnd: view.borderEnd,
-        borderRadius: view.borderRadius,
-        borderRadiusBL: view.borderRadiusBL,
-        borderRadiusBR: view.borderRadiusBR,
-        borderRadiusTL: view.borderRadiusTL,
-        borderRadiusTR: view.borderRadiusTR,
-        shadow: view.shadow,
-        shadowBlurRadius: view.shadowBlurRadius,
-        shadowSpreadRadius: view.shadowSpreadRadius,
-        shadowHorizontal: view.shadowHorizontal,
-        shadowVertical: view.shadowVertical,
-        shadowStart: view.shadowStart,
-        shadowEnd: view.shadowEnd,
-        shadowTop: view.shadowTop,
-        shadowBottom: view.shadowBottom,
-        background: view.background,
-        backgroundState: view.backgroundState,
-        borderColor: view.borderColor,
-        foreground: view.foreground,
-        hoverColor: view.hoverColor,
-        pressedColor: view.pressedColor,
-        rippleColor: view.rippleColor,
-        shadowColor: view.shadowColor,
-        gravity: view.gravity,
-        transformGravity: view.transformGravity,
-        backgroundBlendMode: view.backgroundBlendMode,
-        foregroundBlendMode: view.foregroundBlendMode,
-        backgroundImage: view.backgroundImage,
-        backgroundImageState: view.backgroundImageState,
-        foregroundImage: view.foregroundImage,
-        backgroundGradient: view.backgroundGradient,
-        backgroundGradientState: view.backgroundGradientState,
-        foregroundGradient: view.foregroundGradient,
-        borderGradient: view.borderGradient,
-        transform: view.transform,
-        shadowBlurStyle: view.shadowBlurStyle,
-        clipBehavior: view.clipBehavior,
-        shadowType: view.shadowType,
-        position: view.position,
-        positionType: view.positionType,
-        shape: view.shape,
-        visibility: view.visibility,
-        child: view.child,
-        root: view.properties,
-        onClick: view.onClick,
-        onDoubleClick: view.onDoubleClick,
-        onLongClick: view.onLongClick,
-        onClickHandle: view.onClickHandler,
-        onDoubleClickHandle: view.onDoubleClickHandler,
-        onLongClickHandle: view.onLongClickHandler,
-        onToggleClick: view.onToggle,
-      );
 
   void setAbsorbMode(bool value) {
     absorbMode = value;
@@ -1230,7 +932,7 @@ class ViewController {
 
   void _onToggleNotify() {
     activated = !activated;
-    onToggleClick?.call(activated);
+    onToggle?.call(activated);
     _notify;
   }
 
@@ -1391,13 +1093,13 @@ class ViewPosition {
   });
 }
 
-class ViewProperties {
+class ViewRoots {
   final bool ripple;
   final bool position, flex, ratio, observer;
   final bool view, constraints, margin, padding;
   final bool decoration, shadow, shape, radius, border, background;
 
-  const ViewProperties({
+  const ViewRoots({
     this.ripple = true,
     this.position = true,
     this.flex = true,
@@ -1415,7 +1117,7 @@ class ViewProperties {
     this.background = true,
   });
 
-  ViewProperties modify({
+  ViewRoots modify({
     bool? ripple,
     bool? position,
     bool? flex,
@@ -1432,7 +1134,7 @@ class ViewProperties {
     bool? border,
     bool? background,
   }) {
-    return ViewProperties(
+    return ViewRoots(
       ripple: ripple ?? this.ripple,
       position: position ?? this.position,
       flex: flex ?? this.flex,
@@ -1632,7 +1334,7 @@ class YMRView<T extends ViewController> extends StatefulWidget {
 
   Widget? attach(BuildContext context, T controller) => controller.child;
 
-  ViewProperties get properties => const ViewProperties();
+  ViewRoots get roots => const ViewRoots();
 
   void onDispose() {}
 
@@ -1823,24 +1525,25 @@ class _ViewListener<T extends ViewController> extends StatelessWidget {
                               controller._onToggleNotify();
                               onToggleHandler(context, controller);
                             } else {
-                              controller.onClickHandle != null
-                                  ? controller.onClickHandle?.call(controller)
+                              controller.onClickHandler != null
+                                  ? controller.onClickHandler?.call(controller)
                                   : controller.onClick?.call(context);
                             }
                           }
                         : null,
                     onDoubleTap: controller.isDoubleClickable
                         ? () {
-                            controller.onDoubleClickHandle != null
-                                ? controller.onDoubleClickHandle
+                            controller.onDoubleClickHandler != null
+                                ? controller.onDoubleClickHandler
                                     ?.call(controller)
                                 : controller.onDoubleClick?.call(context);
                           }
                         : null,
                     onLongPress: controller.isLongClickable
                         ? () {
-                            controller.onLongClickHandle != null
-                                ? controller.onLongClickHandle?.call(controller)
+                            controller.onLongClickHandler != null
+                                ? controller.onLongClickHandler
+                                    ?.call(controller)
                                 : controller.onLongClick?.call(context);
                           }
                         : null,
@@ -1858,23 +1561,23 @@ class _ViewListener<T extends ViewController> extends StatelessWidget {
                             !controller.activated,
                           );
                         } else {
-                          controller.onClickHandle != null
-                              ? controller.onClickHandle?.call(controller)
+                          controller.onClickHandler != null
+                              ? controller.onClickHandler?.call(controller)
                               : controller.onClick?.call(context);
                         }
                       }
                     : null,
                 onDoubleTap: controller.isDoubleClickable
                     ? () {
-                        controller.onDoubleClickHandle != null
-                            ? controller.onDoubleClickHandle?.call(controller)
+                        controller.onDoubleClickHandler != null
+                            ? controller.onDoubleClickHandler?.call(controller)
                             : controller.onDoubleClick?.call(context);
                       }
                     : null,
                 onLongPress: controller.isLongClickable
                     ? () {
-                        controller.onLongClickHandle != null
-                            ? controller.onLongClickHandle?.call(controller)
+                        controller.onLongClickHandler != null
+                            ? controller.onLongClickHandler?.call(controller)
                             : controller.onLongClick?.call(context);
                       }
                     : null,
@@ -1900,7 +1603,7 @@ class _ViewChild extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final root = controller.root;
+    final root = controller.roots;
     final isOverlayShadow = controller.isOverlayShadow;
     final isCircular = controller.isCircular;
     final isRadius = controller.isBorderRadius;
@@ -1934,7 +1637,7 @@ class _ViewChild extends StatelessWidget {
         ? null
         : builder(
             context,
-            controller.root.view
+            controller.roots.view
                 ? Container(
                     alignment: controller.gravity,
                     clipBehavior:
@@ -2075,7 +1778,7 @@ class _ViewBorder extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       clipBehavior:
-          controller.root.decoration ? controller.clipBehavior : Clip.none,
+          controller.roots.decoration ? controller.clipBehavior : Clip.none,
       padding: isPadding
           ? EdgeInsets.only(
               left: controller.paddingStart,
