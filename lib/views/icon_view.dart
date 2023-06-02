@@ -96,17 +96,7 @@ class IconView extends YMRView<IconViewController> {
 
   @override
   IconViewController attachController(IconViewController controller) {
-    return controller.fromView(
-      this,
-      fit: fit,
-      icon: icon,
-      iconState: iconState,
-      size: size,
-      iconSizeState: sizeState,
-      iconTint: tint,
-      iconTintState: tintState,
-      tintMode: tintMode,
-    );
+    return controller.fromIconView(this);
   }
 
   @override
@@ -114,8 +104,8 @@ class IconView extends YMRView<IconViewController> {
     return RawIconView(
       fit: controller.fit,
       icon: controller.icon,
-      size: controller.iconSize,
-      tint: controller.iconTint,
+      size: controller.size,
+      tint: controller.tint,
       tintMode: controller.tintMode,
     );
   }
@@ -195,56 +185,40 @@ class RawIconView extends StatelessWidget {
   }
 }
 
-enum IconType {
-  none,
-  icon,
-  svg,
-  png,
-}
+enum IconType { none, icon, svg, png }
 
 class IconViewController extends ViewController {
   BoxFit fit = BoxFit.contain;
   dynamic _icon;
   ValueState<dynamic>? iconState;
-  double _iconSize = 24;
+  double _size = 24;
   ValueState<double>? iconSizeState;
-  Color _iconTint = const Color(0xFF808080);
+  Color _tint = const Color(0xFF808080);
   ValueState<Color>? tintState;
   BlendMode tintMode = BlendMode.srcIn;
 
-  @override
-  IconViewController fromView(
-    YMRView<ViewController> view, {
-    BoxFit? fit,
-    dynamic icon,
-    ValueState<dynamic>? iconState,
-    double? size,
-    ValueState<double>? iconSizeState,
-    Color? iconTint,
-    ValueState<Color>? iconTintState,
-    BlendMode? tintMode,
-  }) {
+  IconViewController fromIconView(IconView view) {
     super.fromView(view);
-    this.fit = fit ?? BoxFit.contain;
-    _icon = icon;
-    this.iconState = iconState;
-    _iconSize = size ?? 24;
-    _iconTint = iconTint ?? const Color(0xFF808080);
-    tintState = iconTintState;
-    this.tintMode = tintMode ?? BlendMode.srcIn;
+    fit = view.fit ?? BoxFit.contain;
+    _icon = view.icon;
+    iconState = view.iconState;
+    _size = view.size ?? 24;
+    _tint = view.tint ?? const Color(0xFF808080);
+    tintState = view.tintState;
+    tintMode = view.tintMode ?? BlendMode.srcIn;
     return this;
   }
 
   @override
   double get borderRadius {
-    return super.borderRadius > 0 ? super.borderRadius : iconSize;
+    return super.borderRadius > 0 ? super.borderRadius : size;
   }
 
   dynamic get icon => iconState?.selected(activated) ?? _icon;
 
-  double get iconSize => iconSizeState?.selected(activated) ?? _iconSize;
+  double get size => iconSizeState?.selected(activated) ?? _size;
 
-  Color get iconTint => tintState?.selected(activated) ?? _iconTint;
+  Color get tint => tintState?.selected(activated) ?? _tint;
 
   void setIcon(dynamic value) {
     _icon = value;
@@ -252,12 +226,12 @@ class IconViewController extends ViewController {
   }
 
   void setIconSize(double value) {
-    _iconSize = value;
+    _size = value;
     _notify;
   }
 
   void setIconTint(Color value) {
-    _iconTint = value;
+    _tint = value;
     _notify;
   }
 

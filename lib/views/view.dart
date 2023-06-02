@@ -20,6 +20,855 @@ typedef OnViewModifyBuilder<T extends ViewController> = Widget Function(
 typedef OnViewNotifier = void Function(VoidCallback fn);
 typedef OnViewNotifyListener<T extends ViewController> = Function(T controller);
 
+enum ViewPositionType {
+  bottomEnd(ViewPosition(bottom: 0, right: 0)),
+  bottomStart(ViewPosition(bottom: 0, left: 0)),
+  center,
+  centerBottom(ViewPosition(bottom: 0)),
+  centerEnd(ViewPosition(right: 0)),
+  centerStart(ViewPosition(left: 0)),
+  centerTop(ViewPosition(top: 0)),
+  flexStart(ViewPosition(left: 0, top: 0, bottom: 0)),
+  flexEnd(ViewPosition(right: 0, top: 0, bottom: 0)),
+  flexTop(ViewPosition(top: 0, left: 0, right: 0)),
+  flexBottom(ViewPosition(bottom: 0, left: 0, right: 0)),
+  flexHorizontal(ViewPosition(left: 0, right: 0)),
+  flexVertical(ViewPosition(top: 0, bottom: 0)),
+  topEnd(ViewPosition(top: 0, right: 0)),
+  topStart(ViewPosition(top: 0, left: 0)),
+  none;
+
+  final ViewPosition position;
+
+  const ViewPositionType([
+    this.position = const ViewPosition(),
+  ]);
+}
+
+enum ViewShadowType { overlay, none }
+
+enum ViewShape { circular, rectangular, squire }
+
+enum ViewVisibility { gone, visible, invisible }
+
+extension VisibilityExtension on ViewVisibility {
+  bool get isGone => this == ViewVisibility.gone;
+
+  bool get isVisible => this == ViewVisibility.visible;
+
+  bool get isInvisible => this == ViewVisibility.invisible;
+
+  bool get isVisibleOrInvisible => isVisible || isInvisible;
+}
+
+class ViewPosition {
+  final double? top, bottom, left, right;
+
+  const ViewPosition({
+    this.top,
+    this.bottom,
+    this.left,
+    this.right,
+  });
+}
+
+class ViewRoots {
+  final bool ripple;
+  final bool position, flex, ratio, observer;
+  final bool view, constraints, margin, padding;
+  final bool decoration, shadow, shape, radius, border, background;
+
+  const ViewRoots({
+    this.ripple = true,
+    this.position = true,
+    this.flex = true,
+    this.ratio = true,
+    this.observer = true,
+    this.view = true,
+    this.constraints = true,
+    this.margin = true,
+    this.padding = true,
+    this.decoration = true,
+    this.shadow = true,
+    this.shape = true,
+    this.radius = true,
+    this.border = true,
+    this.background = true,
+  });
+
+  ViewRoots modify({
+    bool? ripple,
+    bool? position,
+    bool? flex,
+    bool? ratio,
+    bool? observer,
+    bool? view,
+    bool? constraints,
+    bool? margin,
+    bool? padding,
+    bool? decoration,
+    bool? shadow,
+    bool? shape,
+    bool? radius,
+    bool? border,
+    bool? background,
+  }) {
+    return ViewRoots(
+      ripple: ripple ?? this.ripple,
+      position: position ?? this.position,
+      flex: flex ?? this.flex,
+      ratio: ratio ?? this.ratio,
+      observer: observer ?? this.observer,
+      view: view ?? this.view,
+      constraints: constraints ?? this.constraints,
+      margin: margin ?? this.margin,
+      padding: padding ?? this.padding,
+      decoration: decoration ?? this.decoration,
+      shadow: shadow ?? this.shadow,
+      shape: shape ?? this.shape,
+      radius: radius ?? this.radius,
+      border: border ?? this.border,
+      background: background ?? this.background,
+    );
+  }
+}
+
+class ValueState<T> {
+  final T _primary;
+  final T? _activated;
+  final T? _disabled;
+  final T? _focused;
+  final T? _selected;
+
+  const ValueState._({
+    required T primary,
+    T? activated,
+    T? disabled,
+    T? focused,
+    T? selected,
+  })  : _primary = primary,
+        _activated = activated,
+        _disabled = disabled,
+        _focused = focused,
+        _selected = selected;
+
+  T get primaryValue => _primary;
+
+  T? get activatedValue => _activated;
+
+  T? get disabledValue => _disabled;
+
+  T? get focusedValue => _focused;
+
+  T? get selectedValue => _selected;
+
+  factory ValueState.active({
+    required T activated,
+    required T inactivated,
+    T? disabled,
+  }) {
+    return ValueState._(
+      primary: inactivated,
+      activated: activated,
+      disabled: disabled,
+    );
+  }
+
+  factory ValueState.focus({
+    required T focused,
+    required T unfocused,
+    T? disabled,
+  }) {
+    return ValueState._(
+      primary: unfocused,
+      focused: focused,
+      disabled: disabled,
+    );
+  }
+
+  factory ValueState.select({
+    required T selected,
+    required T unselected,
+    T? disabled,
+  }) {
+    return ValueState._(
+      primary: unselected,
+      activated: selected,
+      selected: selected,
+      disabled: disabled,
+    );
+  }
+
+  T? activated(bool activated, [bool enabled = true]) {
+    if (enabled) {
+      return activated ? _activated : _primary;
+    } else {
+      return _disabled;
+    }
+  }
+
+  T? focused(bool focused, [bool enabled = true]) {
+    if (enabled) {
+      return focused ? _focused : _primary;
+    } else {
+      return _disabled;
+    }
+  }
+
+  T? selected(bool selected, [bool enabled = true]) {
+    if (enabled) {
+      return selected ? _selected ?? _activated : _primary;
+    } else {
+      return _disabled;
+    }
+  }
+}
+
+class YMRView<T extends ViewController> extends StatefulWidget {
+  final T? controller;
+
+  final int? flex;
+  final bool? absorbMode, activated, enabled;
+
+  final int? animation;
+  final Curve? animationType;
+
+  final double? elevation;
+  final double? dimensionRatio;
+  final double? ripple;
+
+  final double? width, widthMax, widthMin;
+  final double? height, heightMax, heightMin;
+
+  final double? margin;
+  final double? marginHorizontal, marginVertical;
+  final double? marginTop, marginBottom, marginStart, marginEnd;
+
+  final double? padding;
+  final double? paddingHorizontal, paddingVertical;
+  final double? paddingTop, paddingBottom, paddingStart, paddingEnd;
+
+  final double? borderSize;
+  final double? borderHorizontal, borderVertical;
+  final double? borderTop, borderBottom, borderStart, borderEnd;
+
+  final double? borderRadius;
+  final double? borderRadiusBL, borderRadiusBR, borderRadiusTL, borderRadiusTR;
+
+  final double? shadow;
+  final double? shadowBlurRadius, shadowSpreadRadius;
+  final double? shadowHorizontal, shadowVertical;
+  final double? shadowStart, shadowEnd, shadowTop, shadowBottom;
+
+  final Color? background, borderColor, foreground, shadowColor;
+  final Color? hoverColor, pressedColor, rippleColor;
+
+  final DecorationImage? backgroundImage, foregroundImage;
+  final Gradient? backgroundGradient, foregroundGradient, borderGradient;
+  final Matrix4? transform;
+
+  final Alignment? gravity, transformGravity;
+  final BlendMode? backgroundBlendMode, foregroundBlendMode;
+  final BlurStyle? shadowBlurStyle;
+  final Clip? clipBehavior;
+
+  final ValueState<Color>? backgroundState;
+  final ValueState<Gradient>? backgroundGradientState;
+  final ValueState<DecorationImage>? backgroundImageState;
+
+  final ViewShadowType? shadowType;
+  final ViewPosition? position;
+  final ViewPositionType? positionType;
+  final ViewShape? shape;
+  final ViewVisibility? visibility;
+
+  final Widget? child;
+
+  final OnViewClickListener? onClick, onDoubleClick, onLongClick;
+  final OnViewNotifyListener<T>? onClickHandler;
+  final OnViewNotifyListener<T>? onDoubleClickHandler;
+  final OnViewNotifyListener<T>? onLongClickHandler;
+  final OnViewToggleListener? onToggle;
+
+  const YMRView({
+    Key? key,
+    this.controller,
+    this.flex,
+    this.absorbMode,
+    this.activated,
+    this.enabled,
+    this.visibility,
+    this.animation,
+    this.animationType,
+    this.elevation,
+    this.dimensionRatio,
+    this.ripple,
+    this.width,
+    this.widthMax,
+    this.widthMin,
+    this.height,
+    this.heightMax,
+    this.heightMin,
+    this.margin,
+    this.marginHorizontal,
+    this.marginVertical,
+    this.marginTop,
+    this.marginBottom,
+    this.marginStart,
+    this.marginEnd,
+    this.padding,
+    this.paddingHorizontal,
+    this.paddingVertical,
+    this.paddingTop,
+    this.paddingBottom,
+    this.paddingStart,
+    this.paddingEnd,
+    this.borderSize,
+    this.borderHorizontal,
+    this.borderVertical,
+    this.borderTop,
+    this.borderBottom,
+    this.borderStart,
+    this.borderEnd,
+    this.borderRadius,
+    this.borderRadiusBL,
+    this.borderRadiusBR,
+    this.borderRadiusTL,
+    this.borderRadiusTR,
+    this.shadow,
+    this.shadowBlurRadius,
+    this.shadowSpreadRadius,
+    this.shadowHorizontal,
+    this.shadowVertical,
+    this.shadowStart,
+    this.shadowEnd,
+    this.shadowTop,
+    this.shadowBottom,
+    this.background,
+    this.borderColor,
+    this.foreground,
+    this.hoverColor,
+    this.pressedColor,
+    this.shadowColor,
+    this.rippleColor,
+    this.gravity,
+    this.transformGravity,
+    this.backgroundBlendMode,
+    this.foregroundBlendMode,
+    this.backgroundImage,
+    this.foregroundImage,
+    this.backgroundGradient,
+    this.foregroundGradient,
+    this.borderGradient,
+    this.transform,
+    this.shadowBlurStyle,
+    this.clipBehavior,
+    this.shadowType,
+    this.position,
+    this.positionType,
+    this.shape,
+    this.child,
+    this.backgroundState,
+    this.backgroundGradientState,
+    this.backgroundImageState,
+    this.onClick,
+    this.onDoubleClick,
+    this.onLongClick,
+    this.onClickHandler,
+    this.onDoubleClickHandler,
+    this.onLongClickHandler,
+    this.onToggle,
+  }) : super(key: key);
+
+  void init(T controller) {}
+
+  T initController() => ViewController() as T;
+
+  T attachController(T controller) => controller.fromView(this) as T;
+
+  void onViewCreated(BuildContext context, T controller) {}
+
+  void onToggleHandler(BuildContext context, T controller) {}
+
+  Widget root(BuildContext context, T controller, Widget parent) => parent;
+
+  Widget build(BuildContext context, T controller, Widget parent) => parent;
+
+  Widget? attach(BuildContext context, T controller) => controller.child;
+
+  ViewRoots get roots => const ViewRoots();
+
+  void onDispose() {}
+
+  @override
+  State<YMRView<T>> createState() => _YMRViewState<T>();
+}
+
+class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
+  late T controller;
+
+  @override
+  void initState() {
+    controller = widget.controller ?? widget.initController();
+    controller._setNotifier(setState);
+    controller = widget.attachController(controller);
+    widget.init(controller);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant YMRView<T> oldWidget) {
+    controller = widget.attachController(controller);
+    widget.init(controller);
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    widget.onDispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    controller.context = context;
+    return controller.visibility.isVisibleOrInvisible
+        ? widget.root(
+            context,
+            controller,
+            _ViewPosition(
+              controller: controller,
+              attachView: _ViewFlex(
+                controller: controller,
+                attachView: _ViewDimension(
+                  controller: controller,
+                  attachView: _ViewListener(
+                    controller: controller,
+                    onToggleHandler: widget.onToggleHandler,
+                    attachView: _ViewChild(
+                      controller: controller,
+                      attach: widget.attach(context, controller),
+                      builder: (context, view) {
+                        return widget.build(
+                          context,
+                          controller,
+                          view,
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          )
+        : const SizedBox();
+  }
+}
+
+class _ViewPosition extends StatelessWidget {
+  final ViewController controller;
+  final Widget attachView;
+
+  const _ViewPosition({
+    Key? key,
+    required this.controller,
+    required this.attachView,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return controller.isPositional
+        ? Positioned(
+            top: controller.position.top,
+            bottom: controller.position.bottom,
+            left: controller.position.left,
+            right: controller.position.right,
+            child: attachView,
+          )
+        : attachView;
+  }
+}
+
+class _ViewFlex extends StatelessWidget {
+  final ViewController controller;
+  final Widget attachView;
+
+  const _ViewFlex({
+    Key? key,
+    required this.controller,
+    required this.attachView,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return controller.isExpendable
+        ? Expanded(
+            flex: controller.flex,
+            child: attachView,
+          )
+        : attachView;
+  }
+}
+
+class _ViewDimension extends StatelessWidget {
+  final ViewController controller;
+  final Widget attachView;
+
+  const _ViewDimension({
+    Key? key,
+    required this.controller,
+    required this.attachView,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return controller.isDimensional
+        ? AspectRatio(
+            aspectRatio: controller.dimensionRatio,
+            child: attachView,
+          )
+        : attachView;
+  }
+}
+
+class _ViewListener<T extends ViewController> extends StatelessWidget {
+  final T controller;
+  final Widget attachView;
+  final OnViewToggleHandler<T> onToggleHandler;
+
+  const _ViewListener({
+    Key? key,
+    required this.controller,
+    required this.attachView,
+    required this.onToggleHandler,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return controller.isObservable
+        ? controller.isRippled
+            ? Padding(
+                padding: controller.isMargin
+                    ? EdgeInsets.only(
+                        left: controller.marginStart,
+                        right: controller.marginEnd,
+                        top: controller.marginTop,
+                        bottom: controller.marginBottom,
+                      )
+                    : EdgeInsets.zero,
+                child: Material(
+                  elevation: controller.elevation,
+                  borderRadius: controller.isRippled
+                      ? controller.isCircular
+                          ? BorderRadius.circular(controller.maxSize)
+                          : BorderRadius.only(
+                              topLeft: Radius.circular(
+                                controller.borderRadiusTLF,
+                              ),
+                              topRight: Radius.circular(
+                                controller.borderRadiusTRF,
+                              ),
+                              bottomLeft: Radius.circular(
+                                controller.borderRadiusBLF,
+                              ),
+                              bottomRight: Radius.circular(
+                                controller.borderRadiusBRF,
+                              ),
+                            )
+                      : null,
+                  color: controller.background,
+                  clipBehavior: controller.clipBehavior,
+                  child: InkWell(
+                    splashColor: controller.rippleColor,
+                    hoverColor: controller.hoverColor,
+                    highlightColor: controller.pressedColor,
+                    onTap: controller.isClickable
+                        ? () {
+                            if (controller.isToggleClickable) {
+                              controller._onToggleNotify();
+                              onToggleHandler(context, controller);
+                            } else {
+                              controller.onClickHandler != null
+                                  ? controller.onClickHandler?.call(controller)
+                                  : controller.onClick?.call(context);
+                            }
+                          }
+                        : null,
+                    onDoubleTap: controller.isDoubleClickable
+                        ? () {
+                            controller.onDoubleClickHandler != null
+                                ? controller.onDoubleClickHandler
+                                    ?.call(controller)
+                                : controller.onDoubleClick?.call(context);
+                          }
+                        : null,
+                    onLongPress: controller.isLongClickable
+                        ? () {
+                            controller.onLongClickHandler != null
+                                ? controller.onLongClickHandler
+                                    ?.call(controller)
+                                : controller.onLongClick?.call(context);
+                          }
+                        : null,
+                    child: controller.absorbMode
+                        ? AbsorbPointer(child: attachView)
+                        : attachView,
+                  ),
+                ),
+              )
+            : GestureDetector(
+                onTap: controller.isClickable
+                    ? () {
+                        if (controller.isToggleClickable) {
+                          controller.setActivated(
+                            !controller.activated,
+                          );
+                        } else {
+                          controller.onClickHandler != null
+                              ? controller.onClickHandler?.call(controller)
+                              : controller.onClick?.call(context);
+                        }
+                      }
+                    : null,
+                onDoubleTap: controller.isDoubleClickable
+                    ? () {
+                        controller.onDoubleClickHandler != null
+                            ? controller.onDoubleClickHandler?.call(controller)
+                            : controller.onDoubleClick?.call(context);
+                      }
+                    : null,
+                onLongPress: controller.isLongClickable
+                    ? () {
+                        controller.onLongClickHandler != null
+                            ? controller.onLongClickHandler?.call(controller)
+                            : controller.onLongClick?.call(context);
+                      }
+                    : null,
+                child: controller.absorbMode
+                    ? AbsorbPointer(child: attachView)
+                    : attachView,
+              )
+        : attachView;
+  }
+}
+
+class _ViewChild extends StatelessWidget {
+  final ViewController controller;
+  final Widget? attach;
+  final Function(BuildContext context, Widget child) builder;
+
+  const _ViewChild({
+    Key? key,
+    required this.controller,
+    required this.attach,
+    required this.builder,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final root = controller.roots;
+    final isOverlayShadow = controller.isOverlayShadow;
+    final isCircular = controller.isCircular;
+    final isRadius = controller.isBorderRadius;
+    final isRippled = controller.isRippled;
+    final isMargin = controller.isMargin;
+    final isPadding = controller.isPadding;
+    final isBorder = controller.isBorder;
+    final isShadow = controller.isShadow;
+    final isConstraints = controller.isConstraints;
+
+    final borderRadius = isRippled
+        ? null
+        : isRadius && !isCircular
+            ? BorderRadius.only(
+                topLeft: Radius.circular(
+                  controller.borderRadiusTLF,
+                ),
+                topRight: Radius.circular(
+                  controller.borderRadiusTRF,
+                ),
+                bottomLeft: Radius.circular(
+                  controller.borderRadiusBLF,
+                ),
+                bottomRight: Radius.circular(
+                  controller.borderRadiusBRF,
+                ),
+              )
+            : null;
+
+    return controller.visibility.isInvisible
+        ? null
+        : builder(
+            context,
+            controller.roots.view
+                ? Container(
+                    alignment: controller.gravity,
+                    clipBehavior: root.decoration && !isRippled
+                        ? controller.clipBehavior
+                        : Clip.none,
+                    width: controller.width,
+                    height: controller.height,
+                    transform: controller.transform,
+                    transformAlignment: controller.transformGravity,
+                    constraints: isConstraints
+                        ? BoxConstraints(
+                            maxWidth: controller.widthMax,
+                            minWidth: controller.widthMin,
+                            maxHeight: controller.heightMax,
+                            minHeight: controller.heightMin,
+                          )
+                        : null,
+                    decoration: root.decoration && !isRippled
+                        ? BoxDecoration(
+                            backgroundBlendMode: controller.backgroundBlendMode,
+                            borderRadius: borderRadius,
+                            color: root.background
+                                ? isBorder
+                                    ? controller.borderColor
+                                    : controller.background
+                                : null,
+                            gradient: isBorder
+                                ? controller.borderGradient
+                                : controller.backgroundGradient,
+                            image: controller.backgroundImage,
+                            boxShadow: isShadow
+                                ? [
+                                    BoxShadow(
+                                      color: controller.shadowColor ??
+                                          Colors.black45,
+                                      blurRadius: controller.shadowBlurRadius,
+                                      offset: isOverlayShadow
+                                          ? Offset.zero
+                                          : Offset(
+                                              -controller.shadowStart,
+                                              -controller.shadowTop,
+                                            ),
+                                      blurStyle: controller.shadowBlurStyle,
+                                      spreadRadius:
+                                          controller.shadowSpreadRadius,
+                                    ),
+                                    if (!isOverlayShadow)
+                                      BoxShadow(
+                                        color: controller.shadowColor ??
+                                            Colors.black45,
+                                        blurRadius: controller.shadowBlurRadius,
+                                        offset: Offset(
+                                          controller.shadowEnd,
+                                          controller.shadowBottom,
+                                        ),
+                                        blurStyle: controller.shadowBlurStyle,
+                                        spreadRadius:
+                                            controller.shadowSpreadRadius,
+                                      ),
+                                  ]
+                                : null,
+                            shape: isCircular
+                                ? BoxShape.circle
+                                : BoxShape.rectangle,
+                          )
+                        : null,
+                    foregroundDecoration: root.decoration
+                        ? BoxDecoration(
+                            backgroundBlendMode: controller.foregroundBlendMode,
+                            borderRadius: borderRadius,
+                            color: controller.foreground,
+                            gradient: controller.foregroundGradient,
+                            image: controller.foregroundImage,
+                            shape: isCircular
+                                ? BoxShape.circle
+                                : BoxShape.rectangle,
+                          )
+                        : null,
+                    margin: isMargin && !isRippled
+                        ? EdgeInsets.only(
+                            left: controller.marginStart,
+                            right: controller.marginEnd,
+                            top: controller.marginTop,
+                            bottom: controller.marginBottom,
+                          )
+                        : null,
+                    padding: isBorder
+                        ? EdgeInsets.only(
+                            left: controller.borderStart,
+                            right: controller.borderEnd,
+                            top: controller.borderTop,
+                            bottom: controller.borderBottom,
+                          )
+                        : isPadding
+                            ? EdgeInsets.only(
+                                left: controller.paddingStart,
+                                right: controller.paddingEnd,
+                                top: controller.paddingTop,
+                                bottom: controller.paddingBottom,
+                              )
+                            : null,
+                    child: isBorder
+                        ? _ViewBorder(
+                            controller: controller,
+                            isCircular: isCircular,
+                            isPadding: isPadding,
+                            isRadius: isRadius,
+                            child: attach,
+                          )
+                        : attach,
+                  )
+                : const SizedBox(),
+          );
+  }
+}
+
+class _ViewBorder extends StatelessWidget {
+  final ViewController controller;
+  final bool isCircular, isPadding, isRadius;
+  final Widget? child;
+
+  const _ViewBorder({
+    Key? key,
+    required this.controller,
+    required this.isCircular,
+    required this.isPadding,
+    required this.isRadius,
+    this.child,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      clipBehavior:
+          controller.roots.decoration ? controller.clipBehavior : Clip.none,
+      padding: isPadding
+          ? EdgeInsets.only(
+              left: controller.paddingStart,
+              right: controller.paddingEnd,
+              top: controller.paddingTop,
+              bottom: controller.paddingBottom,
+            )
+          : null,
+      decoration: BoxDecoration(
+        color: controller.background,
+        shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
+        borderRadius: isRadius
+            ? BorderRadius.only(
+                topLeft: Radius.circular(
+                  controller.borderRadiusTL,
+                ),
+                topRight: Radius.circular(
+                  controller.borderRadiusTR,
+                ),
+                bottomLeft: Radius.circular(
+                  controller.borderRadiusBL,
+                ),
+                bottomRight: Radius.circular(
+                  controller.borderRadiusBR,
+                ),
+              )
+            : null,
+      ),
+      child: child,
+    );
+  }
+}
+
 class ViewController {
   @mustCallSuper
   ViewController fromView(YMRView view) {
@@ -141,8 +990,6 @@ class ViewController {
   late BuildContext context;
 
   ViewRoots roots = const ViewRoots();
-
-  ViewDefaultProperties defaultProperties = const ViewDefaultProperties();
 
   ThemeData get theme => Theme.of(context);
 
@@ -455,7 +1302,8 @@ class ViewController {
         (isClickable || isDoubleClickable || isLongClickable);
   }
 
-  bool get isClickable => onClick != null || onClickHandler != null;
+  bool get isClickable =>
+      onClick != null || onClickHandler != null || isToggleClickable;
 
   bool get isDoubleClickable =>
       onDoubleClick != null || onDoubleClickHandler != null;
@@ -906,10 +1754,6 @@ class ViewController {
     _notify;
   }
 
-  void setDefaults(ViewDefaultProperties properties) {
-    defaultProperties = properties;
-  }
-
   void setOnClickListener(OnViewClickListener listener) {
     _onClick = listener;
   }
@@ -937,877 +1781,4 @@ class ViewController {
   }
 
   void onNotify() => _notify;
-}
-
-enum ViewPositionType {
-  bottomEnd(ViewPosition(bottom: 0, right: 0)),
-  bottomStart(ViewPosition(bottom: 0, left: 0)),
-  center,
-  centerBottom(ViewPosition(bottom: 0)),
-  centerEnd(ViewPosition(right: 0)),
-  centerStart(ViewPosition(left: 0)),
-  centerTop(ViewPosition(top: 0)),
-  flexStart(ViewPosition(left: 0, top: 0, bottom: 0)),
-  flexEnd(ViewPosition(right: 0, top: 0, bottom: 0)),
-  flexTop(ViewPosition(top: 0, left: 0, right: 0)),
-  flexBottom(ViewPosition(bottom: 0, left: 0, right: 0)),
-  flexHorizontal(ViewPosition(left: 0, right: 0)),
-  flexVertical(ViewPosition(top: 0, bottom: 0)),
-  topEnd(ViewPosition(top: 0, right: 0)),
-  topStart(ViewPosition(top: 0, left: 0)),
-  none;
-
-  final ViewPosition position;
-
-  const ViewPositionType([
-    this.position = const ViewPosition(),
-  ]);
-}
-
-enum ViewShadowType {
-  overlay,
-  none,
-}
-
-enum ViewShape {
-  circular,
-  rectangular,
-  squire,
-}
-
-class ValueState<T> {
-  final T _primary;
-  final T? _activated;
-  final T? _disabled;
-  final T? _focused;
-  final T? _selected;
-
-  const ValueState._({
-    required T primary,
-    T? activated,
-    T? disabled,
-    T? focused,
-    T? selected,
-  })  : _primary = primary,
-        _activated = activated,
-        _disabled = disabled,
-        _focused = focused,
-        _selected = selected;
-
-  T get primaryValue => _primary;
-
-  T? get activatedValue => _activated;
-
-  T? get disabledValue => _disabled;
-
-  T? get focusedValue => _focused;
-
-  T? get selectedValue => _selected;
-
-  factory ValueState.active({
-    required T activated,
-    required T inactivated,
-    T? disabled,
-  }) {
-    return ValueState._(
-      primary: inactivated,
-      activated: activated,
-      disabled: disabled,
-    );
-  }
-
-  factory ValueState.focus({
-    required T focused,
-    required T unfocused,
-    T? disabled,
-  }) {
-    return ValueState._(
-      primary: unfocused,
-      focused: focused,
-      disabled: disabled,
-    );
-  }
-
-  factory ValueState.select({
-    required T selected,
-    required T unselected,
-    T? disabled,
-  }) {
-    return ValueState._(
-      primary: unselected,
-      activated: selected,
-      selected: selected,
-      disabled: disabled,
-    );
-  }
-
-  T? activated(bool activated, [bool enabled = true]) {
-    if (enabled) {
-      return activated ? _activated : _primary;
-    } else {
-      return _disabled;
-    }
-  }
-
-  T? focused(bool focused, [bool enabled = true]) {
-    if (enabled) {
-      return focused ? _focused : _primary;
-    } else {
-      return _disabled;
-    }
-  }
-
-  T? selected(bool selected, [bool enabled = true]) {
-    if (enabled) {
-      return selected ? _selected ?? _activated : _primary;
-    } else {
-      return _disabled;
-    }
-  }
-}
-
-enum ViewVisibility {
-  gone,
-  visible,
-  invisible;
-}
-
-extension VisibilityExtension on ViewVisibility {
-  bool get isGone => this == ViewVisibility.gone;
-
-  bool get isVisible => this == ViewVisibility.visible;
-
-  bool get isInvisible => this == ViewVisibility.invisible;
-
-  bool get isVisibleOrInvisible => isVisible || isInvisible;
-}
-
-class ViewPosition {
-  final double? top, bottom, left, right;
-
-  const ViewPosition({
-    this.top,
-    this.bottom,
-    this.left,
-    this.right,
-  });
-}
-
-class ViewRoots {
-  final bool ripple;
-  final bool position, flex, ratio, observer;
-  final bool view, constraints, margin, padding;
-  final bool decoration, shadow, shape, radius, border, background;
-
-  const ViewRoots({
-    this.ripple = true,
-    this.position = true,
-    this.flex = true,
-    this.ratio = true,
-    this.observer = true,
-    this.view = true,
-    this.constraints = true,
-    this.margin = true,
-    this.padding = true,
-    this.decoration = true,
-    this.shadow = true,
-    this.shape = true,
-    this.radius = true,
-    this.border = true,
-    this.background = true,
-  });
-
-  ViewRoots modify({
-    bool? ripple,
-    bool? position,
-    bool? flex,
-    bool? ratio,
-    bool? observer,
-    bool? view,
-    bool? constraints,
-    bool? margin,
-    bool? padding,
-    bool? decoration,
-    bool? shadow,
-    bool? shape,
-    bool? radius,
-    bool? border,
-    bool? background,
-  }) {
-    return ViewRoots(
-      ripple: ripple ?? this.ripple,
-      position: position ?? this.position,
-      flex: flex ?? this.flex,
-      ratio: ratio ?? this.ratio,
-      observer: observer ?? this.observer,
-      view: view ?? this.view,
-      constraints: constraints ?? this.constraints,
-      margin: margin ?? this.margin,
-      padding: padding ?? this.padding,
-      decoration: decoration ?? this.decoration,
-      shadow: shadow ?? this.shadow,
-      shape: shape ?? this.shape,
-      radius: radius ?? this.radius,
-      border: border ?? this.border,
-      background: background ?? this.background,
-    );
-  }
-}
-
-class ViewDefaultProperties {
-  final ValueState<Color>? background;
-
-  const ViewDefaultProperties({
-    this.background,
-  });
-}
-
-class YMRView<T extends ViewController> extends StatefulWidget {
-  final T? controller;
-
-  final int? flex;
-  final bool? absorbMode, activated, enabled;
-
-  final int? animation;
-  final Curve? animationType;
-
-  final double? elevation;
-  final double? dimensionRatio;
-  final double? ripple;
-
-  final double? width, widthMax, widthMin;
-  final double? height, heightMax, heightMin;
-
-  final double? margin;
-  final double? marginHorizontal, marginVertical;
-  final double? marginTop, marginBottom, marginStart, marginEnd;
-
-  final double? padding;
-  final double? paddingHorizontal, paddingVertical;
-  final double? paddingTop, paddingBottom, paddingStart, paddingEnd;
-
-  final double? borderSize;
-  final double? borderHorizontal, borderVertical;
-  final double? borderTop, borderBottom, borderStart, borderEnd;
-
-  final double? borderRadius;
-  final double? borderRadiusBL, borderRadiusBR, borderRadiusTL, borderRadiusTR;
-
-  final double? shadow;
-  final double? shadowBlurRadius, shadowSpreadRadius;
-  final double? shadowHorizontal, shadowVertical;
-  final double? shadowStart, shadowEnd, shadowTop, shadowBottom;
-
-  final Color? background, borderColor, foreground, shadowColor;
-  final Color? hoverColor, pressedColor, rippleColor;
-
-  final DecorationImage? backgroundImage, foregroundImage;
-  final Gradient? backgroundGradient, foregroundGradient, borderGradient;
-  final Matrix4? transform;
-
-  final Alignment? gravity, transformGravity;
-  final BlendMode? backgroundBlendMode, foregroundBlendMode;
-  final BlurStyle? shadowBlurStyle;
-  final Clip? clipBehavior;
-
-  final ValueState<Color>? backgroundState;
-  final ValueState<Gradient>? backgroundGradientState;
-  final ValueState<DecorationImage>? backgroundImageState;
-
-  final ViewShadowType? shadowType;
-  final ViewPosition? position;
-  final ViewPositionType? positionType;
-  final ViewShape? shape;
-  final ViewVisibility? visibility;
-
-  final Widget? child;
-
-  final OnViewClickListener? onClick, onDoubleClick, onLongClick;
-  final OnViewNotifyListener<T>? onClickHandler;
-  final OnViewNotifyListener<T>? onDoubleClickHandler;
-  final OnViewNotifyListener<T>? onLongClickHandler;
-  final OnViewToggleListener? onToggle;
-
-  const YMRView({
-    Key? key,
-    this.controller,
-    this.flex,
-    this.absorbMode,
-    this.activated,
-    this.enabled,
-    this.visibility,
-    this.animation,
-    this.animationType,
-    this.elevation,
-    this.dimensionRatio,
-    this.ripple,
-    this.width,
-    this.widthMax,
-    this.widthMin,
-    this.height,
-    this.heightMax,
-    this.heightMin,
-    this.margin,
-    this.marginHorizontal,
-    this.marginVertical,
-    this.marginTop,
-    this.marginBottom,
-    this.marginStart,
-    this.marginEnd,
-    this.padding,
-    this.paddingHorizontal,
-    this.paddingVertical,
-    this.paddingTop,
-    this.paddingBottom,
-    this.paddingStart,
-    this.paddingEnd,
-    this.borderSize,
-    this.borderHorizontal,
-    this.borderVertical,
-    this.borderTop,
-    this.borderBottom,
-    this.borderStart,
-    this.borderEnd,
-    this.borderRadius,
-    this.borderRadiusBL,
-    this.borderRadiusBR,
-    this.borderRadiusTL,
-    this.borderRadiusTR,
-    this.shadow,
-    this.shadowBlurRadius,
-    this.shadowSpreadRadius,
-    this.shadowHorizontal,
-    this.shadowVertical,
-    this.shadowStart,
-    this.shadowEnd,
-    this.shadowTop,
-    this.shadowBottom,
-    this.background,
-    this.borderColor,
-    this.foreground,
-    this.hoverColor,
-    this.pressedColor,
-    this.shadowColor,
-    this.rippleColor,
-    this.gravity,
-    this.transformGravity,
-    this.backgroundBlendMode,
-    this.foregroundBlendMode,
-    this.backgroundImage,
-    this.foregroundImage,
-    this.backgroundGradient,
-    this.foregroundGradient,
-    this.borderGradient,
-    this.transform,
-    this.shadowBlurStyle,
-    this.clipBehavior,
-    this.shadowType,
-    this.position,
-    this.positionType,
-    this.shape,
-    this.child,
-    this.backgroundState,
-    this.backgroundGradientState,
-    this.backgroundImageState,
-    this.onClick,
-    this.onDoubleClick,
-    this.onLongClick,
-    this.onClickHandler,
-    this.onDoubleClickHandler,
-    this.onLongClickHandler,
-    this.onToggle,
-  }) : super(key: key);
-
-  void init(T controller) {}
-
-  T initController() => ViewController() as T;
-
-  T attachController(T controller) => controller.fromView(this) as T;
-
-  void onViewCreated(BuildContext context, T controller) {}
-
-  void onToggleHandler(BuildContext context, T controller) {}
-
-  Widget root(BuildContext context, T controller, Widget parent) => parent;
-
-  Widget build(BuildContext context, T controller, Widget parent) => parent;
-
-  Widget? attach(BuildContext context, T controller) => controller.child;
-
-  ViewRoots get roots => const ViewRoots();
-
-  void onDispose() {}
-
-  @override
-  State<YMRView<T>> createState() => _YMRViewState<T>();
-}
-
-class _YMRViewState<T extends ViewController> extends State<YMRView<T>> {
-  late T controller;
-
-  @override
-  void initState() {
-    controller = widget.controller ?? widget.initController();
-    controller._setNotifier(setState);
-    controller = widget.attachController(controller);
-    widget.init(controller);
-    super.initState();
-  }
-
-  @override
-  void didUpdateWidget(covariant YMRView<T> oldWidget) {
-    widget.init(controller);
-    super.didUpdateWidget(oldWidget);
-  }
-
-  @override
-  void dispose() {
-    widget.onDispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    controller.context = context;
-    return controller.visibility.isVisibleOrInvisible
-        ? widget.root(
-            context,
-            controller,
-            _ViewPosition(
-              controller: controller,
-              attachView: _ViewFlex(
-                controller: controller,
-                attachView: _ViewDimension(
-                  controller: controller,
-                  attachView: _ViewListener(
-                    controller: controller,
-                    onToggleHandler: widget.onToggleHandler,
-                    attachView: _ViewChild(
-                      controller: controller,
-                      attach: widget.attach(context, controller),
-                      builder: (context, view) {
-                        return widget.build(
-                          context,
-                          controller,
-                          view,
-                        );
-                      },
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          )
-        : const SizedBox();
-  }
-}
-
-class _ViewPosition extends StatelessWidget {
-  final ViewController controller;
-  final Widget attachView;
-
-  const _ViewPosition({
-    Key? key,
-    required this.controller,
-    required this.attachView,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return controller.isPositional
-        ? Positioned(
-            top: controller.position.top,
-            bottom: controller.position.bottom,
-            left: controller.position.left,
-            right: controller.position.right,
-            child: attachView,
-          )
-        : attachView;
-  }
-}
-
-class _ViewFlex extends StatelessWidget {
-  final ViewController controller;
-  final Widget attachView;
-
-  const _ViewFlex({
-    Key? key,
-    required this.controller,
-    required this.attachView,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return controller.isExpendable
-        ? Expanded(
-            flex: controller.flex,
-            child: attachView,
-          )
-        : attachView;
-  }
-}
-
-class _ViewDimension extends StatelessWidget {
-  final ViewController controller;
-  final Widget attachView;
-
-  const _ViewDimension({
-    Key? key,
-    required this.controller,
-    required this.attachView,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return controller.isDimensional
-        ? AspectRatio(
-            aspectRatio: controller.dimensionRatio,
-            child: attachView,
-          )
-        : attachView;
-  }
-}
-
-class _ViewListener<T extends ViewController> extends StatelessWidget {
-  final T controller;
-  final Widget attachView;
-  final OnViewToggleHandler<T> onToggleHandler;
-
-  const _ViewListener({
-    Key? key,
-    required this.controller,
-    required this.attachView,
-    required this.onToggleHandler,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return controller.isObservable
-        ? controller.isRippled
-            ? Padding(
-                padding: controller.isMargin
-                    ? EdgeInsets.only(
-                        left: controller.marginStart,
-                        right: controller.marginEnd,
-                        top: controller.marginTop,
-                        bottom: controller.marginBottom,
-                      )
-                    : EdgeInsets.zero,
-                child: Material(
-                  elevation: controller.elevation,
-                  borderRadius: controller.isRippled
-                      ? controller.isCircular
-                          ? BorderRadius.circular(controller.maxSize)
-                          : BorderRadius.only(
-                              topLeft: Radius.circular(
-                                controller.borderRadiusTLF,
-                              ),
-                              topRight: Radius.circular(
-                                controller.borderRadiusTRF,
-                              ),
-                              bottomLeft: Radius.circular(
-                                controller.borderRadiusBLF,
-                              ),
-                              bottomRight: Radius.circular(
-                                controller.borderRadiusBRF,
-                              ),
-                            )
-                      : null,
-                  color: controller.background,
-                  clipBehavior: controller.clipBehavior,
-                  child: InkWell(
-                    splashColor: controller.rippleColor,
-                    hoverColor: controller.hoverColor,
-                    highlightColor: controller.pressedColor,
-                    onTap: controller.isClickable
-                        ? () {
-                            if (controller.isToggleClickable) {
-                              controller._onToggleNotify();
-                              onToggleHandler(context, controller);
-                            } else {
-                              controller.onClickHandler != null
-                                  ? controller.onClickHandler?.call(controller)
-                                  : controller.onClick?.call(context);
-                            }
-                          }
-                        : null,
-                    onDoubleTap: controller.isDoubleClickable
-                        ? () {
-                            controller.onDoubleClickHandler != null
-                                ? controller.onDoubleClickHandler
-                                    ?.call(controller)
-                                : controller.onDoubleClick?.call(context);
-                          }
-                        : null,
-                    onLongPress: controller.isLongClickable
-                        ? () {
-                            controller.onLongClickHandler != null
-                                ? controller.onLongClickHandler
-                                    ?.call(controller)
-                                : controller.onLongClick?.call(context);
-                          }
-                        : null,
-                    child: controller.absorbMode
-                        ? AbsorbPointer(child: attachView)
-                        : attachView,
-                  ),
-                ),
-              )
-            : GestureDetector(
-                onTap: controller.isClickable
-                    ? () {
-                        if (controller.isToggleClickable) {
-                          controller.setActivated(
-                            !controller.activated,
-                          );
-                        } else {
-                          controller.onClickHandler != null
-                              ? controller.onClickHandler?.call(controller)
-                              : controller.onClick?.call(context);
-                        }
-                      }
-                    : null,
-                onDoubleTap: controller.isDoubleClickable
-                    ? () {
-                        controller.onDoubleClickHandler != null
-                            ? controller.onDoubleClickHandler?.call(controller)
-                            : controller.onDoubleClick?.call(context);
-                      }
-                    : null,
-                onLongPress: controller.isLongClickable
-                    ? () {
-                        controller.onLongClickHandler != null
-                            ? controller.onLongClickHandler?.call(controller)
-                            : controller.onLongClick?.call(context);
-                      }
-                    : null,
-                child: controller.absorbMode
-                    ? AbsorbPointer(child: attachView)
-                    : attachView,
-              )
-        : attachView;
-  }
-}
-
-class _ViewChild extends StatelessWidget {
-  final ViewController controller;
-  final Widget? attach;
-  final Function(BuildContext context, Widget child) builder;
-
-  const _ViewChild({
-    Key? key,
-    required this.controller,
-    required this.attach,
-    required this.builder,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final root = controller.roots;
-    final isOverlayShadow = controller.isOverlayShadow;
-    final isCircular = controller.isCircular;
-    final isRadius = controller.isBorderRadius;
-    final isRippled = controller.isRippled;
-    final isMargin = controller.isMargin && !isRippled;
-    final isPadding = controller.isPadding;
-    final isBorder = controller.isBorder;
-    final isShadow = controller.isShadow;
-    final isConstraints = controller.isConstraints;
-
-    final borderRadius = isRippled
-        ? null
-        : isRadius && !isCircular
-            ? BorderRadius.only(
-                topLeft: Radius.circular(
-                  controller.borderRadiusTLF,
-                ),
-                topRight: Radius.circular(
-                  controller.borderRadiusTRF,
-                ),
-                bottomLeft: Radius.circular(
-                  controller.borderRadiusBLF,
-                ),
-                bottomRight: Radius.circular(
-                  controller.borderRadiusBRF,
-                ),
-              )
-            : null;
-
-    return controller.visibility.isInvisible
-        ? null
-        : builder(
-            context,
-            controller.roots.view
-                ? Container(
-                    alignment: controller.gravity,
-                    clipBehavior:
-                        root.decoration ? controller.clipBehavior : Clip.none,
-                    width: controller.width,
-                    height: controller.height,
-                    transform: controller.transform,
-                    transformAlignment: controller.transformGravity,
-                    constraints: isConstraints
-                        ? BoxConstraints(
-                            maxWidth: controller.widthMax,
-                            minWidth: controller.widthMin,
-                            maxHeight: controller.heightMax,
-                            minHeight: controller.heightMin,
-                          )
-                        : null,
-                    decoration: root.decoration
-                        ? BoxDecoration(
-                            backgroundBlendMode: isRippled
-                                ? null
-                                : controller.backgroundBlendMode,
-                            borderRadius: borderRadius,
-                            color: isRippled
-                                ? null
-                                : root.background
-                                    ? isBorder
-                                        ? controller.borderColor
-                                        : controller.background
-                                    : null,
-                            gradient: isRippled
-                                ? null
-                                : isBorder
-                                    ? controller.borderGradient
-                                    : controller.backgroundGradient,
-                            image:
-                                isRippled ? null : controller.backgroundImage,
-                            boxShadow: isShadow
-                                ? [
-                                    BoxShadow(
-                                      color: controller.shadowColor ??
-                                          Colors.black45,
-                                      blurRadius: controller.shadowBlurRadius,
-                                      offset: isOverlayShadow
-                                          ? Offset.zero
-                                          : Offset(
-                                              -controller.shadowStart,
-                                              -controller.shadowTop,
-                                            ),
-                                      blurStyle: controller.shadowBlurStyle,
-                                      spreadRadius:
-                                          controller.shadowSpreadRadius,
-                                    ),
-                                    if (!isOverlayShadow)
-                                      BoxShadow(
-                                        color: controller.shadowColor ??
-                                            Colors.black45,
-                                        blurRadius: controller.shadowBlurRadius,
-                                        offset: Offset(
-                                          controller.shadowEnd,
-                                          controller.shadowBottom,
-                                        ),
-                                        blurStyle: controller.shadowBlurStyle,
-                                        spreadRadius:
-                                            controller.shadowSpreadRadius,
-                                      ),
-                                  ]
-                                : null,
-                            shape: isCircular && !isRippled
-                                ? BoxShape.circle
-                                : BoxShape.rectangle,
-                          )
-                        : null,
-                    foregroundDecoration: root.decoration
-                        ? BoxDecoration(
-                            backgroundBlendMode: controller.foregroundBlendMode,
-                            borderRadius: borderRadius,
-                            color: controller.foreground,
-                            gradient: controller.foregroundGradient,
-                            image: controller.foregroundImage,
-                            shape: isCircular
-                                ? BoxShape.circle
-                                : BoxShape.rectangle,
-                          )
-                        : null,
-                    margin: isMargin
-                        ? EdgeInsets.only(
-                            left: controller.marginStart,
-                            right: controller.marginEnd,
-                            top: controller.marginTop,
-                            bottom: controller.marginBottom,
-                          )
-                        : null,
-                    padding: isBorder
-                        ? EdgeInsets.only(
-                            left: controller.borderStart,
-                            right: controller.borderEnd,
-                            top: controller.borderTop,
-                            bottom: controller.borderBottom,
-                          )
-                        : isPadding
-                            ? EdgeInsets.only(
-                                left: controller.paddingStart,
-                                right: controller.paddingEnd,
-                                top: controller.paddingTop,
-                                bottom: controller.paddingBottom,
-                              )
-                            : null,
-                    child: isBorder
-                        ? _ViewBorder(
-                            controller: controller,
-                            isCircular: isCircular,
-                            isPadding: isPadding,
-                            isRadius: isRadius,
-                            child: attach,
-                          )
-                        : attach,
-                  )
-                : const SizedBox(),
-          );
-  }
-}
-
-class _ViewBorder extends StatelessWidget {
-  final ViewController controller;
-  final bool isCircular, isPadding, isRadius;
-  final Widget? child;
-
-  const _ViewBorder({
-    Key? key,
-    required this.controller,
-    required this.isCircular,
-    required this.isPadding,
-    required this.isRadius,
-    this.child,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      clipBehavior:
-          controller.roots.decoration ? controller.clipBehavior : Clip.none,
-      padding: isPadding
-          ? EdgeInsets.only(
-              left: controller.paddingStart,
-              right: controller.paddingEnd,
-              top: controller.paddingTop,
-              bottom: controller.paddingBottom,
-            )
-          : null,
-      decoration: BoxDecoration(
-        color: controller.background,
-        shape: isCircular ? BoxShape.circle : BoxShape.rectangle,
-        borderRadius: isRadius
-            ? BorderRadius.only(
-                topLeft: Radius.circular(
-                  controller.borderRadiusTL,
-                ),
-                topRight: Radius.circular(
-                  controller.borderRadiusTR,
-                ),
-                bottomLeft: Radius.circular(
-                  controller.borderRadiusBL,
-                ),
-                bottomRight: Radius.circular(
-                  controller.borderRadiusBR,
-                ),
-              )
-            : null,
-      ),
-      child: child,
-    );
-  }
 }

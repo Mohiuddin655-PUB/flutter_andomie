@@ -4,6 +4,9 @@ class Button extends TextView<ButtonController> {
   final bool? centerText;
   final dynamic icon;
   final ValueState<dynamic>? iconState;
+  final Color? iconColor;
+  final ValueState<Color>? iconColorState;
+  final bool? iconColorEnabled;
   final double? iconSize;
   final ValueState<double>? iconSizeState;
   final bool? iconFlexible;
@@ -51,6 +54,7 @@ class Button extends TextView<ButtonController> {
     super.borderRadiusBR,
     super.borderRadiusTL,
     super.borderRadiusTR,
+    super.ripple,
     super.shadow,
     super.shadowBlurRadius,
     super.shadowSpreadRadius,
@@ -88,12 +92,14 @@ class Button extends TextView<ButtonController> {
     super.onDoubleClickHandler,
     super.onLongClick,
     super.onLongClickHandler,
+    super.onToggle,
     super.text,
     super.textSize,
     super.fontWeight,
     super.textStyle,
     super.textAllCaps,
     super.textColor,
+    super.textColorState,
     super.textState,
     this.centerText,
     this.iconFlexible,
@@ -101,6 +107,9 @@ class Button extends TextView<ButtonController> {
     this.iconState,
     this.iconSize,
     this.iconSizeState,
+    this.iconColor,
+    this.iconColorState,
+    this.iconColorEnabled,
     this.iconSpace,
     this.iconAlignment,
   });
@@ -158,7 +167,7 @@ class _Text extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextView(
+    return RawTextView(
       text: controller.text,
       textAlign: TextAlign.center,
       textColor: controller.color,
@@ -196,7 +205,7 @@ class _Icon extends StatelessWidget {
             )
           : null,
       icon: controller.icon,
-      tint: controller.color,
+      tint: controller.iconTint,
       size: controller.iconSize,
     );
   }
@@ -208,6 +217,9 @@ class ButtonController extends TextViewController {
   ValueState<dynamic>? iconState;
   double? _iconSize;
   ValueState<double>? iconSizeState;
+  Color? _iconTint;
+  ValueState<Color>? iconTintState;
+  bool iconTintEnabled = true;
   bool expended = false;
   double iconSpace = 16;
   IconAlignment iconAlignment = IconAlignment.end;
@@ -219,6 +231,9 @@ class ButtonController extends TextViewController {
     iconState = view.iconState;
     _iconSize = view.iconSize;
     iconSizeState = view.iconSizeState;
+    _iconTint = view.iconColor;
+    iconTintState = view.iconColorState;
+    iconTintEnabled = view.iconColorEnabled ?? true;
     expended = view.iconFlexible ?? false;
     iconSpace = view.iconSpace ?? 16;
     iconAlignment = view.iconAlignment ?? IconAlignment.end;
@@ -229,6 +244,10 @@ class ButtonController extends TextViewController {
 
   double get iconSize =>
       iconSizeState?.activated(activated, enabled) ?? _iconSize ?? textSize;
+
+  Color? get iconTint => iconTintEnabled
+      ? iconTintState?.activated(activated, enabled) ?? _iconTint ?? color
+      : null;
 
   bool get isCenterText => centerText;
 
@@ -243,7 +262,11 @@ class ButtonController extends TextViewController {
   Color? get color {
     var I = textColorState?.activated(activated, enabled) ?? textColor;
     if (I == null) {
-      return enabled ? Colors.white : Colors.grey.shade400;
+      return enabled && isObservable
+          ? activated
+              ? theme.primaryColor
+              : Colors.white
+          : Colors.grey.shade400;
     }
     return I;
   }
@@ -251,7 +274,11 @@ class ButtonController extends TextViewController {
   @override
   Color? get background {
     if (super.background == null) {
-      return enabled ? theme.primaryColor : Colors.grey.shade200;
+      return enabled && isObservable
+          ? activated
+              ? theme.primaryColor.withOpacity(0.1)
+              : theme.primaryColor
+          : Colors.grey.shade200;
     }
     return super.background;
   }
