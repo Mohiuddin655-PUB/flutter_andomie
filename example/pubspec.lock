@@ -308,7 +308,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.3.7-alpha1"
+    version: "0.3.7-alpha3"
   flutter_bloc:
     dependency: "direct main"
     description:

@@ -1,3 +1,3 @@
-## 0.3.7-alpha2
+## 0.3.7-alpha3
 
-* Add view ripple mode
+* Button Modified

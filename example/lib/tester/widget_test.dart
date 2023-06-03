@@ -12,6 +12,17 @@ class ViewTest extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
+          TextView(
+            text: "Click",
+            borderRadius: 24,
+            background: Theme.of(context).primaryColor,
+            paddingHorizontal: 24,
+            paddingVertical: 12,
+            marginBottom: 24,
+
+            width: 100,
+            onClick: (c) {},
+          ),
           Button(
             icon: Icons.add,
             iconSize: 18,
