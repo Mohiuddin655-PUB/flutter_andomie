@@ -87,7 +87,6 @@ class LinearLayout extends YMRView<LinearLayoutController> {
     super.positionType,
     super.shadowType,
     super.shape,
-    super.child,
     super.onClick,
     super.onClickHandler,
     super.onDoubleClick,
@@ -112,18 +111,7 @@ class LinearLayout extends YMRView<LinearLayoutController> {
 
   @override
   LinearLayoutController attachController(LinearLayoutController controller) {
-    return controller.fromView(
-      this,
-      crossGravity: crossGravity,
-      mainGravity: mainGravity,
-      layoutGravity: layoutGravity,
-      orientation: orientation,
-      scrollable: scrollable,
-      scrollingType: scrollingType,
-      scrollController: scrollController,
-      onPagingListener: onPagingListener,
-      children: children,
-    );
+    return controller.fromLinearLayout(this);
   }
 
   @override
@@ -170,29 +158,17 @@ class LinearLayoutController extends ViewController {
 
   OnViewChangeListener? onPagingListener;
 
-  @override
-  LinearLayoutController fromView(
-    YMRView<ViewController> view, {
-    Axis? orientation,
-    LayoutGravity? layoutGravity,
-    MainAxisAlignment? mainGravity,
-    CrossAxisAlignment? crossGravity,
-    bool? scrollable,
-    LayoutScrollingType? scrollingType,
-    ScrollController? scrollController,
-    List<Widget>? children,
-    OnViewChangeListener? onPagingListener,
-  }) {
+  LinearLayoutController fromLinearLayout(LinearLayout view) {
     super.fromView(view);
-    this.orientation = orientation ?? Axis.vertical;
-    this.layoutGravity = layoutGravity ?? LayoutGravity.start;
-    _mainGravity = mainGravity;
-    _crossGravity = crossGravity;
-    this.scrollable = scrollable ?? false;
-    this.scrollingType = scrollingType ?? LayoutScrollingType.none;
-    _scrollController = scrollController ?? ScrollController();
-    this.children = children ?? [];
-    this.onPagingListener = onPagingListener;
+    orientation = view.orientation ?? Axis.vertical;
+    layoutGravity = view.layoutGravity ?? LayoutGravity.start;
+    _mainGravity = view.mainGravity;
+    _crossGravity = view.crossGravity;
+    scrollable = view.scrollable ?? false;
+    scrollingType = view.scrollingType ?? LayoutScrollingType.none;
+    _scrollController = view.scrollController ?? ScrollController();
+    children = view.children ?? [];
+    onPagingListener = view.onPagingListener;
     return this;
   }
 

@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/widgets.dart';
 
@@ -13,15 +11,7 @@ class ViewTest extends StatelessWidget {
       child: Column(
         children: [
           TextView(
-            text: "Click",
-            borderRadius: 24,
-            background: Theme.of(context).primaryColor,
-            paddingHorizontal: 24,
-            paddingVertical: 12,
-            marginBottom: 24,
-
-            width: 100,
-            onClick: (c) {},
+            text: "Text",
           ),
           Button(
             icon: Icons.add,
@@ -29,8 +19,13 @@ class ViewTest extends StatelessWidget {
             iconSpace: 0,
             text: "Click",
             borderRadius: 24,
-            width: 100,
-            onClick: (c) {},
+            enabled: true,
+            ripple: 20,
+            iconColorEnabled: false,
+            activated: false,
+            onClick: (c) {
+              print(c);
+            },
           ),
           Button(
             marginTop: 12,
@@ -38,7 +33,7 @@ class ViewTest extends StatelessWidget {
             iconSize: 18,
             width: 200,
             text: "Google",
-            centerText: true,
+            centerText: false,
             borderRadius: 50,
             onClick: (c) {},
           ),

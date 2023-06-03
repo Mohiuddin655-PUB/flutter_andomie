@@ -167,58 +167,44 @@ class TextView<T extends TextViewController> extends YMRView<T> {
 
   @override
   Widget? attach(BuildContext context, T controller) {
-    return _TextView(
-      controller: controller,
+    return RawTextView(
+      text: controller.text,
+      textSpans: controller.isSpannable
+          ? [
+              TextSpan(
+                text: controller.isAutoEllipsize
+                    ? controller.ellipsizeText ?? " ... "
+                    : null,
+                style: TextStyle(
+                  color: controller.ellipsizeTextColor,
+                  fontSize: controller.ellipsizeTextSize,
+                  fontStyle: controller.ellipsizeTextStyle,
+                  letterSpacing: controller.ellipsizeLetterSpace,
+                  fontWeight: controller.ellipsizeTextWeight,
+                ),
+              ),
+            ]
+          : [],
+      maxLines: controller.maxLines,
+      textOverflow: controller.textOverflow,
+      textStyle: controller.textStyle,
+      textColor: controller.textColor,
+      textSize: controller.textSize,
+      fontWeight: controller.fontWeight,
+      textDecoration: controller.textDecoration,
+      textDecorationColor: controller.textDecorationColor,
+      textDecorationStyle: controller.textDecorationStyle,
+      textDecorationThickness: controller.textDecorationThickness,
+      fontFamily: controller.fontFamily,
+      fontStyle: controller.fontStyle,
+      textLeadingDistribution: controller.textLeadingDistribution,
+      lineHeight: controller.spacingFactor,
+      letterSpacing: controller.letterSpacing,
+      wordSpacing: controller.wordSpacing,
+      textAlign: controller.textAlign,
+      textDirection: controller.textDirection,
     );
   }
-}
-
-class _TextView<T extends TextViewController> extends StatelessWidget {
-  final T controller;
-
-  const _TextView({
-    Key? key,
-    required this.controller,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) => RawTextView(
-        text: controller.text,
-        textSpans: controller.isSpannable
-            ? [
-                TextSpan(
-                  text: controller.isAutoEllipsize
-                      ? controller.ellipsizeText ?? " ... "
-                      : null,
-                  style: TextStyle(
-                    color: controller.ellipsizeTextColor,
-                    fontSize: controller.ellipsizeTextSize,
-                    fontStyle: controller.ellipsizeTextStyle,
-                    letterSpacing: controller.ellipsizeLetterSpace,
-                    fontWeight: controller.ellipsizeTextWeight,
-                  ),
-                ),
-              ]
-            : [],
-        maxLines: controller.maxLines,
-        textOverflow: controller.textOverflow,
-        textStyle: controller.textStyle,
-        textColor: controller.textColor,
-        textSize: controller.textSize,
-        fontWeight: controller.fontWeight,
-        textDecoration: controller.textDecoration,
-        textDecorationColor: controller.textDecorationColor,
-        textDecorationStyle: controller.textDecorationStyle,
-        textDecorationThickness: controller.textDecorationThickness,
-        fontFamily: controller.fontFamily,
-        fontStyle: controller.fontStyle,
-        textLeadingDistribution: controller.textLeadingDistribution,
-        lineHeight: controller.spacingFactor,
-        letterSpacing: controller.letterSpacing,
-        wordSpacing: controller.wordSpacing,
-        textAlign: controller.textAlign,
-        textDirection: controller.textDirection,
-      );
 }
 
 class RawTextView extends StatelessWidget {
