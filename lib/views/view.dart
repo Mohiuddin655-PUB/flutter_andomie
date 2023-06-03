@@ -24,10 +24,10 @@ enum ViewPositionType {
   bottomEnd(ViewPosition(bottom: 0, right: 0)),
   bottomStart(ViewPosition(bottom: 0, left: 0)),
   center,
-  centerBottom(ViewPosition(bottom: 0)),
-  centerEnd(ViewPosition(right: 0)),
-  centerStart(ViewPosition(left: 0)),
-  centerTop(ViewPosition(top: 0)),
+  centerBottom(ViewPosition(bottom: 0, left: 0, right: 0)),
+  centerEnd(ViewPosition(right: 0, top: 0, bottom: 0)),
+  centerStart(ViewPosition(left: 0, top: 0, bottom: 0)),
+  centerTop(ViewPosition(top: 0, left: 0, right: 0)),
   flexStart(ViewPosition(left: 0, top: 0, bottom: 0)),
   flexEnd(ViewPosition(right: 0, top: 0, bottom: 0)),
   flexTop(ViewPosition(top: 0, left: 0, right: 0)),
@@ -1338,8 +1338,24 @@ class ViewController {
     return roots.margin && marginAll > 0;
   }
 
+  bool get isMarginX {
+    return roots.margin && (marginStart + marginEnd) > 0;
+  }
+
+  bool get isMarginY {
+    return roots.margin && (marginTop + marginBottom) > 0;
+  }
+
   bool get isPadding {
     return roots.padding && paddingAll > 0;
+  }
+
+  bool get isPaddingX {
+    return roots.padding && (paddingStart + paddingEnd) > 0;
+  }
+
+  bool get isPaddingY {
+    return roots.padding && (paddingTop + paddingBottom) > 0;
   }
 
   bool get isConstraints =>

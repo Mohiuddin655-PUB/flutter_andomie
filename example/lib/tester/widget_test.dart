@@ -10,19 +10,21 @@ class ViewTest extends StatelessWidget {
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          TextView(
-            text: "Text",
-          ),
           Button(
-            icon: Icons.add,
-            iconSize: 18,
+            icon: "assets/icons/ic_google.svg",
+            //iconSize: 24,
+            height: 50,
+            width: double.infinity,
             iconSpace: 0,
+            paddingVertical: 8,
+            iconAlignment: IconAlignment.end,
             text: "Click",
             borderRadius: 24,
-            enabled: true,
+            paddingHorizontal: 24,
             ripple: 20,
+            textSize: 24,
             iconColorEnabled: false,
-            activated: false,
+            centerText: true,
             onClick: (c) {
               print(c);
             },

@@ -205,7 +205,7 @@ class IconViewController extends ViewController {
     _icon = view.icon;
     iconState = view.iconState;
     _size = view.size ?? 24;
-    _tint = view.tint ?? const Color(0xFF808080);
+    _tint = view.tint;
     tintState = view.tintState;
     tintMode = view.tintMode ?? BlendMode.srcIn;
     return this;

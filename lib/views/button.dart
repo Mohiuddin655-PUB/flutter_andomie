@@ -198,11 +198,10 @@ class _Icon extends StatelessWidget {
       marginEnd: !controller.isCenterText && controller.isStartIconVisible
           ? controller.iconSpace
           : null,
-      position: controller.isCenterText
-          ? ViewPosition(
-              left: controller.isStartIconVisible ? 0 : null,
-              right: controller.isEndIconVisible ? 0 : null,
-            )
+      positionType: controller.isCenterText
+          ? controller.isEndIconVisible
+              ? ViewPositionType.centerEnd
+              : ViewPositionType.centerStart
           : null,
       icon: controller.icon,
       tint: controller.iconTint,
@@ -243,7 +242,9 @@ class ButtonController extends TextViewController {
   dynamic get icon => iconState?.activated(activated, enabled) ?? _icon;
 
   double get iconSize =>
-      iconSizeState?.activated(activated, enabled) ?? _iconSize ?? textSize;
+      iconSizeState?.activated(activated, enabled) ??
+      _iconSize ??
+      textSize * 1.2;
 
   Color? get iconTint => iconTintEnabled
       ? iconTintState?.activated(activated, enabled) ?? _iconTint ?? color
@@ -288,9 +289,6 @@ class ButtonController extends TextViewController {
 
   @override
   double? get paddingVertical => super.paddingVertical ?? 12;
-
-  @override
-  double? get height => super.isPadding ? null : super.height;
 }
 
 enum IconAlignment { start, end }

@@ -1,3 +1,3 @@
-## 0.3.7-alpha5
+## 0.3.7-alpha7
 
-* Icon tint Modified
+* Customize button icon size
