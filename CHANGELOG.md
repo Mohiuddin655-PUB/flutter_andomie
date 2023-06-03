@@ -1,3 +1,3 @@
-## 0.3.7-alpha3
+## 0.3.7-alpha5
 
-* Button Modified
+* Icon tint Modified

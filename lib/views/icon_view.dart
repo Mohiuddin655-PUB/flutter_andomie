@@ -143,10 +143,12 @@ class RawIconView extends StatelessWidget {
           width: size,
           height: size,
           fit: fit ?? BoxFit.contain,
-          colorFilter: ColorFilter.mode(
-            tint ?? const Color(0xFF808080),
-            tintMode,
-          ),
+          colorFilter: tint != null
+              ? ColorFilter.mode(
+                  tint!,
+                  tintMode,
+                )
+              : null,
           theme: SvgTheme(
             currentColor: tint ?? const Color(0xFF808080),
           ),
@@ -193,7 +195,7 @@ class IconViewController extends ViewController {
   ValueState<dynamic>? iconState;
   double _size = 24;
   ValueState<double>? iconSizeState;
-  Color _tint = const Color(0xFF808080);
+  Color? _tint;
   ValueState<Color>? tintState;
   BlendMode tintMode = BlendMode.srcIn;
 
@@ -218,7 +220,7 @@ class IconViewController extends ViewController {
 
   double get size => iconSizeState?.selected(activated) ?? _size;
 
-  Color get tint => tintState?.selected(activated) ?? _tint;
+  Color? get tint => tintState?.selected(activated) ?? _tint;
 
   void setIcon(dynamic value) {
     _icon = value;

@@ -874,7 +874,7 @@ class ViewController {
   ViewController fromView(YMRView view) {
     hoverColor = view.hoverColor;
     pressedColor = view.pressedColor;
-    _ripple = view.ripple ?? 10;
+    _ripple = view.ripple ?? 0;
     rippleColor = view.rippleColor ?? Colors.white;
 
     // VIEW CONDITIONAL PROPERTIES
@@ -994,7 +994,7 @@ class ViewController {
   ThemeData get theme => Theme.of(context);
 
   double elevation = 0;
-  double _ripple = 10;
+  double _ripple = 0;
 
   Color? _background;
   Color? hoverColor;
