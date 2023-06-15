@@ -1,3 +1,3 @@
-## 0.3.7-alpha7
+## 0.3.8
 
-* Customize button icon size
+* Move all views and layouts from this library
