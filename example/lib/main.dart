@@ -1,9 +1,4 @@
-import 'package:example/tester/auth_test.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-
-import 'di.dart';
-import 'tester/widget_test.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,17 +31,7 @@ class Home extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        // child: ToggleView(
-        //   width: 150,
-        //   height: 50,
-        //   background: Colors.red,
-        //   borderRadius: 24,
-        //   toggle: true,
-        //   onClick: (c){
-        //     print("object");
-        //   },
-        // ),
-        child: ViewTest(),
+        child: Container(),
       ),
     );
   }
