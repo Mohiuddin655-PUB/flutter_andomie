@@ -17,7 +17,18 @@ class AuthRepositoryImpl extends AuthRepository {
   Future<bool> isSignIn([AuthProvider? provider]) => authDataSource.isSignIn();
 
   @override
-  Future<Response> signOut([AuthProvider? provider]) => authDataSource.signOut();
+  Future<Response> signOut([AuthProvider? provider]) =>
+      authDataSource.signOut();
+
+  @override
+  Future<Response<Credential>> signInWithApple() {
+    return authDataSource.signInWithApple();
+  }
+
+  @override
+  Future<Response<bool>> signInWithBiometric() {
+    return authDataSource.signInWithBiometric();
+  }
 
   @override
   Future<Response<Credential>> signInWithFacebook() {
@@ -25,13 +36,13 @@ class AuthRepositoryImpl extends AuthRepository {
   }
 
   @override
-  Future<Response<Credential>> signInWithGoogle() {
-    return authDataSource.signInWithGoogle();
+  Future<Response<Credential>> signInWithGithub() {
+    return authDataSource.signInWithGithub();
   }
 
   @override
-  Future<Response<bool>> signInWithBiometric() {
-    return authDataSource.signInWithBiometric();
+  Future<Response<Credential>> signInWithGoogle() {
+    return authDataSource.signInWithGoogle();
   }
 
   @override

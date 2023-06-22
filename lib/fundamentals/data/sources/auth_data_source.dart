@@ -5,13 +5,16 @@ class AuthDataSourceImpl extends AuthDataSource {
   final FirebaseAuth firebaseAuth;
   final LocalAuthentication localAuth;
   final GoogleSignIn googleAuth;
+  final SignInWithApplePlatform appleAuth;
 
   AuthDataSourceImpl({
     FacebookAuth? facebookAuth,
     FirebaseAuth? firebaseAuth,
     LocalAuthentication? localAuth,
     GoogleSignIn? googleAuth,
-  })  : facebookAuth = facebookAuth ?? FacebookAuth.i,
+    SignInWithApplePlatform? appleAuth,
+  })  : appleAuth = appleAuth ?? SignInWithApplePlatform.instance,
+        facebookAuth = facebookAuth ?? FacebookAuth.i,
         firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         localAuth = localAuth ?? LocalAuthentication(),
         googleAuth = googleAuth ?? GoogleSignIn(scopes: ['email']);
@@ -127,6 +130,77 @@ class AuthDataSourceImpl extends AuthDataSource {
   }
 
   @override
+  Future<Response<Credential>> signInWithApple() async {
+    final response = Response<Credential>();
+    try {
+      final result = await appleAuth.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      if (result.identityToken != null) {
+        final credential = OAuthProvider("apple.com").credential(
+          idToken: result.identityToken,
+          accessToken: result.authorizationCode,
+        );
+        return response.withData(Credential(
+          credential: credential,
+          accessToken: result.authorizationCode,
+          idToken: result.identityToken,
+          id: result.userIdentifier,
+          email: result.email,
+          name: result.givenName ?? result.familyName,
+        ));
+      } else {
+        return response.withException('Token not valid!', status: Status.error);
+      }
+    } on SignInWithAppleAuthorizationException catch (_) {
+      return response.withException(_.message, status: Status.failure);
+    }
+  }
+
+  @override
+  Future<Response<bool>> signInWithBiometric() async {
+    final response = Response<bool>();
+    try {
+      if (!await localAuth.isDeviceSupported()) {
+        return response.withException(
+          "Device isn't supported!",
+          status: Status.notSupported,
+        );
+      } else {
+        if (await localAuth.canCheckBiometrics) {
+          final authenticated = await localAuth.authenticate(
+            localizedReason:
+                'Scan your fingerprint (or face or whatever) to authenticate',
+            options: const AuthenticationOptions(
+              stickyAuth: true,
+              biometricOnly: true,
+            ),
+          );
+          if (authenticated) {
+            return response.withData(true);
+          } else {
+            return response.withException(
+              "Biometric matching failed!",
+              status: Status.notFound,
+            );
+          }
+        } else {
+          return response.withException(
+            "Can not check bio metrics!",
+            status: Status.undetected,
+          );
+        }
+      }
+    } catch (_) {
+      return response.withException(_, status: Status.failure);
+    }
+  }
+
+  @override
   Future<Response<Credential>> signInWithFacebook() async {
     final response = Response<Credential>();
     try {
@@ -160,6 +234,12 @@ class AuthDataSourceImpl extends AuthDataSource {
     } on FirebaseAuthException catch (e) {
       return response.withException(e.message, status: Status.failure);
     }
+  }
+
+  @override
+  Future<Response<Credential>> signInWithGithub() async {
+    final response = Response<Credential>();
+    return response.withStatus(Status.undefined);
   }
 
   @override
@@ -203,45 +283,6 @@ class AuthDataSourceImpl extends AuthDataSource {
       }
     } on FirebaseAuthException catch (_) {
       return response.withException(_.message, status: Status.failure);
-    }
-  }
-
-  @override
-  Future<Response<bool>> signInWithBiometric() async {
-    final response = Response<bool>();
-    try {
-      if (!await localAuth.isDeviceSupported()) {
-        return response.withException(
-          "Device isn't supported!",
-          status: Status.notSupported,
-        );
-      } else {
-        if (await localAuth.canCheckBiometrics) {
-          final authenticated = await localAuth.authenticate(
-            localizedReason:
-                'Scan your fingerprint (or face or whatever) to authenticate',
-            options: const AuthenticationOptions(
-              stickyAuth: true,
-              biometricOnly: true,
-            ),
-          );
-          if (authenticated) {
-            return response.withData(true);
-          } else {
-            return response.withException(
-              "Biometric matching failed!",
-              status: Status.notFound,
-            );
-          }
-        } else {
-          return response.withException(
-            "Can not check bio metrics!",
-            status: Status.undetected,
-          );
-        }
-      }
-    } catch (_) {
-      return response.withException(_, status: Status.failure);
     }
   }
 }

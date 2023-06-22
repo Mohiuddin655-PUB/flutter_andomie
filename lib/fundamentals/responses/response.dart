@@ -607,7 +607,7 @@ class ResponseMessages {
   static const String loading =
       "Please wait a second. Because process is running...";
   static const String invalidData = "Invalid data!";
-  static const String undefined = "Undefined data!";
+  static const String undefined = "Currently not initialized!";
   static const String unmodified = "Unmodified data!";
   static const String undetected = "Undetected data!";
   static const String dataNotValid = "Data not valid!";

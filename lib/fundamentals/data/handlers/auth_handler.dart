@@ -15,15 +15,6 @@ class AuthHandlerImpl extends AuthHandler {
   }
 
   @override
-  Future<Response<bool>> signInWithBiometric() {
-    try {
-      return repository.signInWithBiometric();
-    } catch (_) {
-      return Future.error("$_");
-    }
-  }
-
-  @override
   Future<Response<UserCredential>> signInWithEmailNPassword({
     required String email,
     required String password,
@@ -39,9 +30,36 @@ class AuthHandlerImpl extends AuthHandler {
   }
 
   @override
+  Future<Response<Credential>> signInWithApple() {
+    try {
+      return repository.signInWithApple();
+    } catch (_) {
+      return Future.error("$_");
+    }
+  }
+
+  @override
+  Future<Response<bool>> signInWithBiometric() {
+    try {
+      return repository.signInWithBiometric();
+    } catch (_) {
+      return Future.error("$_");
+    }
+  }
+
+  @override
   Future<Response<Credential>> signInWithFacebook() {
     try {
       return repository.signInWithFacebook();
+    } catch (_) {
+      return Future.error("$_");
+    }
+  }
+
+  @override
+  Future<Response<Credential>> signInWithGithub() {
+    try {
+      return repository.signInWithGithub();
     } catch (_) {
       return Future.error("$_");
     }

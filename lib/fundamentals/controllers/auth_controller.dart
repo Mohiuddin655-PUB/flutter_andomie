@@ -107,10 +107,10 @@ class DefaultAuthController<T extends AuthInfo> extends Cubit<AuthResponse<T>> {
     }
   }
 
-  Future signInByFacebook(AuthInfo entity) async {
-    emit(AuthResponse.loading(AuthProvider.facebook));
+  Future signInByApple(AuthInfo entity) async {
+    emit(AuthResponse.loading(AuthProvider.apple));
     try {
-      final response = await handler.signInWithFacebook();
+      final response = await handler.signInWithApple();
       final result = response.data;
       if (result != null && result.credential != null) {
         final finalResponse = await handler.signUpWithCredential(
@@ -126,39 +126,6 @@ class DefaultAuthController<T extends AuthInfo> extends Cubit<AuthResponse<T>> {
             name: result.name,
             photo: result.photo,
             provider: AuthProvider.facebook.name,
-          ) as T;
-          await userHandler.insert(user, cacheMode: true);
-          emit(AuthResponse.authenticated(user));
-        } else {
-          emit(AuthResponse.failure(finalResponse.message));
-        }
-      } else {
-        emit(AuthResponse.failure(response.message));
-      }
-    } catch (_) {
-      emit(AuthResponse.failure(_.toString()));
-    }
-  }
-
-  Future signInByGoogle(AuthInfo entity) async {
-    emit(AuthResponse.loading(AuthProvider.google));
-    try {
-      final response = await handler.signInWithGoogle();
-      final result = response.data;
-      if (result != null && result.credential != null) {
-        final finalResponse = await handler.signUpWithCredential(
-          credential: result.credential!,
-        );
-        if (finalResponse.isSuccessful) {
-          final currentData = finalResponse.data?.user;
-          final user = entity.copy(
-            id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
-                currentData?.uid ??
-                result.id,
-            name: result.name,
-            photo: result.photo,
-            email: result.email,
-            provider: AuthProvider.google.name,
           ) as T;
           await userHandler.insert(user, cacheMode: true);
           emit(AuthResponse.authenticated(user));
@@ -197,6 +164,105 @@ class DefaultAuthController<T extends AuthInfo> extends Cubit<AuthResponse<T>> {
           }
         } else {
           emit(AuthResponse.failure(userResponse.message));
+        }
+      } else {
+        emit(AuthResponse.failure(response.message));
+      }
+    } catch (_) {
+      emit(AuthResponse.failure(_.toString()));
+    }
+  }
+
+  Future signInByFacebook(AuthInfo entity) async {
+    emit(AuthResponse.loading(AuthProvider.facebook));
+    try {
+      final response = await handler.signInWithFacebook();
+      final result = response.data;
+      if (result != null && result.credential != null) {
+        final finalResponse = await handler.signUpWithCredential(
+          credential: result.credential!,
+        );
+        if (finalResponse.isSuccessful) {
+          final currentData = finalResponse.data?.user;
+          final user = entity.copy(
+            id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
+                currentData?.uid ??
+                result.id,
+            email: result.email,
+            name: result.name,
+            photo: result.photo,
+            provider: AuthProvider.facebook.name,
+          ) as T;
+          await userHandler.insert(user, cacheMode: true);
+          emit(AuthResponse.authenticated(user));
+        } else {
+          emit(AuthResponse.failure(finalResponse.message));
+        }
+      } else {
+        emit(AuthResponse.failure(response.message));
+      }
+    } catch (_) {
+      emit(AuthResponse.failure(_.toString()));
+    }
+  }
+
+  Future signInByGithub(AuthInfo entity) async {
+    emit(AuthResponse.loading(AuthProvider.github));
+    try {
+      final response = await handler.signInWithGithub();
+      final result = response.data;
+      if (result != null && result.credential != null) {
+        final finalResponse = await handler.signUpWithCredential(
+          credential: result.credential!,
+        );
+        if (finalResponse.isSuccessful) {
+          final currentData = finalResponse.data?.user;
+          final user = entity.copy(
+            id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
+                currentData?.uid ??
+                result.id,
+            name: result.name,
+            photo: result.photo,
+            email: result.email,
+            provider: AuthProvider.google.name,
+          ) as T;
+          await userHandler.insert(user, cacheMode: true);
+          emit(AuthResponse.authenticated(user));
+        } else {
+          emit(AuthResponse.failure(finalResponse.message));
+        }
+      } else {
+        emit(AuthResponse.failure(response.message));
+      }
+    } catch (_) {
+      emit(AuthResponse.failure(_.toString()));
+    }
+  }
+
+  Future signInByGoogle(AuthInfo entity) async {
+    emit(AuthResponse.loading(AuthProvider.google));
+    try {
+      final response = await handler.signInWithGoogle();
+      final result = response.data;
+      if (result != null && result.credential != null) {
+        final finalResponse = await handler.signUpWithCredential(
+          credential: result.credential!,
+        );
+        if (finalResponse.isSuccessful) {
+          final currentData = finalResponse.data?.user;
+          final user = entity.copy(
+            id: createUid?.call(currentData?.uid ?? result.id ?? uid) ??
+                currentData?.uid ??
+                result.id,
+            name: result.name,
+            photo: result.photo,
+            email: result.email,
+            provider: AuthProvider.google.name,
+          ) as T;
+          await userHandler.insert(user, cacheMode: true);
+          emit(AuthResponse.authenticated(user));
+        } else {
+          emit(AuthResponse.failure(finalResponse.message));
         }
       } else {
         emit(AuthResponse.failure(response.message));

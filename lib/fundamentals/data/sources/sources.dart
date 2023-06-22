@@ -14,12 +14,18 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sign_in_with_apple_platform_interface/sign_in_with_apple_platform_interface.dart';
 
 import '../../../core.dart';
 
 part 'api_data_source.dart';
+
 part 'auth_data_source.dart';
+
 part 'encrypt_api_data_source.dart';
+
 part 'fire_store_data_source.dart';
+
 part 'local_data_source.dart';
+
 part 'realtime_data_source.dart';

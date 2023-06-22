@@ -87,12 +87,13 @@ class AuthInfo extends Entity {
 }
 
 enum AuthProvider {
+  apple,
   biometric,
   email,
-  phone,
   facebook,
+  github,
   google,
+  phone,
   twitter,
-  apple,
   custom,
 }

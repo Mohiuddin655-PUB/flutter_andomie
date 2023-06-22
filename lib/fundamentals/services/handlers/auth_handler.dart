@@ -15,9 +15,13 @@ abstract class AuthHandler {
 
   Future<Response<void>> signOut([AuthProvider? provider]);
 
+  Future<Response<Credential>> signInWithApple();
+
   Future<Response<bool>> signInWithBiometric();
 
   Future<Response<Credential>> signInWithFacebook();
+
+  Future<Response<Credential>> signInWithGithub();
 
   Future<Response<Credential>> signInWithGoogle();
 

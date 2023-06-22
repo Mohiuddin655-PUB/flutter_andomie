@@ -1,3 +1,3 @@
-## 0.3.8
+## 0.3.9
 
-* Move all views and layouts from this library
+* Add apple sign in
