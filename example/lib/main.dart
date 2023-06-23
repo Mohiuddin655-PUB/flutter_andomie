@@ -1,14 +1,34 @@
-import 'package:example/tester/auth_test.dart';
+import 'package:example/di.dart';
+import 'package:example/firebase_realtime_data_test.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'di.dart';
-import 'tester/widget_test.dart';
+import 'api_data_test.dart';
+import 'firebase_firestore_data_test.dart';
+import 'local_data_test.dart';
 
-void main() async {
+late SharedPreferences preferences;
+
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // await Firebase.initializeApp();
-  // await diInit();
+  await Firebase.initializeApp(
+    options: !kIsWeb
+        ? null
+        : const FirebaseOptions(
+            apiKey: "AIzaSyAnDJmmToo0dPGEeAV9J-7bsghSaiByFjU",
+            authDomain: "flutter-ui-kits.firebaseapp.com",
+            databaseURL: "https://flutter-ui-kits-default-rtdb.firebaseio.com",
+            projectId: "flutter-ui-kits",
+            storageBucket: "flutter-ui-kits.appspot.com",
+            messagingSenderId: "807732577100",
+            appId: "1:807732577100:web:c6e2766be76043102945e9",
+            measurementId: "G-SW8PH1RQ0B",
+          ),
+  );
+  await diInit();
   runApp(const Application());
 }
 
@@ -19,34 +39,32 @@ class Application extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const Home(),
-    );
-  }
-}
-
-class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        // child: ToggleView(
-        //   width: 150,
-        //   height: 50,
-        //   background: Colors.red,
-        //   borderRadius: 24,
-        //   toggle: true,
-        //   onClick: (c){
-        //     print("object");
-        //   },
-        // ),
-        child: ViewTest(),
+      home: Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: MultiBlocProvider(
+              providers: [
+                BlocProvider(
+                  create: (context) => locator<CartController>(),
+                ),
+                BlocProvider(
+                  create: (context) => locator<PostController>(),
+                ),
+                BlocProvider(
+                  create: (context) => locator<ProductController>(),
+                ),
+                BlocProvider(
+                  create: (context) => locator<UserController>(),
+                ),
+              ],
+              child: const FirebaseFireStoreDataTest(),
+            ),
+          ),
+        ),
       ),
     );
   }

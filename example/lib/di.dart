@@ -1,78 +1,116 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:example/user_local_data_source.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_andomie/core.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'tester/data_controller.dart';
-import 'user_data_source.dart';
+import 'api_data_test.dart';
+import 'firebase_firestore_data_test.dart';
+import 'firebase_realtime_data_test.dart';
+import 'local_data_test.dart';
 
 GetIt locator = GetIt.instance;
 
 Future<void> diInit() async {
   final local = await SharedPreferences.getInstance();
-  final database = FirebaseFirestore.instance;
-  final realtime = FirebaseDatabase.instance;
   locator.registerLazySingleton<SharedPreferences>(() => local);
-  locator.registerLazySingleton<FirebaseFirestore>(() => database);
-  locator.registerLazySingleton<FirebaseDatabase>(() => realtime);
-  _helpers();
-  _dataSources();
-  _repositories();
-  _handlers();
-  _controllers();
+  _forLocal();
+  _forApi();
+  _forFirebaseFireStore();
+  _forFirebaseRealtime();
   await locator.allReady();
 }
 
-void _helpers() {}
+void _forLocal() {
+  locator.registerLazySingleton<LocalDataSource<Cart>>(() {
+    return CartDataSource();
+  });
 
-void _dataSources() {
-  locator.registerLazySingleton<AuthDataSource>(() {
-    return AuthDataSourceImpl();
+  locator.registerLazySingleton<LocalDataRepository<Cart>>(() {
+    return CartRepository(
+      local: locator(),
+    );
   });
-  locator.registerLazySingleton<LocalDataSource<AuthInfo>>(() {
-    return LocalUserDataSource(db: locator());
+
+  locator.registerLazySingleton<LocalDataHandler<Cart>>(() {
+    return CartHandler(repository: locator());
   });
-  locator.registerLazySingleton<RemoteDataSource<AuthInfo>>(() {
-    return RemoteUserDataSource();
+
+  locator.registerFactory<CartController>(() {
+    return CartController(
+      handler: locator(),
+    );
   });
 }
 
-void _repositories() {
-  locator.registerLazySingleton<AuthRepository>(() {
-    return AuthRepositoryImpl(
-      authDataSource: locator.call(),
-    );
+void _forApi() {
+  locator.registerLazySingleton<LocalDataSource<Post>>(() {
+    return LocalPostDataSource(preferences: locator());
   });
-  locator.registerLazySingleton<DataRepository<AuthInfo>>(() {
-    return DataRepositoryImpl<AuthInfo>(
-      local: locator(),
+  locator.registerLazySingleton<RemoteDataSource<Post>>(() {
+    return RemotePostDataSource();
+  });
+
+  locator.registerLazySingleton<RemoteDataRepository<Post>>(() {
+    return PostRepository(
       remote: locator(),
     );
   });
-}
 
-void _handlers() {
-  locator.registerLazySingleton<AuthHandler>(() {
-    return AuthHandlerImpl(repository: locator());
+  locator.registerLazySingleton<RemoteDataHandler<Post>>(() {
+    return PostHandler(repository: locator());
   });
-  locator.registerLazySingleton<DataHandler<AuthInfo>>(() {
-    return DataHandlerImpl<AuthInfo>(
-      repository: locator(),
-    );
-  });
-}
 
-void _controllers() {
-  locator.registerFactory<DefaultAuthController>(() {
-    return DefaultAuthController(
+  locator.registerFactory<PostController>(() {
+    return PostController(
       handler: locator(),
-      userHandler: locator(),
     );
   });
-  locator.registerFactory<DataController>(() {
-    return DataController(
+}
+
+void _forFirebaseFireStore() {
+  locator.registerLazySingleton<LocalDataSource<Product>>(() {
+    return LocalProductDataSource(preferences: locator());
+  });
+  locator.registerLazySingleton<RemoteDataSource<Product>>(() {
+    return RemoteProductDataSource();
+  });
+
+  locator.registerLazySingleton<RemoteDataRepository<Product>>(() {
+    return ProductRepository(
+      remote: locator(),
+    );
+  });
+
+  locator.registerLazySingleton<RemoteDataHandler<Product>>(() {
+    return ProductHandler(repository: locator());
+  });
+
+  locator.registerFactory<ProductController>(() {
+    return ProductController(
+      handler: locator(),
+    );
+  });
+}
+
+void _forFirebaseRealtime() {
+  locator.registerLazySingleton<LocalDataSource<User>>(() {
+    return LocalUserDataSource(preferences: locator());
+  });
+  locator.registerLazySingleton<RemoteDataSource<User>>(() {
+    return RemoteUserDataSource();
+  });
+
+  locator.registerLazySingleton<RemoteDataRepository<User>>(() {
+    return UserRepository(
+      remote: locator(),
+    );
+  });
+
+  locator.registerLazySingleton<RemoteDataHandler<User>>(() {
+    return UserHandler(repository: locator());
+  });
+
+  locator.registerFactory<UserController>(() {
+    return UserController(
       handler: locator(),
     );
   });
