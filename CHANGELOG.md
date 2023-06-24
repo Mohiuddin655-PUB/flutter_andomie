@@ -1,3 +1,3 @@
-## 0.3.9
+## 0.4.0-alpha1
 
 * Add apple sign in

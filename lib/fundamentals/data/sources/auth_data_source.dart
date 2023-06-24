@@ -5,16 +5,13 @@ class AuthDataSourceImpl extends AuthDataSource {
   final FirebaseAuth firebaseAuth;
   final LocalAuthentication localAuth;
   final GoogleSignIn googleAuth;
-  final SignInWithApplePlatform appleAuth;
 
   AuthDataSourceImpl({
     FacebookAuth? facebookAuth,
     FirebaseAuth? firebaseAuth,
     LocalAuthentication? localAuth,
     GoogleSignIn? googleAuth,
-    SignInWithApplePlatform? appleAuth,
-  })  : appleAuth = appleAuth ?? SignInWithApplePlatform.instance,
-        facebookAuth = facebookAuth ?? FacebookAuth.i,
+  })  : facebookAuth = facebookAuth ?? FacebookAuth.i,
         firebaseAuth = firebaseAuth ?? FirebaseAuth.instance,
         localAuth = localAuth ?? LocalAuthentication(),
         googleAuth = googleAuth ?? GoogleSignIn(scopes: ['email']);
@@ -30,9 +27,10 @@ class AuthDataSourceImpl extends AuthDataSource {
           return (await facebookAuth.accessToken) != null;
         case AuthProvider.google:
           return googleAuth.isSignedIn();
-        case AuthProvider.biometric:
-        case AuthProvider.twitter:
         case AuthProvider.apple:
+        case AuthProvider.biometric:
+        case AuthProvider.github:
+        case AuthProvider.twitter:
         case AuthProvider.custom:
           return false;
       }
@@ -57,9 +55,10 @@ class AuthDataSourceImpl extends AuthDataSource {
           case AuthProvider.google:
             await googleAuth.signOut();
             break;
-          case AuthProvider.biometric:
-          case AuthProvider.twitter:
           case AuthProvider.apple:
+          case AuthProvider.biometric:
+          case AuthProvider.github:
+          case AuthProvider.twitter:
           case AuthProvider.custom:
             break;
         }
@@ -133,7 +132,7 @@ class AuthDataSourceImpl extends AuthDataSource {
   Future<Response<Credential>> signInWithApple() async {
     final response = Response<Credential>();
     try {
-      final result = await appleAuth.getAppleIDCredential(
+      final result = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
           AppleIDAuthorizationScopes.fullName,
