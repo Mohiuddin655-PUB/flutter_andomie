@@ -1,6 +1,6 @@
 name: flutter_andomie
-description: Collection of widget with advanced style and controlling system.
-version: 0.4.0-alpha1
+description: Collection of utils with advanced style and controlling system.
+version: 0.4.0
 repository: https://github.com/P-YMR/flutter_andomie.git
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
@@ -14,26 +14,16 @@ dependencies:
 
   # Authentications
   firebase_auth: ^4.6.1
-  flutter_facebook_auth: ^5.0.7
-  google_sign_in: ^6.0.0
-  local_auth: ^2.1.3
 
   #Database Handler
   shared_preferences: ^2.1.1 # Cache Mode
   cloud_firestore: ^4.7.1
   firebase_database: ^10.0.13
 
-  dio: ^5.0.0
   encrypt: ^5.0.1
   connectivity_plus: ^4.0.1
-
-  cached_network_image: ^3.2.3
-  flutter_bloc: ^8.1.2
-  flutter_svg: ^2.0.5
   intl: ^0.18.1
-  get_it: ^7.6.0
-  firebase_core: ^2.13.0
-  sign_in_with_apple: ^5.0.0
+  http: ^1.1.0
 
 dev_dependencies:
   flutter_test:

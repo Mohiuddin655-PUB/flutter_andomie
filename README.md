@@ -1,2 +1,2 @@
 # flutter_andomie
-Collection of widget with advanced style and controlling system.
+Collection of utils with advanced style and controlling system.

@@ -1,3 +1,3 @@
-## 0.4.0-alpha1
+## 0.4.0
 
-* Add apple sign in
+* Stable version
