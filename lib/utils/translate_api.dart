@@ -37,8 +37,8 @@ class TranslateApi {
     return this;
   }
 
-  Future<TranslateApiResponse> get execute async {
-    final response = TranslateApiResponse._();
+  Future<Response<String>> get execute async {
+    final response = Response<String>();
     if (_defaultLang.isNotEmpty &&
         _translateLang != null &&
         _translateLang!.isNotEmpty &&
@@ -62,20 +62,4 @@ class TranslateApi {
     }
     return response;
   }
-}
-
-class TranslateApiResponse {
-  final String? data;
-  final String? error;
-
-  TranslateApiResponse._({
-    this.data,
-    this.error,
-  });
-
-  TranslateApiResponse withData(String data) =>
-      TranslateApiResponse._(data: data);
-
-  TranslateApiResponse withException(dynamic error) =>
-      TranslateApiResponse._(error: error != null ? "$error" : null);
 }

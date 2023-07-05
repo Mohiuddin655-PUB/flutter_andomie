@@ -3,9 +3,8 @@ part of '../utils.dart';
 class Validator {
   const Validator._();
 
-  static bool equals(Object? value, Object? compareValue) {
-    return value == compareValue;
-  }
+  static bool equals(Object? value, Object? compareValue) =>
+      value == compareValue;
 
   static bool isMatched(Object matcher, Object value) {
     return Validator.isValidObject(matcher) &&
