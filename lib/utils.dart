@@ -13,7 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-export 'utils/entities/entities.dart';
 export 'utils/enums/enums.dart';
 export 'utils/extensions/extensions.dart';
 export 'utils/helpers/helpers.dart';
@@ -62,8 +61,6 @@ part 'utils/regex.dart';
 part 'utils/replacement.dart';
 
 part 'utils/replacer.dart';
-
-part 'utils/response.dart';
 
 part 'utils/screen_provider.dart';
 

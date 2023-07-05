@@ -4,7 +4,7 @@ class Validator {
   const Validator._();
 
   static bool equals(Object? value, Object? compareValue) {
-    return value.equals(compareValue);
+    return value == compareValue;
   }
 
   static bool isMatched(Object matcher, Object value) {

@@ -1,6 +1,6 @@
 name: flutter_andomie
 description: Collection of utils with advanced style and controlling system.
-version: 0.4.1-alpha3
+version: 0.4.1
 repository: https://github.com/P-YMR/flutter_andomie.git
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
@@ -12,13 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Authentications
-  firebase_auth: ^4.6.1
-
   #Database Handler
   shared_preferences: ^2.1.1 # Cache Mode
-  cloud_firestore: ^4.7.1
-  firebase_database: ^10.0.13
 
   encrypt: ^5.0.1
   connectivity_plus: ^4.0.1
