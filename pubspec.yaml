@@ -1,11 +1,11 @@
 name: flutter_andomie
 description: Collection of utils with advanced style and controlling system.
-version: 0.4.0
+version: 0.4.1-alpha3
 repository: https://github.com/P-YMR/flutter_andomie.git
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
 environment:
-  sdk: '>=2.19.6 <4.0.0'
+  sdk: '>=3.0.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:
@@ -23,7 +23,7 @@ dependencies:
   encrypt: ^5.0.1
   connectivity_plus: ^4.0.1
   intl: ^0.18.1
-  http: ^1.1.0
+  http: ^0.13.5
 
 dev_dependencies:
   flutter_test:

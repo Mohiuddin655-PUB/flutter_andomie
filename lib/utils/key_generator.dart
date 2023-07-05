@@ -20,7 +20,7 @@ class KeyGenerator {
     return bytes;
   }
 
-  String get key => Entity.key;
+  String get key => DateTime.now().millisecondsSinceEpoch.toString();
 
   String get secretKey => bytesToHex(bytes);
 

@@ -165,10 +165,6 @@ extension EntityBoolHelper on bool? {
 }
 
 extension EntityObjectHelper on Object? {
-  bool get isValid => this != null;
-
-  bool get isNotValid => !isValid;
-
   bool get isEntity => this is Map<String, dynamic>;
 
   String? get entityId => isEntity ? Entity.autoId(this) : null;
@@ -202,10 +198,6 @@ extension EntityObjectHelper on Object? {
 
   List<T>? entityValues<T>(String key) {
     return isEntity ? Entity.values(key, this) : null;
-  }
-
-  bool equals(dynamic compareValue) {
-    return this == compareValue;
   }
 }
 

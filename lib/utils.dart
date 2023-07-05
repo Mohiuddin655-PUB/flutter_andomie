@@ -13,8 +13,6 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
-import 'core.dart';
-
 export 'utils/entities/entities.dart';
 export 'utils/enums/enums.dart';
 export 'utils/extensions/extensions.dart';
@@ -24,8 +22,6 @@ export 'utils/models/models.dart';
 part 'utils/app_icon.dart';
 
 part 'utils/app_navigator.dart';
-
-part 'utils/auth_response.dart';
 
 part 'utils/color_config.dart';
 
