@@ -47,7 +47,7 @@ class LocalDatabase extends PreferenceHelper {
 }
 
 extension _LocalListExtension<T extends Entity> on List<T>? {
-  List<T> get use => this.use;
+  List<T> get use => this ?? [];
 
   String get _ => jsonEncode(use.map((_) => _.source).toList());
 }

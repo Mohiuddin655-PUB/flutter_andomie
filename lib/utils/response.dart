@@ -590,6 +590,8 @@ enum Status {
 extension ResponseStatusExtension on Status? {
   Status get use => this ?? Status.none;
 
+  bool get isAlreadyFound => use == Status.alreadyFound;
+
   bool get isCanceled => use == Status.canceled;
 
   bool get isError => use == Status.error;
@@ -621,7 +623,8 @@ extension ResponseStatusExtension on Status? {
   bool get isUnmodified => use == Status.unmodified;
 
   bool get isExceptionMode {
-    return isCanceled ||
+    return isAlreadyFound ||
+        isCanceled ||
         isError ||
         isFailure ||
         isInvalid ||
