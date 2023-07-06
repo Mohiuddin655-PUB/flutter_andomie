@@ -19,6 +19,8 @@ part 'data_preference_helper.dart';
 
 part 'dialog_helper.dart';
 
+part 'local_database.dart';
+
 part 'preference_helper.dart';
 
 part 'runnable_helper.dart';

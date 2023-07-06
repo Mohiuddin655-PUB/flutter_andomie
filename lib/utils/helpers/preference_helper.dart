@@ -7,7 +7,7 @@ class PreferenceHelper {
     this.preferences,
   );
 
-  static PreferenceHelper of({
+  factory PreferenceHelper.of({
     required SharedPreferences preferences,
   }) {
     return PreferenceHelper(preferences);
