@@ -43,10 +43,6 @@ class Entity {
   static dynamic _v(String key, dynamic source) {
     if (source is Map<String, dynamic>) {
       return source[key];
-    } else if (source is DocumentSnapshot) {
-      return source.get(key);
-    } else if (source is DataSnapshot) {
-      return source.child(key);
     } else {
       return null;
     }
