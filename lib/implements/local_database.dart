@@ -1,4 +1,4 @@
-part of 'helpers.dart';
+part of '../services.dart';
 
 typedef LocalDataBuilder<T extends Entity> = T Function(dynamic);
 
@@ -51,13 +51,13 @@ typedef SetByListFinder<T extends Entity> = (
   Status? status,
 );
 
-class LocalDatabase extends PreferenceHelper {
-  const LocalDatabase(super.preferences);
+class LocalDatabaseImpl extends LocalDatabase {
+  const LocalDatabaseImpl(super.preferences);
 
   static SharedPreferences? _proxy;
 
-  static Future<LocalDatabase> get instance async {
-    return LocalDatabase(
+  static Future<LocalDatabaseImpl> get instance async {
+    return LocalDatabaseImpl(
       _proxy ??= await SharedPreferences.getInstance(),
     );
   }
@@ -66,6 +66,7 @@ class LocalDatabase extends PreferenceHelper {
 
   static Future<LocalDatabase> getInstance() => instance;
 
+  @override
   Future<bool> input<T extends Entity>(
     String key,
     List<T>? data,
@@ -82,6 +83,7 @@ class LocalDatabase extends PreferenceHelper {
     }
   }
 
+  @override
   Future<List<T>> output<T extends Entity>(
     String key,
     LocalDataBuilder<T> builder,
@@ -94,6 +96,7 @@ class LocalDatabase extends PreferenceHelper {
     }
   }
 
+  @override
   Future<ClearByFinder<T>> clearBy<T extends Entity>({
     required String path,
     required LocalDataBuilder<T> builder,
@@ -101,6 +104,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.clearBy(path: path, builder: builder);
   }
 
+  @override
   Future<DeleteByIdFinder<T>> deleteById<T extends Entity>({
     required String path,
     required String id,
@@ -109,6 +113,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.deleteById(path: path, id: id, builder: builder);
   }
 
+  @override
   Future<FindByFinder<T>> findBy<T extends Entity>({
     required String path,
     required LocalDataBuilder<T> builder,
@@ -116,6 +121,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.findBy(path: path, builder: builder);
   }
 
+  @override
   Future<FindByIdFinder<T>> findById<T extends Entity>({
     required String path,
     required String id,
@@ -124,6 +130,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.findById(path: path, id: id, builder: builder);
   }
 
+  @override
   Future<UpdateByDataFinder<T>> updateByData<T extends Entity>({
     required String path,
     required String id,
@@ -133,6 +140,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.updateByData(path: path, id: id, data: data, builder: builder);
   }
 
+  @override
   Future<SetByDataFinder<T>> setByData<T extends Entity>({
     required String path,
     required T data,
@@ -141,6 +149,7 @@ class LocalDatabase extends PreferenceHelper {
     return I.setByData(path: path, data: data, builder: builder);
   }
 
+  @override
   Future<SetByListFinder<T>> setByList<T extends Entity>({
     required String path,
     required List<T> data,
