@@ -30,14 +30,14 @@ class PreferenceHelper {
     }
   }
 
-  List? getItems(
+  List<Map<String, dynamic>>? getItems(
     String key, [
-    List? defaultValue,
+    List<Map<String, dynamic>>? defaultValue,
   ]) {
     var value = preferences.getString(key);
     var data = jsonDecode(value ?? "[]");
     if (data is List) {
-      return data;
+      return data.whereType<Map<String, dynamic>>().toList();
     } else {
       return defaultValue;
     }
@@ -67,16 +67,7 @@ class PreferenceHelper {
     return value ?? defaultValue;
   }
 
-  Map<String, dynamic> getData(
-    String key, [
-    Map<String, dynamic>? defaultValue,
-  ]) {
-    final value = preferences.getString(key);
-    final data = jsonDecode(value ?? "{}");
-    return data ?? defaultValue;
-  }
-
-  Future<bool> setData(
+  Future<bool> setItem(
     String key,
     Map<String, dynamic>? value,
   ) {
