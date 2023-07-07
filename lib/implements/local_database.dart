@@ -350,24 +350,26 @@ extension LocalDataFinder on Future<LocalDatabase> {
               ignores.add(i);
             }
           }
-          var valid = data.length != ignores.length;
-          var status = valid ? Status.ok : Status.alreadyFound;
-          return input(path, value).then((task) {
-            if (task) {
-              return (true, current, ignores, value, null, status);
-            } else {
-              return (
-                false,
-                current,
-                ignores,
-                value,
-                "Database error!",
-                Status.error,
-              );
-            }
-          }).onError((e, s) {
-            return (valid, current, ignores, value, "$e", Status.failure);
-          });
+          if (data.length != ignores.length) {
+            return input(path, value).then((task) {
+              if (task) {
+                return (true, current, ignores, value, null, Status.ok);
+              } else {
+                return (
+                  false,
+                  current,
+                  ignores,
+                  value,
+                  "Database error!",
+                  Status.error,
+                );
+              }
+            }).onError((e, s) {
+              return (false, current, ignores, value, "$e", Status.failure);
+            });
+          } else {
+            return (false, null, null, null, null, Status.alreadyFound);
+          }
         });
       } catch (_) {
         return (false, null, null, null, "$_", Status.failure);
