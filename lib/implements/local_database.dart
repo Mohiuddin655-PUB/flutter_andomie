@@ -5,7 +5,6 @@ typedef LocalDataBuilder<T extends Entity> = T Function(dynamic);
 typedef ClearByFinder<T extends Entity> = (
   bool isValid,
   List<T>? backups,
-  List<T>? result,
   String? message,
   Status? status,
 );
@@ -38,6 +37,7 @@ typedef UpdateByDataFinder<T extends Entity> = (
 );
 typedef SetByDataFinder<T extends Entity> = (
   bool isValid,
+  T? ignore,
   List<T>? result,
   String? message,
   Status? status,
@@ -169,19 +169,19 @@ extension LocalDataFinder on Future<LocalDatabase> {
         if (value.isNotEmpty) {
           return input(path, null).then((successful) {
             if (successful) {
-              return (true, value, null, null, Status.ok);
+              return (true, value, null, Status.ok);
             } else {
-              return (false, null, value, "Database error!", Status.error);
+              return (false, null, "Database error!", Status.error);
             }
           }).onError((e, s) {
-            return (false, null, value, "$e", Status.failure);
+            return (false, null, "$e", Status.failure);
           });
         } else {
-          return (false, null, value, null, Status.notFound);
+          return (false, null, null, Status.notFound);
         }
       });
     } catch (_) {
-      return (false, null, null, "$_", Status.failure);
+      return (false, null, "$_", Status.failure);
     }
   }
 
@@ -200,13 +200,13 @@ extension LocalDataFinder on Future<LocalDatabase> {
               if (successful) {
                 return (true, result.first, value, null, Status.ok);
               } else {
-                return (false, null, value, "Database error!", Status.error);
+                return (false, null, null, "Database error!", Status.error);
               }
             }).onError((e, s) {
-              return (false, null, value, "$e", Status.failure);
+              return (false, null, null, "$e", Status.failure);
             });
           } else {
-            return (false, null, value, null, Status.notFound);
+            return (false, null, null, null, Status.notFound);
           }
         });
       } catch (_) {
@@ -246,7 +246,7 @@ extension LocalDataFinder on Future<LocalDatabase> {
           if (result.isNotEmpty) {
             return (true, result.first, value, null, Status.alreadyFound);
           } else {
-            return (false, null, value, null, Status.notFound);
+            return (false, null, null, null, Status.notFound);
           }
         });
       } catch (_) {
@@ -282,13 +282,13 @@ extension LocalDataFinder on Future<LocalDatabase> {
               if (task) {
                 return (true, B, value, null, Status.ok);
               } else {
-                return (false, null, value, "Database error!", Status.error);
+                return (false, null, null, "Database error!", Status.error);
               }
             }).onError((e, s) {
-              return (false, null, value, "$e", Status.failure);
+              return (false, null, null, "$e", Status.failure);
             });
           } else {
-            return (false, null, value, null, Status.notFound);
+            return (false, null, null, null, Status.notFound);
           }
         });
       } catch (_) {
@@ -312,22 +312,22 @@ extension LocalDataFinder on Future<LocalDatabase> {
             value.add(data);
             return input(path, value).then((task) {
               if (task) {
-                return (true, value, null, Status.ok);
+                return (true, null, value, null, Status.ok);
               } else {
-                return (false, value, "Database error!", Status.error);
+                return (false, null, null, "Database error!", Status.error);
               }
             }).onError((e, s) {
-              return (false, value, "$e", Status.error);
+              return (false, null, null, "$e", Status.error);
             });
           } else {
-            return (false, value, null, Status.alreadyFound);
+            return (false, data, null, null, Status.alreadyFound);
           }
         });
       } catch (_) {
-        return (false, null, "$_", Status.failure);
+        return (false, null, null, "$_", Status.failure);
       }
     } else {
-      return (false, null, null, Status.invalidId);
+      return (false, null, null, null, Status.invalidId);
     }
   }
 
@@ -357,18 +357,18 @@ extension LocalDataFinder on Future<LocalDatabase> {
               } else {
                 return (
                   false,
-                  current,
-                  ignores,
-                  value,
+                  null,
+                  null,
+                  null,
                   "Database error!",
                   Status.error,
                 );
               }
             }).onError((e, s) {
-              return (false, current, ignores, value, "$e", Status.failure);
+              return (false, null, null, null, "$e", Status.failure);
             });
           } else {
-            return (false, null, null, null, null, Status.alreadyFound);
+            return (false, null, ignores, null, null, Status.alreadyFound);
           }
         });
       } catch (_) {
