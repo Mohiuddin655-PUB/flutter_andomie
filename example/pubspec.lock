@@ -148,7 +148,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.4.8-alpha6"
+    version: "0.4.8-alpha7"
   flutter_lints:
     dependency: "direct dev"
     description:

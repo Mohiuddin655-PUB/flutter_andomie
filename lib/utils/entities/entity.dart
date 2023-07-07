@@ -234,9 +234,13 @@ extension EntityListHelper<E> on List<E>? {
 }
 
 extension EntityMapHelper on Map<String, dynamic>? {
+  String? get id => use[EntityKeys.id];
+
   bool get isValid => use.isNotEmpty;
 
   bool get isNotValid => !isValid;
+
+  Map<String, dynamic> withId(String id) => attach({EntityKeys.id: id});
 
   Map<String, dynamic> get use => this ?? {};
 

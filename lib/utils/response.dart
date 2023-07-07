@@ -301,8 +301,8 @@ class Response<T> {
     _status = status ?? _status;
     _exception = exception ?? _exception;
     _message = message ?? _message;
-    feedback = feedback ?? this.feedback;
-    snapshot = snapshot ?? this.snapshot;
+    this.feedback = feedback ?? this.feedback;
+    this.snapshot = snapshot ?? this.snapshot;
     return this;
   }
 
