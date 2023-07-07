@@ -1,3 +1,3 @@
-## 0.4.7
+## 0.4.8-alpha2
 
-* Stable version
+* Alpha version

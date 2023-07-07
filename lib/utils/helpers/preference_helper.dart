@@ -17,8 +17,30 @@ class PreferenceHelper {
     return preferences.containsKey(key);
   }
 
-  Object getItem(String key, [dynamic defaultValue]) {
-    return preferences.get(key) ?? defaultValue;
+  Map<String, dynamic>? getItem(
+    String key, [
+    Map<String, dynamic>? defaultValue,
+  ]) {
+    var value = preferences.getString(key);
+    var data = jsonDecode(value ?? "{}");
+    if (data is Map<String, dynamic>) {
+      return data;
+    } else {
+      return defaultValue;
+    }
+  }
+
+  List? getItems(
+    String key, [
+    List? defaultValue,
+  ]) {
+    var value = preferences.getString(key);
+    var data = jsonDecode(value ?? "[]");
+    if (data is List) {
+      return data;
+    } else {
+      return defaultValue;
+    }
   }
 
   Set<String> getKeys() {
@@ -61,6 +83,13 @@ class PreferenceHelper {
     return preferences.setString(key, jsonEncode(value ?? {}));
   }
 
+  Future<bool> setItems(
+    String key,
+    List<Map<String, dynamic>>? value,
+  ) {
+    return preferences.setString(key, jsonEncode(value ?? []));
+  }
+
   List<String> getStrings(String key, [List<String> defaultValue = const []]) {
     return preferences.getStringList(key) ?? defaultValue;
   }
@@ -89,11 +118,15 @@ class PreferenceHelper {
     return preferences.remove(key);
   }
 
-  Future<bool> clearItems() {
+  Future<bool> clearItems(String key) {
+    return preferences.remove(key);
+  }
+
+  Future<bool> clear() {
     return preferences.clear();
   }
 
-  Future<void> reloadItems() {
+  Future<void> reload() {
     return preferences.reload();
   }
 }
