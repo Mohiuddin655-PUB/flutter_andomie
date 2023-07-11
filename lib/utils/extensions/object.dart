@@ -7,7 +7,5 @@ extension ObjectExtension on Object? {
 
   bool get isMap => this is Map<String, dynamic>;
 
-  bool equals(dynamic compareValue) {
-    return this == compareValue;
-  }
+  bool equals(dynamic compare) => this != null && this == compare;
 }
