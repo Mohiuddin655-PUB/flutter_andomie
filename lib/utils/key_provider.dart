@@ -13,7 +13,7 @@ class KeyProvider {
     } else {
       final ms = timeMills ?? DateProvider.currentMS;
       final extra = RandomProvider.getRandomString(
-        KeyFormat.ALLOWED_NUMBERS,
+        KeyFormat.allowedNumbers,
         extraKeySize,
       );
       final key = "$ms$extra";

@@ -1,28 +1,28 @@
 part of '../utils.dart';
 
 class KeyFormat {
-  static const String ALLOWED_CAPITAL_CHARACTERS = "QWERTYUIOPASDFGHJKLZXCVBNM";
-  static const String ALLOWED_SMALL_CHARACTERS = "qwertyuiopasdfghjklzxcvbn";
-  static const String ALLOWED_SPECIAL_CHARACTERS = "!@%^&*()_+~`-={}|';:?.,<>";
-  static const String ALLOWED_NUMBERS = "0123456789";
-  static const String ALLOWED_CHARACTERS =
-      ALLOWED_CAPITAL_CHARACTERS + ALLOWED_SMALL_CHARACTERS;
-  static const String ALLOWED_CHARACTERS_WITH_NUMBERS =
-      ALLOWED_CHARACTERS + ALLOWED_NUMBERS;
-  static const String ALLOWED_CHARACTERS_WITH_SPECIALS =
-      ALLOWED_CHARACTERS + ALLOWED_SPECIAL_CHARACTERS;
-  static const String ALLOWED_CAPITAL_CHARACTERS_WITH_NUMBERS =
-      ALLOWED_CAPITAL_CHARACTERS + ALLOWED_NUMBERS;
-  static const String ALLOWED_SMALL_CHARACTERS_WITH_NUMBERS =
-      ALLOWED_SMALL_CHARACTERS + ALLOWED_NUMBERS;
-  static const String ALLOWED_ALL_FORMAT = ALLOWED_CAPITAL_CHARACTERS +
-      ALLOWED_SMALL_CHARACTERS +
-      ALLOWED_NUMBERS +
-      ALLOWED_SPECIAL_CHARACTERS;
+  static const String allowCapitalCharacters = "QWERTYUIOPASDFGHJKLZXCVBNM";
+  static const String allowedSmallCharacters = "qwertyuiopasdfghjklzxcvbn";
+  static const String allowedSpecialCharacters = "!@%^&*()_+~`-={}|';:?.,<>";
+  static const String allowedNumbers = "0123456789";
+  static const String allowedCharacters =
+      allowCapitalCharacters + allowedSmallCharacters;
+  static const String allowedCharactersWithNumbers =
+      allowedCharacters + allowedNumbers;
+  static const String allowedCharactersWithSpecials =
+      allowedCharacters + allowedSpecialCharacters;
+  static const String allowedCapitalCharactersWithNumbers =
+      allowCapitalCharacters + allowedNumbers;
+  static const String allowedSmallCharactersWithNumbers =
+      allowedSmallCharacters + allowedNumbers;
+  static const String allowedAllFormat = allowCapitalCharacters +
+      allowedSmallCharacters +
+      allowedNumbers +
+      allowedSpecialCharacters;
 
-  static const String FORMAT_DATE = "dd MMMM, yyyy";
-  static const String FORMAT_YYYY_MM_DD = "yyyy-MM-dd";
+  static const String formatDate = "dd MMMM, yyyy";
+  static const String formatYMD = "yyyy-MM-dd";
 
-  static const String FORMAT_IMAGE_NAMING_DATE = "yyMMddhhmmss";
-  static const String FORMAT_REFERENCE_DATE = "yyyy-MM-dd";
+  static const String formatImageNamingDate = "yyMMddhhmmss";
+  static const String formatReferenceDate = "yyyy-MM-dd";
 }

@@ -13,7 +13,7 @@ class AppNavigator {
     Flag flag = Flag.none,
     RoutePredicate? predicate,
     R? result,
-    AnimType type = AnimType.SLIDE_LEFT,
+    AnimType type = AnimType.slideLeft,
   }) {
     if (flag == Flag.replacement) {
       if (route is String) {
@@ -90,7 +90,7 @@ class AppRoute<T> extends PageRouteBuilder<T> {
     this.name,
     this.animationTime,
     this.arguments,
-    this.animationType = AnimType.SLIDE_RIGHT,
+    this.animationType = AnimType.slideRight,
     required this.child,
   }) : super(pageBuilder: (context, a1, a2) => child);
 
@@ -129,37 +129,37 @@ class Anim {
 
   Widget select(Widget view, AnimType type) {
     switch (type) {
-      case AnimType.NONE:
+      case AnimType.none:
         return slideLeft(view);
-      case AnimType.CARD:
+      case AnimType.card:
         return slideLeft(view);
-      case AnimType.DIAGONAL:
+      case AnimType.diagonal:
         return slideLeft(view);
-      case AnimType.FADE:
+      case AnimType.fade:
         return fade(view);
-      case AnimType.IN_AND_OUT:
+      case AnimType.inAndOut:
         return slideLeft(view);
-      case AnimType.SHRINK:
+      case AnimType.shrink:
         return slideLeft(view);
-      case AnimType.SPIN:
+      case AnimType.spin:
         return slideLeft(view);
-      case AnimType.SPLIT:
+      case AnimType.split:
         return slideLeft(view);
-      case AnimType.SLIDE_LEFT:
+      case AnimType.slideLeft:
         return slideLeft(view);
-      case AnimType.SLIDE_RIGHT:
+      case AnimType.slideRight:
         return slideRight(view);
-      case AnimType.SLIDE_DOWN:
+      case AnimType.slideDown:
         return slideRight(view);
-      case AnimType.SLIDE_UP:
+      case AnimType.slideUp:
         return slideRight(view);
-      case AnimType.SWIPE_LEFT:
+      case AnimType.swipeLeft:
         return slideRight(view);
-      case AnimType.SWIPE_RIGHT:
+      case AnimType.swipeRight:
         return slideRight(view);
-      case AnimType.WINDMILL:
+      case AnimType.windmill:
         return slideRight(view);
-      case AnimType.ZOOM:
+      case AnimType.zoom:
         return slideRight(view);
     }
   }
@@ -212,20 +212,20 @@ enum Flag {
 }
 
 enum AnimType {
-  NONE,
-  CARD,
-  DIAGONAL,
-  FADE,
-  IN_AND_OUT,
-  SHRINK,
-  SPIN,
-  SPLIT,
-  SLIDE_LEFT,
-  SLIDE_RIGHT,
-  SLIDE_DOWN,
-  SLIDE_UP,
-  SWIPE_LEFT,
-  SWIPE_RIGHT,
-  WINDMILL,
-  ZOOM;
+  none,
+  card,
+  diagonal,
+  fade,
+  inAndOut,
+  shrink,
+  spin,
+  split,
+  slideLeft,
+  slideRight,
+  slideDown,
+  slideUp,
+  swipeLeft,
+  swipeRight,
+  windmill,
+  zoom;
 }
