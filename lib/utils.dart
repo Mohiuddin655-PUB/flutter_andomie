@@ -69,6 +69,8 @@ part 'utils/screen_provider.dart';
 
 part 'utils/size_config.dart';
 
+part 'utils/text_format.dart';
+
 part 'utils/translate_api.dart';
 
 part 'utils/translate_provider.dart';

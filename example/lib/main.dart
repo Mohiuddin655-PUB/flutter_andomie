@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_andomie/core.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,9 +28,18 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var timeMills = DateTime.now().add(const Duration(
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    ));
     return Scaffold(
       body: SafeArea(
-        child: Container(),
+        child: Text(timeMills.toRealtime(
+          showRealtime: true,
+          whenShowNow: 10,
+        )),
       ),
     );
   }

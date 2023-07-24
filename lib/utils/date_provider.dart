@@ -1,5 +1,148 @@
 part of '../utils.dart';
 
+enum TimeFormats {
+  hour("hh"),
+  minute("mm"),
+  second("ss"),
+  zone("TZD"),
+  timeMS("mm:ss"),
+  timeHM("hh:mm"),
+  timeHMa("hh:mm a"),
+  timeHMSa("hh:mm:ss a"),
+  timeHMSZone("hh:mm:ss TZD"),
+  none("");
+
+  final String value;
+
+  const TimeFormats(this.value);
+}
+
+enum DateFormats {
+  day("dd"),
+  dayFullName("EEEE"),
+  dayShortName("EE"),
+  month("MM"),
+  monthFullName("MMMM"),
+  monthShortName("MMM"),
+  yearFull("yyyy"),
+  yearShort("yy"),
+  dateDMY("dd-MM-yyyy"),
+  dateDMCY("dd MMMM, yyyy"),
+  dateMDCY("MMMM dd, yyyy"),
+  dateYMD("yyyy-MM-dd"),
+  dateECDMCY("EEEE, dd MMMM, yyyy"),
+  dateECMDCY("EEEE, dd MMMM, yyyy"),
+  none("");
+
+  final String value;
+
+  const DateFormats(this.value);
+}
+
+class Realtime {
+  final bool today;
+  final bool tomorrow;
+  final bool yesterday;
+  final int days;
+  final int hours;
+  final int minutes;
+  final int seconds;
+  final int milliseconds;
+  final int microseconds;
+
+  int get afterHours => hours * -1;
+
+  int get afterMinutes => minutes * -1;
+
+  int get afterSeconds => seconds * -1;
+
+  int get afterMilliseconds => milliseconds * -1;
+
+  int get afterMicroseconds => microseconds * -1;
+
+  const Realtime({
+    this.today = false,
+    this.tomorrow = false,
+    this.yesterday = false,
+    this.days = 0,
+    this.hours = 0,
+    this.minutes = 0,
+    this.seconds = 0,
+    this.milliseconds = 0,
+    this.microseconds = 0,
+  });
+
+  factory Realtime.fromDuration(Duration duration) {
+    var a = duration.inCurrentDays;
+    var isToday = a == 0;
+    var isTomorrow = a == 1;
+    var isYesterday = a == -1;
+
+    return Realtime(
+      today: isToday,
+      tomorrow: isTomorrow,
+      yesterday: isYesterday,
+      days: duration.inCurrentDays,
+      hours: duration.inCurrentHours,
+      minutes: duration.inCurrentMinutes,
+      seconds: duration.inCurrentSeconds,
+      milliseconds: duration.inCurrentMilliseconds,
+      microseconds: duration.inCurrentMicroseconds,
+    );
+  }
+
+  factory Realtime.fromDateTime(DateTime dateTime) {
+    return Realtime.fromDuration(
+      DateTime.now().difference(dateTime),
+    );
+  }
+
+  bool get isHourMode => hours > 0;
+
+  bool get isMinuteMode => minutes > 0;
+
+  bool get isSecondMode => seconds > 0;
+
+  bool get isAfterHourMode => afterHours > 0;
+
+  bool get isAfterMinuteMode => afterMinutes > 0;
+
+  bool get isAfterSecondMode => afterSeconds > 0;
+}
+
+class RealtimeTextFormat {
+  final String after;
+  final String ago;
+  final String now;
+  final String today;
+  final String tomorrow;
+  final String yesterday;
+  final TextFormat second;
+  final TextFormat minute;
+  final TextFormat hour;
+
+  const RealtimeTextFormat({
+    this.after = "After",
+    this.ago = "ago",
+    this.now = "Now",
+    this.today = "Today",
+    this.tomorrow = "Tomorrow",
+    this.yesterday = "Yesterday",
+    this.second = const TextFormat(
+      singular: "second",
+      plural: "seconds",
+    ),
+    this.minute = const TextFormat(
+      singular: "minute",
+      plural: "minutes",
+    ),
+    this.hour = const TextFormat(
+      singular: "hour",
+      plural: "hours",
+    ),
+  });
+}
+
 class DateProvider {
   const DateProvider._();
 
@@ -99,71 +242,171 @@ class DateProvider {
 
   static bool isYesterday(int? ms) => ms.isYesterday;
 
-  static String activeTime(int? ms) => ms.liveTime;
+  static String realtime(int? ms) => toRealtime(ms);
 
-  static String toRealStatus(
-    int ms, {
+  static String toRealtime(
+    int? ms, {
+    bool showRealtime = true,
+    int whenShowNow = 10,
+    String? format,
+    String? local,
     TimeFormats timeFormat = TimeFormats.timeHMa,
     DateFormats dateFormat = DateFormats.dateDMCY,
-    String? pattern,
     String separator = " at ",
-    String? local,
-    String Function(int value)? onPrepareBySecond,
-    String Function(int value)? onPrepareByMinute,
-    String Function(int value)? onPrepareByHour,
-    String Function(int value)? onPrepareByDay,
+    RealtimeTextFormat textFormat = const RealtimeTextFormat(),
+    String Function(Realtime value)? onRealtime,
+    String Function(Realtime value)? onRealtimeByHours,
+    String Function(Realtime value)? onRealtimeByMinutes,
+    String Function(Realtime value)? onRealtimeBySeconds,
+    String Function(Realtime value)? onRealtimeByAfterHours,
+    String Function(Realtime value)? onRealtimeByAfterMinutes,
+    String Function(Realtime value)? onRealtimeByAfterSeconds,
+    String Function(Realtime value, String time)? onRealtimeByTomorrow,
+    String Function(Realtime value, String time)? onRealtimeByToday,
+    String Function(Realtime value, String time)? onRealtimeByYesterday,
   }) {
-    return ms.toLiveTime(
-      timeFormat: timeFormat,
-      dateFormat: dateFormat,
-      format: pattern,
-      separator: separator,
-      local: local,
-      onPrepareBySecond: onPrepareBySecond,
-      onPrepareByMinute: onPrepareByMinute,
-      onPrepareByHour: onPrepareByHour,
-      onPrepareByDay: onPrepareByDay,
-    );
+    var time = DateTime.fromMillisecondsSinceEpoch(ms ?? 0);
+    var realtime = Realtime.fromDateTime(time);
+
+    /// for yesterday time
+    if (time.isYesterday) {
+      var yesterdayTime = time.toDate(
+        timeFormat: timeFormat,
+        dateFormat: DateFormats.none,
+        local: local,
+      );
+      if (onRealtimeByYesterday != null) {
+        return onRealtimeByYesterday(realtime, yesterdayTime);
+      } else {
+        return "${textFormat.yesterday}$separator$yesterdayTime";
+      }
+    }
+
+    /// for today time
+    else if (time.isToday) {
+      ///
+      /// for realtime
+      if (showRealtime) {
+        ///
+        /// for hours
+        if (realtime.isHourMode) {
+          if (onRealtimeByHours != null) {
+            return onRealtimeByHours(realtime);
+          } else {
+            int _ = realtime.hours;
+            return "$_ ${textFormat.hour.getText(_)} ${textFormat.ago}";
+          }
+        }
+
+        /// for minutes
+        else if (realtime.isMinuteMode) {
+          if (onRealtimeByMinutes != null) {
+            return onRealtimeByMinutes(realtime);
+          } else {
+            int _ = realtime.minutes;
+            return "$_ ${textFormat.minute.getText(_)} ${textFormat.ago}";
+          }
+        }
+
+        /// for after hours
+        else if (realtime.isAfterHourMode) {
+          if (onRealtimeByAfterHours != null) {
+            return onRealtimeByAfterHours(realtime);
+          } else {
+            int _ = realtime.afterHours;
+            return "${textFormat.after} $_ ${textFormat.hour.getText(_)}";
+          }
+        }
+
+        /// for after minutes
+        else if (realtime.isAfterMinuteMode) {
+          if (onRealtimeByAfterMinutes != null) {
+            return onRealtimeByAfterMinutes(realtime);
+          } else {
+            int _ = realtime.afterMinutes;
+            return "${textFormat.after} $_ ${textFormat.minute.getText(_)}";
+          }
+        }
+
+        /// for after seconds
+        else if (realtime.isAfterSecondMode) {
+          if (onRealtimeByAfterSeconds != null) {
+            return onRealtimeByAfterSeconds(realtime);
+          } else {
+            int _ = realtime.afterSeconds;
+            return "${textFormat.after} $_ ${textFormat.second.getText(_)}";
+          }
+        }
+
+        /// for seconds
+        else {
+          if (onRealtimeBySeconds != null) {
+            return onRealtimeBySeconds(realtime);
+          } else {
+            int _ = realtime.seconds;
+            if (whenShowNow < _) {
+              return "$_ ${textFormat.second.getText(_)} ${textFormat.ago}";
+            } else {
+              return textFormat.now;
+            }
+          }
+        }
+      }
+
+      /// for today default time
+      else {
+        var todayTime = time.toDate(
+          timeFormat: timeFormat,
+          dateFormat: DateFormats.none,
+          local: local,
+        );
+        if (onRealtimeByToday != null) {
+          return onRealtimeByToday(realtime, todayTime);
+        } else {
+          return "${textFormat.today}$separator$todayTime";
+        }
+      }
+    }
+
+    /// for tomorrow time
+    else if (time.isTomorrow) {
+      var tomorrowTime = time.toDate(
+        timeFormat: timeFormat,
+        dateFormat: DateFormats.none,
+        local: local,
+      );
+      if (onRealtimeByTomorrow != null) {
+        return onRealtimeByTomorrow(realtime, tomorrowTime);
+      } else {
+        return "${textFormat.tomorrow}$separator$tomorrowTime";
+      }
+    }
+
+    /// for default time
+    else {
+      return time.toDate(
+        timeFormat: timeFormat,
+        dateFormat: dateFormat,
+        format: format,
+        separator: separator,
+        local: local,
+      );
+    }
   }
 }
 
-enum TimeFormats {
-  hour("hh"),
-  minute("mm"),
-  second("ss"),
-  zone("TZD"),
-  timeMS("mm:ss"),
-  timeHM("hh:mm"),
-  timeHMa("hh:mm a"),
-  timeHMSa("hh:mm:ss a"),
-  timeHMSZone("hh:mm:ss TZD"),
-  none("");
+extension DurationExtension on Duration {
+  int get inCurrentDays => inDays;
 
-  final String value;
+  int get inCurrentHours => inHours - (inDays * 24);
 
-  const TimeFormats(this.value);
-}
+  int get inCurrentMinutes => inMinutes - (inHours * 60);
 
-enum DateFormats {
-  day("dd"),
-  dayFullName("EEEE"),
-  dayShortName("EE"),
-  month("MM"),
-  monthFullName("MMMM"),
-  monthShortName("MMM"),
-  yearFull("yyyy"),
-  yearShort("yy"),
-  dateDMY("dd-MM-yyyy"),
-  dateDMCY("dd MMMM, yyyy"),
-  dateMDCY("MMMM dd, yyyy"),
-  dateYMD("yyyy-MM-dd"),
-  dateECDMCY("EEEE, dd MMMM, yyyy"),
-  dateECMDCY("EEEE, dd MMMM, yyyy"),
-  none("");
+  int get inCurrentSeconds => inSeconds - (inMinutes * 60);
 
-  final String value;
+  int get inCurrentMilliseconds => inMilliseconds - (inSeconds * 1000);
 
-  const DateFormats(this.value);
+  int get inCurrentMicroseconds => inMicroseconds - (inMilliseconds * 1000);
 }
 
 extension TimeFormatExtension on TimeFormats? {
@@ -187,7 +430,7 @@ extension TimeExtension on int? {
 
   bool get isYesterday => DateTime.fromMillisecondsSinceEpoch(_v).isYesterday;
 
-  String get liveTime => toLiveTime();
+  String get realtime => toRealtime();
 
   String toDate({
     String? format,
@@ -205,27 +448,46 @@ extension TimeExtension on int? {
     );
   }
 
-  String toLiveTime({
+  String toRealtime({
+    bool showRealtime = true,
+    int whenShowNow = 10,
+    String? format,
+    String? local,
     TimeFormats timeFormat = TimeFormats.timeHMa,
     DateFormats dateFormat = DateFormats.dateDMCY,
-    String? format,
     String separator = " at ",
-    String? local,
-    String Function(int value)? onPrepareBySecond,
-    String Function(int value)? onPrepareByMinute,
-    String Function(int value)? onPrepareByHour,
-    String Function(int value)? onPrepareByDay,
+    RealtimeTextFormat textFormat = const RealtimeTextFormat(),
+    String Function(Realtime value)? onRealtime,
+    String Function(Realtime value)? onRealtimeByHours,
+    String Function(Realtime value)? onRealtimeByMinutes,
+    String Function(Realtime value)? onRealtimeBySeconds,
+    String Function(Realtime value)? onRealtimeByAfterHours,
+    String Function(Realtime value)? onRealtimeByAfterMinutes,
+    String Function(Realtime value)? onRealtimeByAfterSeconds,
+    String Function(Realtime value, String time)? onRealtimeByTomorrow,
+    String Function(Realtime value, String time)? onRealtimeByToday,
+    String Function(Realtime value, String time)? onRealtimeByYesterday,
   }) {
-    return DateTime.fromMillisecondsSinceEpoch(_v).toLiveTime(
+    return DateProvider.toRealtime(
+      this,
+      showRealtime: showRealtime,
+      whenShowNow: whenShowNow,
+      format: format,
+      local: local,
       timeFormat: timeFormat,
       dateFormat: dateFormat,
-      format: format,
       separator: separator,
-      local: local,
-      onPrepareBySecond: onPrepareBySecond,
-      onPrepareByMinute: onPrepareByMinute,
-      onPrepareByHour: onPrepareByHour,
-      onPrepareByDay: onPrepareByDay,
+      textFormat: textFormat,
+      onRealtime: onRealtime,
+      onRealtimeByHours: onRealtimeByHours,
+      onRealtimeByMinutes: onRealtimeByMinutes,
+      onRealtimeBySeconds: onRealtimeBySeconds,
+      onRealtimeByAfterHours: onRealtimeByAfterHours,
+      onRealtimeByAfterMinutes: onRealtimeByAfterMinutes,
+      onRealtimeByAfterSeconds: onRealtimeByAfterSeconds,
+      onRealtimeByTomorrow: onRealtimeByTomorrow,
+      onRealtimeByToday: onRealtimeByToday,
+      onRealtimeByYesterday: onRealtimeByYesterday,
     );
   }
 }
@@ -245,7 +507,7 @@ extension DateExtension on DateTime? {
     return isDay(DateTime.now().subtract(const Duration(days: 1)));
   }
 
-  String get liveTime => toLiveTime();
+  String get realtime => toRealtime();
 
   bool isDay(DateTime now) {
     return now.day == _v.day && now.month == _v.month && now.year == _v.year;
@@ -270,79 +532,46 @@ extension DateExtension on DateTime? {
     return DateFormat(format, local).format(_v);
   }
 
-  String toLiveTime({
+  String toRealtime({
+    bool showRealtime = true,
+    int whenShowNow = 10,
     String? format,
     String? local,
     TimeFormats timeFormat = TimeFormats.timeHMa,
     DateFormats dateFormat = DateFormats.dateDMCY,
     String separator = " at ",
-    String Function(int value)? onPrepareBySecond,
-    String Function(int value)? onPrepareByMinute,
-    String Function(int value)? onPrepareByHour,
-    String Function(int value)? onPrepareByDay,
+    RealtimeTextFormat textFormat = const RealtimeTextFormat(),
+    String Function(Realtime value)? onRealtime,
+    String Function(Realtime value)? onRealtimeByHours,
+    String Function(Realtime value)? onRealtimeByMinutes,
+    String Function(Realtime value)? onRealtimeBySeconds,
+    String Function(Realtime value)? onRealtimeByAfterHours,
+    String Function(Realtime value)? onRealtimeByAfterMinutes,
+    String Function(Realtime value)? onRealtimeByAfterSeconds,
+    String Function(Realtime value, String time)? onRealtimeByTomorrow,
+    String Function(Realtime value, String time)? onRealtimeByToday,
+    String Function(Realtime value, String time)? onRealtimeByYesterday,
   }) {
-    var time = _v;
-    var difference = DateTime.now().difference(time);
-    int days = difference.inDays;
-    int hours = difference.inHours;
-    int minutes = difference.inMinutes;
-    int seconds = difference.inSeconds;
-
-    if (days > 0) {
-      if (onPrepareByDay != null) {
-        return onPrepareByDay(days);
-      } else {
-        if (time.isYesterday) {
-          return "Yesterday$separator${time.toDate(
-            timeFormat: timeFormat,
-            local: local,
-          )}";
-        } else {
-          return time.toDate(
-            timeFormat: timeFormat,
-            dateFormat: dateFormat,
-            format: format,
-            separator: separator,
-            local: local,
-          );
-        }
-      }
-    } else {
-      if (hours > 0) {
-        if (hours < 12) {
-          return onPrepareByHour?.call(hours) ??
-              "$hours ${hours > 1 ? "hours" : "hour"} ago";
-        } else {
-          return "Today$separator${time.toDate(
-            timeFormat: timeFormat,
-            local: local,
-          )}";
-        }
-      } else {
-        if (minutes > 0) {
-          return onPrepareByMinute?.call(minutes) ??
-              "$minutes ${minutes > 1 ? "minutes" : "minute"} ago";
-        } else {
-          if (seconds > 0) {
-            return onPrepareBySecond?.call(seconds) ?? "Now";
-          } else {
-            if (time.isTomorrow) {
-              return "Tomorrow$separator${time.toDate(
-                timeFormat: timeFormat,
-                local: local,
-              )}";
-            } else {
-              return time.toDate(
-                timeFormat: timeFormat,
-                dateFormat: dateFormat,
-                format: format,
-                separator: separator,
-                local: local,
-              );
-            }
-          }
-        }
-      }
-    }
+    return DateProvider.toRealtime(
+      this?.millisecondsSinceEpoch,
+      showRealtime: showRealtime,
+      whenShowNow: whenShowNow,
+      format: format,
+      local: local,
+      timeFormat: timeFormat,
+      dateFormat: dateFormat,
+      separator: separator,
+      textFormat: textFormat,
+      onRealtime: onRealtime,
+      onRealtimeByHours: onRealtimeByHours,
+      onRealtimeByMinutes: onRealtimeByMinutes,
+      onRealtimeBySeconds: onRealtimeBySeconds,
+      onRealtimeByAfterHours: onRealtimeByAfterHours,
+      onRealtimeByAfterMinutes: onRealtimeByAfterMinutes,
+      onRealtimeByAfterSeconds: onRealtimeByAfterSeconds,
+      onRealtimeByTomorrow: onRealtimeByTomorrow,
+      onRealtimeByToday: onRealtimeByToday,
+      onRealtimeByYesterday: onRealtimeByYesterday,
+    );
   }
 }
