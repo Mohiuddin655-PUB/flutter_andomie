@@ -51,6 +51,8 @@ part 'utils/list_creator.dart';
 
 part 'utils/log_builder.dart';
 
+part 'utils/path_finder.dart';
+
 part 'utils/patterns.dart';
 
 part 'utils/provider.dart';

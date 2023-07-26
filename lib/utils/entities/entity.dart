@@ -29,10 +29,14 @@ class Entity {
     );
   }
 
+  factory Entity.root(dynamic source) => Entity.from(source);
+
+  EntityKey get keys => EntityKey.i;
+
   Map<String, dynamic> get source {
     return {
-      EntityKeys.id: id,
-      EntityKeys.timeMills: timeMills,
+      keys.id: id,
+      keys.timeMills: timeMills,
     };
   }
 
@@ -49,7 +53,7 @@ class Entity {
   }
 
   static String? autoId(dynamic source) {
-    final data = _v(EntityKeys.id, source);
+    final data = _v(EntityKey.i.id, source);
     if (data is int || data is String) {
       return "$data";
     } else {
@@ -58,7 +62,7 @@ class Entity {
   }
 
   static int? autoTimeMills(dynamic source) {
-    final data = _v(EntityKeys.timeMills, source);
+    final data = _v(EntityKey.i.timeMills, source);
     if (data is int) {
       return data;
     } else if (data is String) {
@@ -141,23 +145,28 @@ class Entity {
     return DateFormat("MMM dd, yyyy").format(date);
   }
 
+  String get realtime => DateProvider.toRealtime(timeMills, showRealtime: true);
+
   @override
   String toString() => source.toString();
 }
 
-class EntityKeys {
-  const EntityKeys._();
+class EntityKey {
+  const EntityKey({
+    this.id = "id",
+    this.timeMills = "time_mills",
+  });
 
-  static const String id = "id";
-  static const String timeMills = "time_mills";
-}
+  final String id;
+  final String timeMills;
 
-extension EntityBoolHelper on bool? {
-  bool get isValid => this != null;
+  static EntityKey? _proxy;
 
-  bool get isNotValid => !isValid;
+  static EntityKey get i => _proxy ??= const EntityKey();
 
-  bool get use => this ?? false;
+  static EntityKey get I => i;
+
+  static EntityKey get instance => i;
 }
 
 extension EntityObjectHelper on Object? {
@@ -197,114 +206,8 @@ extension EntityObjectHelper on Object? {
   }
 }
 
-extension EntityIntHelper on int? {
-  bool get isValid => use > 0;
-
-  bool get isNotValid => !isValid;
-
-  int get use => this ?? 0;
-}
-
-extension EntityDoubleHelper on double? {
-  bool get isValid => use > 0;
-
-  bool get isNotValid => !isValid;
-
-  double get use => this ?? 0;
-}
-
-extension EntityStringHelper on String? {
-  bool get isValid => use.isNotEmpty;
-
-  bool get isNotValid => !isValid;
-
-  String get use => this ?? "";
-}
-
-extension EntityListHelper<E> on List<E>? {
-  bool get isValid => use.isNotEmpty;
-
-  bool get isNotValid => !isValid;
-
-  List<E> get use => this ?? [];
-
-  E? get at => isValid ? use[0] : null;
-
-  E? get end => isValid ? use.last : null;
-}
-
 extension EntityMapHelper on Map<String, dynamic>? {
-  String? get id => use[EntityKeys.id];
+  String? get id => use[EntityKey.i.id];
 
-  bool get isValid => use.isNotEmpty;
-
-  bool get isNotValid => !isValid;
-
-  Map<String, dynamic> withId(String id) => attach({EntityKeys.id: id});
-
-  Map<String, dynamic> get use => this ?? {};
-
-  Map<String, dynamic> attach(Map<String, dynamic> current) {
-    final data = use;
-    data.addAll(current);
-    return data;
-  }
-}
-
-class PathFinder {
-  static const String _pathRegs = r"^[a-zA-Z_]\w*(/[a-zA-Z_]\w*)*$";
-
-  static List<String> segments(String path) {
-    return RegExp(_pathRegs).hasMatch(path) ? path.split("/") : [];
-  }
-
-  static PathInfo info(String path) {
-    final isValid = path.isNotEmpty && RegExp(_pathRegs).hasMatch(path);
-    if (isValid) {
-      var segments = path.split("/");
-      int length = segments.length;
-      String end = length.isOdd ? segments.last : "";
-      List<String> x = [];
-      List<String> y = [];
-      List.generate(length.isOdd ? length - 1 : length, (i) {
-        i.isEven ? x.add(segments[i]) : y.add(segments[i]);
-      });
-      return PathInfo(
-        ending: end,
-        pairs: List.generate(x.length, (index) {
-          return PathTween(x[index], y[index]);
-        }),
-      );
-    }
-    return PathInfo(invalid: true);
-  }
-}
-
-class PathInfo {
-  final bool invalid;
-  final String ending;
-  final List<PathTween> pairs;
-
-  PathInfo({
-    this.invalid = false,
-    this.ending = "",
-    this.pairs = const [],
-  });
-
-  @override
-  String toString() {
-    return "Invalid: $invalid, Ending: $ending, Pairs: $pairs";
-  }
-}
-
-class PathTween {
-  final String x1;
-  final String x2;
-
-  PathTween(this.x1, this.x2);
-
-  @override
-  String toString() {
-    return "Pair($x1 : $x2)";
-  }
+  Map<String, dynamic> withId(String id) => attach({EntityKey.i.id: id});
 }

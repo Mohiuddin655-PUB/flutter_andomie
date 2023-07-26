@@ -1,5 +1,6 @@
 library entities;
 
+import 'package:flutter_andomie/core.dart';
 import 'package:intl/intl.dart';
 
 part 'entity.dart';
