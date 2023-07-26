@@ -21,8 +21,6 @@ export 'utils/models/models.dart';
 
 part 'utils/app_icon.dart';
 
-part 'utils/app_navigator.dart';
-
 part 'utils/color_config.dart';
 
 part 'utils/connectivity_provider.dart';
