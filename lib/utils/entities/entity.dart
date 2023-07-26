@@ -2,15 +2,58 @@ part of 'entities.dart';
 
 typedef EntityBuilder<T> = T Function(dynamic value);
 
-class Entity {
+extension EntityObjectHelper on Object? {
+  bool get isEntity => this is Map<String, dynamic>;
+
+  String? get entityId => isEntity ? Entity.autoId(this) : null;
+
+  int? get entityTimeMills => isEntity ? Entity.autoTimeMills(this) : null;
+
+  T? entityObject<T>(
+    String key,
+    EntityBuilder<T> builder,
+  ) {
+    return isEntity ? Entity.object(key, this, builder) : null;
+  }
+
+  List<T>? entityObjects<T>(
+    String key,
+    EntityBuilder<T> builder,
+  ) {
+    return isEntity ? Entity.objects(key, this, builder) : null;
+  }
+
+  T? entityType<T>(
+    String key,
+    EntityBuilder<T> builder,
+  ) {
+    return isEntity ? Entity.type(key, this, builder) : null;
+  }
+
+  T? entityValue<T>(String key) {
+    return isEntity ? Entity.value(key, this) : null;
+  }
+
+  List<T>? entityValues<T>(String key) {
+    return isEntity ? Entity.values(key, this) : null;
+  }
+}
+
+extension EntityMapHelper on Map<String, dynamic>? {
+  String? get id => use[EntityKey.i.id];
+
+  Map<String, dynamic> withId(String id) => attach({EntityKey.i.id: id});
+}
+
+class Entity<KEY extends EntityKey> {
   String? _id;
   int? _timeMills;
 
-  String get id => _id ?? key;
+  String get id => _id ?? generateID;
 
   int get idInt => int.tryParse(id).use;
 
-  int get timeMills => _timeMills ?? ms;
+  int get timeMills => _timeMills ?? generateTimeMills;
 
   set id(String value) => _id = value;
 
@@ -19,8 +62,8 @@ class Entity {
   Entity({
     String? id,
     int? timeMills,
-  })  : _id = id,
-        _timeMills = timeMills;
+  })  : _id = id ?? generateID,
+        _timeMills = timeMills ?? generateTimeMills;
 
   factory Entity.from(dynamic source) {
     return Entity(
@@ -31,7 +74,7 @@ class Entity {
 
   factory Entity.root(dynamic source) => Entity.from(source);
 
-  EntityKey get keys => EntityKey.i;
+  KEY get keys => EntityKey.i as KEY;
 
   Map<String, dynamic> get source {
     return {
@@ -40,9 +83,9 @@ class Entity {
     };
   }
 
-  static String get key => ms.toString();
+  static String get generateID => generateTimeMills.toString();
 
-  static int get ms => DateTime.now().millisecondsSinceEpoch;
+  static int get generateTimeMills => DateTime.now().millisecondsSinceEpoch;
 
   static dynamic _v(String key, dynamic source) {
     if (source is Map<String, dynamic>) {
@@ -151,7 +194,7 @@ class Entity {
   String toString() => source.toString();
 }
 
-class EntityKey {
+class EntityKey<Child> {
   const EntityKey({
     this.id = "id",
     this.timeMills = "time_mills",
@@ -167,47 +210,4 @@ class EntityKey {
   static EntityKey get I => i;
 
   static EntityKey get instance => i;
-}
-
-extension EntityObjectHelper on Object? {
-  bool get isEntity => this is Map<String, dynamic>;
-
-  String? get entityId => isEntity ? Entity.autoId(this) : null;
-
-  int? get entityTimeMills => isEntity ? Entity.autoTimeMills(this) : null;
-
-  T? entityObject<T>(
-    String key,
-    EntityBuilder<T> builder,
-  ) {
-    return isEntity ? Entity.object(key, this, builder) : null;
-  }
-
-  List<T>? entityObjects<T>(
-    String key,
-    EntityBuilder<T> builder,
-  ) {
-    return isEntity ? Entity.objects(key, this, builder) : null;
-  }
-
-  T? entityType<T>(
-    String key,
-    EntityBuilder<T> builder,
-  ) {
-    return isEntity ? Entity.type(key, this, builder) : null;
-  }
-
-  T? entityValue<T>(String key) {
-    return isEntity ? Entity.value(key, this) : null;
-  }
-
-  List<T>? entityValues<T>(String key) {
-    return isEntity ? Entity.values(key, this) : null;
-  }
-}
-
-extension EntityMapHelper on Map<String, dynamic>? {
-  String? get id => use[EntityKey.i.id];
-
-  Map<String, dynamic> withId(String id) => attach({EntityKey.i.id: id});
 }

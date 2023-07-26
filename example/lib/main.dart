@@ -44,3 +44,45 @@ class Home extends StatelessWidget {
     );
   }
 }
+
+class User extends Entity<UserKey> {
+  final String? name;
+  final String? photo;
+
+  User({
+    super.id,
+    super.timeMills,
+    this.name,
+    this.photo,
+  });
+
+  factory User.from(dynamic source) {
+    var keys = UserKey.i;
+    return User(
+      id: source.entityId,
+      timeMills: source.entityTimeMills,
+      name: source.entityValue(keys.name),
+      photo: source.entityValue(keys.photo),
+    );
+  }
+
+  @override
+  Map<String, dynamic> get source => super.source.attach({
+        keys.name: name,
+        keys.photo: photo,
+      });
+
+  @override
+  UserKey get keys => UserKey.i;
+}
+
+class UserKey extends EntityKey {
+  final String name = "name";
+  final String photo = "photo";
+
+  const UserKey._();
+
+  static UserKey? _proxy;
+
+  static UserKey get i => _proxy ??= const UserKey._();
+}
