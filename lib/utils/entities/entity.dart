@@ -45,7 +45,7 @@ extension EntityMapHelper on Map<String, dynamic>? {
   Map<String, dynamic> withId(String id) => attach({EntityKey.i.id: id});
 }
 
-class Entity<KEY extends EntityKey> {
+class Entity<Key extends EntityKey> {
   String? _id;
   int? _timeMills;
 
@@ -74,13 +74,23 @@ class Entity<KEY extends EntityKey> {
 
   factory Entity.root(dynamic source) => Entity.from(source);
 
-  KEY get keys => EntityKey.i as KEY;
+  Key get key => Singleton.instanceOf(() => makeKey());
 
   Map<String, dynamic> get source {
     return {
-      keys.id: id,
-      keys.timeMills: timeMills,
+      key.id: id,
+      key.timeMills: timeMills,
     };
+  }
+
+  Key makeKey() {
+    try {
+      return const EntityKey() as Key;
+    } catch (_) {
+      return throw UnimplementedError(
+        "You must override makeKey() and return the current key from sub-entity class.",
+      );
+    }
   }
 
   static String get generateID => generateTimeMills.toString();
@@ -194,20 +204,14 @@ class Entity<KEY extends EntityKey> {
   String toString() => source.toString();
 }
 
-class EntityKey<Child> {
+class EntityKey {
+  final String id;
+  final String timeMills;
+
   const EntityKey({
     this.id = "id",
     this.timeMills = "time_mills",
   });
 
-  final String id;
-  final String timeMills;
-
-  static EntityKey? _proxy;
-
-  static EntityKey get i => _proxy ??= const EntityKey();
-
-  static EntityKey get I => i;
-
-  static EntityKey get instance => i;
+  static EntityKey get i => Singleton.instanceOf(() => const EntityKey());
 }

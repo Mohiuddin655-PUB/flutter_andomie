@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/core.dart';
 
@@ -68,21 +70,22 @@ class User extends Entity<UserKey> {
 
   @override
   Map<String, dynamic> get source => super.source.attach({
-        keys.name: name,
-        keys.photo: photo,
+        key.name: name,
+        key.photo: photo,
       });
 
+  static User get i => Singleton.instanceOf(() => User());
+
   @override
-  UserKey get keys => UserKey.i;
+  UserKey makeKey() {
+    log("makeKey");
+    return UserKey();
+  }
 }
 
 class UserKey extends EntityKey {
   final String name = "name";
   final String photo = "photo";
 
-  const UserKey._();
-
-  static UserKey? _proxy;
-
-  static UserKey get i => _proxy ??= const UserKey._();
+  static UserKey get i => Singleton.instanceOf(() => UserKey());
 }

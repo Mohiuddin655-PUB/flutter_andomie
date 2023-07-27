@@ -67,6 +67,8 @@ part 'utils/response.dart';
 
 part 'utils/screen_provider.dart';
 
+part 'utils/singleton.dart';
+
 part 'utils/size_config.dart';
 
 part 'utils/text_format.dart';
