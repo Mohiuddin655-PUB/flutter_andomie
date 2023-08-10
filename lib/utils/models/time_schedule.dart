@@ -33,15 +33,15 @@ class Time {
     return Time(
       hour: source.entityValue("hour") ?? 0,
       minute: source.entityValue("hour") ?? 0,
-      period: source.entityType("period", (value) => TimePeriod.from(value)),
     );
   }
 
+  int get hourAs24 => period.isPM ? hour + 12 : hour;
+
   Map<String, dynamic> get source {
     return {
-      "hour": hour,
+      "hour": hourAs24,
       "minute": minute,
-      "period": period.name,
     };
   }
 

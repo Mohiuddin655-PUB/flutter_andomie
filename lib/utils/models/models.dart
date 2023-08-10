@@ -2,6 +2,8 @@ library models;
 
 import 'dart:typed_data';
 
+import 'package:flutter/material.dart';
+
 import '../../utils.dart';
 
 part 'country_info.dart';
