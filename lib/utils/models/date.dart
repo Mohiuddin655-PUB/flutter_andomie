@@ -146,6 +146,10 @@ class Date {
     );
   }
 
+  DateTime withDateTime(DateTime dateTime) {
+    return toDateTime(Time.fromDateTime(dateTime));
+  }
+
   int toMilliseconds(Time time) => toDateTime(time).millisecondsSinceEpoch;
 }
 

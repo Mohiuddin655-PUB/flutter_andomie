@@ -218,6 +218,10 @@ class Time {
     return DateTime(date.year, date.month, date.day, hour, minute, second);
   }
 
+  DateTime withDateTime(DateTime dateTime) {
+    return toDateTime(Date.fromDateTime(dateTime));
+  }
+
   int toMilliseconds(Date date) => toDateTime(date).millisecondsSinceEpoch;
 }
 
