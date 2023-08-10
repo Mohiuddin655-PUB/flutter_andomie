@@ -30,15 +30,13 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var timeMills = DateTime.now().add(const Duration(
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-    ));
+    var a = Time(hour: 0, minute: 0, second: 0);
+    var b = Date(year: 2022, month: 1, day: 2);
+    var c = b.toDateTime(a);
+    print(c);
     return Scaffold(
       body: SafeArea(
-        child: Text(timeMills.toRealtime(
+        child: Text(c.toRealtime(
           showRealtime: true,
           whenShowNow: 10,
         )),

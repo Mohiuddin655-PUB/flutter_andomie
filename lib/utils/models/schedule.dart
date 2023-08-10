@@ -1,27 +1,29 @@
 part of 'models.dart';
 
-class Schedule {
-  final int start;
-  final int end;
+abstract class Scheduler<T> {
+  final T start;
+  final T end;
 
-  static DateTime toDateTime(DateTime date, TimeOfDay time) {
-    return DateTime(
-      date.year,
-      date.month,
-      date.day,
-      time.hour,
-      time.minute,
-    );
-  }
-
-  static int toMilliseconds(DateTime date, TimeOfDay time) {
-    return toDateTime(date, time).millisecondsSinceEpoch;
-  }
-
-  const Schedule({
-    this.start = 0,
-    int? end,
+  const Scheduler({
+    required this.start,
+    T? end,
   }) : end = end ?? start;
+
+  Map<String, dynamic> get source {
+    return {
+      "start": start,
+      "end": end,
+    };
+  }
+
+  T get difference;
+}
+
+final class Schedule extends Scheduler<int> {
+  const Schedule({
+    required super.start,
+    super.end,
+  });
 
   factory Schedule.fromDateTime(DateTime starting, [DateTime? ending]) {
     var start = starting.millisecondsSinceEpoch;
@@ -39,10 +41,6 @@ class Schedule {
     );
   }
 
-  Map<String, dynamic> get source {
-    return {
-      "start": start,
-      "end": end,
-    };
-  }
+  @override
+  int get difference => end - start;
 }
