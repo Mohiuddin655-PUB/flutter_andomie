@@ -1,6 +1,6 @@
 name: flutter_andomie
 description: Collection of utils with advanced style and controlling system.
-version: 0.5.5-alpha6
+version: 0.5.5
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
 environment:
@@ -11,13 +11,12 @@ dependencies:
   flutter:
     sdk: flutter
 
-  #Database Handler
-  shared_preferences: ^2.1.1 # Cache Mode
 
+  connectivity_plus: ^4.0.2
   encrypt: ^5.0.1
-  connectivity_plus: ^4.0.1
+  http: ^1.1.0
   intl: ^0.18.1
-  http: ^0.13.5
+  shared_preferences: ^2.2.0
 
 dev_dependencies:
   flutter_test:
