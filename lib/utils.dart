@@ -65,7 +65,7 @@ part 'utils/replacer.dart';
 
 part 'utils/response.dart';
 
-part 'utils/screen_provider.dart';
+part 'utils/screen_loader.dart';
 
 part 'utils/singleton.dart';
 
