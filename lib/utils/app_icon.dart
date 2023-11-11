@@ -31,3 +31,41 @@ class AppIcon {
     );
   }
 }
+
+class AppIconBuilder {
+  final String package;
+  final String path;
+
+  const AppIconBuilder({
+    this.package = "assets",
+    this.path = "icons",
+  });
+
+  AppIcon auto(
+    String name, {
+    String prefix = "ic",
+    String extension = "svg",
+  }) {
+    return AppIcon.auto(
+      name,
+      package: package,
+      path: path,
+      prefix: prefix,
+      extension: extension,
+    );
+  }
+
+  AppIcon build({
+    String? regular,
+    String? solid,
+    String? bold,
+  }) {
+    return AppIcon(
+      package: package,
+      path: path,
+      regular: regular,
+      solid: solid,
+      bold: bold,
+    );
+  }
+}

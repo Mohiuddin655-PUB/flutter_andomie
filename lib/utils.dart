@@ -10,7 +10,6 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 
 export 'utils/entities/entities.dart';
@@ -20,8 +19,6 @@ export 'utils/helpers/helpers.dart';
 export 'utils/models/models.dart';
 
 part 'utils/app_icon.dart';
-
-part 'utils/color_config.dart';
 
 part 'utils/connectivity_provider.dart';
 
@@ -36,8 +33,6 @@ part 'utils/date_provider.dart';
 part 'utils/device_config.dart';
 
 part 'utils/encryptor.dart';
-
-part 'utils/icon_config.dart';
 
 part 'utils/key_format.dart';
 
@@ -72,9 +67,5 @@ part 'utils/singleton.dart';
 part 'utils/size_config.dart';
 
 part 'utils/text_format.dart';
-
-part 'utils/translate_api.dart';
-
-part 'utils/translate_provider.dart';
 
 part 'utils/validator.dart';

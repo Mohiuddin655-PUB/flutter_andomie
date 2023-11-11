@@ -9,7 +9,7 @@ extension ObjectExtension on Object? {
 
   bool equals(dynamic compare) => this != null && this == compare;
 
-  T? getValue<T>({String key = "", T? defaultValue}) {
+  T? getValue<T>({required String key, T? defaultValue}) {
     var root = this;
     if (root is Map<String, dynamic>) {
       var data = root[key];
@@ -25,5 +25,9 @@ extension ObjectExtension on Object? {
         return defaultValue;
       }
     }
+  }
+
+  T findByKey<T>(String key, T defaultValue) {
+    return getValue(key: key) ?? defaultValue;
   }
 }
