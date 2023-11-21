@@ -1,3 +1,3 @@
-## 0.5.6
+## 0.5.7
 
-* Stable version
+* Another necessary library version updated

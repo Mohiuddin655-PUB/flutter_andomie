@@ -33,7 +33,7 @@ class Home extends StatelessWidget {
     var a = Time(hour: 0, minute: 0, second: 0);
     var b = Date(year: 2022, month: 1, day: 2);
     var c = b.toDateTime(a);
-    print(c);
+    log(c.toString());
     return Scaffold(
       body: SafeArea(
         child: Text(c.toRealtime(
@@ -43,47 +43,4 @@ class Home extends StatelessWidget {
       ),
     );
   }
-}
-
-class User extends Entity<UserKey> {
-  final String? name;
-  final String? photo;
-
-  User({
-    super.id,
-    super.timeMills,
-    this.name,
-    this.photo,
-  });
-
-  factory User.from(dynamic source) {
-    var keys = UserKey.i;
-    return User(
-      id: source.entityId,
-      timeMills: source.entityTimeMills,
-      name: source.entityValue(keys.name),
-      photo: source.entityValue(keys.photo),
-    );
-  }
-
-  @override
-  Map<String, dynamic> get source => super.source.attach({
-        key.name: name,
-        key.photo: photo,
-      });
-
-  static User get i => Singleton.instanceOf(() => User());
-
-  @override
-  UserKey makeKey() {
-    log("makeKey");
-    return UserKey();
-  }
-}
-
-class UserKey extends EntityKey {
-  final String name = "name";
-  final String photo = "photo";
-
-  static UserKey get i => Singleton.instanceOf(() => UserKey());
 }
