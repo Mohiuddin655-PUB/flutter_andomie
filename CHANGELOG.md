@@ -1,3 +1,3 @@
-## 0.5.7
+## 0.5.8
 
-* Another necessary library version updated
+* Add hit logger to detect api hit count

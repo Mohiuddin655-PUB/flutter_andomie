@@ -25,4 +25,11 @@ extension MapExtension on Map<String, dynamic>? {
     data.addAll(current);
     return data;
   }
+
+  String get beautify {
+    return toString()
+        .replaceAll(",", "\n")
+        .replaceAll("{", "")
+        .replaceAll("}", "");
+  }
 }

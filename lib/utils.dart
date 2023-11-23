@@ -1,5 +1,6 @@
 library utils;
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:core';
 import 'dart:developer' as developer;
@@ -33,6 +34,8 @@ part 'utils/date_provider.dart';
 part 'utils/device_config.dart';
 
 part 'utils/encryptor.dart';
+
+part 'utils/hit_logger.dart';
 
 part 'utils/key_format.dart';
 
