@@ -1,112 +1,245 @@
 part of '../utils.dart';
 
-typedef OnHitLoggerListen = void Function(HitLogs value);
+typedef OnHitLoggerCheck = void Function(String tag, dynamic data);
+typedef OnHitLoggerListen = void Function(String client);
+typedef OnHitLoggerClientCheck = bool Function(String client);
+typedef OnHitLoggerClientListen = void Function(ClientLogs value);
+
+enum HitType { init, listen, request, response }
 
 extension HitLoggerFutureExtension<T> on Future<T> {
-  Future<T> hitCounter(String key) async {
-    HitLogger.hit("$key-init");
+  Future<T> hitLogger(String tag, [String? client]) async {
+    HitLogger.log(tag, HitType.request, client: client);
     final data = await this;
-    HitLogger.hit("$key-complete");
+    HitLogger.log(tag, HitType.response, client: client, data: data);
     return data;
   }
 }
 
 extension HitLoggerStreamExtension<T> on Stream<T> {
-  Stream<T> hitCounter(String key) {
+  Stream<T> hitLogger(String key, [String? client]) {
     final controller = StreamController<T>();
-    HitLogger.hit("$key-init");
+    HitLogger.log(key, HitType.init, client: client);
     listen((event) {
-      HitLogger.hit("$key-listen");
+      HitLogger.log(key, HitType.listen, client: client, data: event);
       controller.add(event);
     });
     return controller.stream;
   }
 }
 
-class HitLogs {
+class ClientLogs {
+  final String name;
+  final String client;
   final Map<String, int> logs;
 
-  const HitLogs(this.logs);
+  const ClientLogs._(this.name, this.client, this.logs);
 
-  int getHits(String name) {
-    return logs["$name-init"] ?? 0;
+  int getInitialHits([String? key]) {
+    if (key == null || key.isEmpty) {
+      var counter = 0;
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.init.name)) {
+          counter = counter + i.value;
+        }
+      }
+      return counter;
+    } else {
+      return logs["$key-${HitType.init.name}"] ?? 0;
+    }
   }
 
-  int getCompletingHits(String name) {
-    return logs["$name-complete"] ?? 0;
+  int getListeningHits([String? key]) {
+    if (key == null || key.isEmpty) {
+      var counter = 0;
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.listen.name)) {
+          counter = counter + i.value;
+        }
+      }
+      return counter;
+    } else {
+      return logs["$key-${HitType.listen.name}"] ?? 0;
+    }
   }
 
-  int getListeningHits(String name) {
-    return logs["$name-listen"] ?? 0;
+  int getRequestedHits([String? key]) {
+    if (key == null || key.isEmpty) {
+      var counter = 0;
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.request.name)) {
+          counter = counter + i.value;
+        }
+      }
+      return counter;
+    } else {
+      return logs["$key-${HitType.request.name}"] ?? 0;
+    }
   }
 
-  int getTotalHits(String name) {
-    final init = getHits(name);
-    final complete = getCompletingHits(name);
-    final listen = getListeningHits(name);
-    return init + complete + listen;
+  int getResponseHits([String? key]) {
+    if (key == null || key.isEmpty) {
+      var counter = 0;
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.response.name)) {
+          counter = counter + i.value;
+        }
+      }
+      return counter;
+    } else {
+      return logs["$key-${HitType.response.name}"] ?? 0;
+    }
+  }
+
+  String getTotalHits([String? key]) {
+    var request = 0;
+    var response = 0;
+    var init = 0;
+    var listen = 0;
+    if (key != null && key.isNotEmpty) {
+      request = getRequestedHits(key);
+      response = getResponseHits(key);
+      init = getInitialHits(key);
+      listen = getListeningHits(key);
+    } else {
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.request.name)) {
+          request = request + i.value;
+        } else if (i.key.contains(HitType.response.name)) {
+          response = response + i.value;
+        } else if (i.key.contains(HitType.init.name)) {
+          init = init + i.value;
+        } else if (i.key.contains(HitType.listen.name)) {
+          listen = listen + i.value;
+        }
+      }
+    }
+    return "$name {\n"
+        "-> ${HitType.init.name}     : $init\n"
+        "-> ${HitType.listen.name}   : $listen\n"
+        "-> ${HitType.request.name}  : $request\n"
+        "-> ${HitType.response.name} : $response\n"
+        "}";
   }
 
   @override
-  String toString() => "HitLogs $logs";
+  String toString() {
+    return "$name ($client) ${logs.toString().replaceAll("{", "{\n-> ").replaceAll(", ", "\n-> ").replaceAll("}", "\n}")}";
+  }
 }
 
 class HitLogger {
-  final bool loggable;
-  final bool printable;
   final String name;
-  final OnHitLoggerListen? listenLogs;
+  final OnHitLoggerCheck? onCheck;
+  final OnHitLoggerListen? onListen;
+  final OnHitLoggerClientListen? onClientListen;
+  final OnHitLoggerClientCheck? onClientCheck;
 
-  Map<String, int> _hits = {};
+  Map<String, Map<String, int>> _hits = {};
 
-  HitLogger._(this.name, this.loggable, this.printable, this.listenLogs);
+  HitLogger._({
+    this.name = "HIT LOGGER",
+    this.onCheck,
+    this.onListen,
+    this.onClientListen,
+    this.onClientCheck,
+  });
+
+  static const String _client = "LOGS";
 
   static HitLogger? _proxy;
 
-  static HitLogger init(
-    String name, {
-    bool loggable = false,
-    bool printable = false,
+  static HitLogger init({
+    String? name,
+    OnHitLoggerCheck? onCheck,
     OnHitLoggerListen? onListen,
+    OnHitLoggerClientCheck? onClientCheck,
+    OnHitLoggerClientListen? onClientListen,
   }) {
-    return _proxy ??= HitLogger._(name, loggable, printable, onListen);
+    return _proxy ??= HitLogger._(
+      name: name ?? "HIT LOGGER",
+      onCheck: onCheck,
+      onListen: onListen,
+      onClientCheck: onClientCheck,
+      onClientListen: onClientListen,
+    );
   }
 
-  static HitLogger get _i => init("HIT_LOGS");
+  static HitLogger get _i => init();
 
-  static String get logs => _i._logs;
-
-  static void hit(String key) => _i._hit(key);
-
-  static void clear([String? key]) => _i._clear(key);
-
-  String get _logs {
-    final log = _hits.toString().replaceAll("{", "").replaceAll("}", "");
-    return "$name ($log)";
+  static void log(
+    String tag,
+    HitType type, {
+    String? client,
+    dynamic data,
+  }) {
+    if (_i.onCheck != null &&
+        (type == HitType.response || type == HitType.listen)) {
+      _i.onCheck!(tag, data);
+    }
+    _i._count("$tag-${type.name}", client);
   }
 
-  void _hit(String key) {
-    final value = _hits[key] ?? 0;
-    _hits[key] = value + 1;
-    final log = "$name ($key : ${_hits[key]})";
-    if (listenLogs != null) listenLogs!(HitLogs(_hits));
-    if (loggable) developer.log(log);
-    if (printable) {
-      if (kDebugMode) print(log);
+  static void clear({
+    String? tag,
+    String? client,
+  }) {
+    _i._clear(tag, client);
+  }
+
+  bool _isClient(String client) {
+    return onClientCheck?.call(client) ?? true;
+  }
+
+  void _count(String tag, [String? client]) {
+    final mClient = client ?? _client;
+    _hits.putIfAbsent(mClient, () => {});
+    final value = _hits[mClient]?[tag] ?? 0;
+    _hits[mClient]?[tag] = value + 1;
+    if (onListen != null) {
+      onListen!(_totalHits);
+    }
+    if (onClientListen != null && _isClient(mClient)) {
+      onClientListen!(ClientLogs._(name, mClient, _hits[mClient] ?? {}));
     }
   }
 
-  void _clear([String? key]) {
-    if (key != null) {
-      _hits[key] = 0;
+  void _clear([String? tag, String? client]) {
+    final mClient = client ?? _client;
+    if (tag != null) {
+      _hits[mClient]?[tag] = 0;
     } else {
-      _hits = {};
+      if (client != null) {
+        _hits[client] = {};
+      } else {
+        _hits = {};
+      }
     }
-    final log = "$name ($key : ${_hits[key]})";
-    if (listenLogs != null) listenLogs!(HitLogs(_hits));
-    if (loggable) developer.log(log);
-    if (printable) {
-      if (kDebugMode) print(log);
+  }
+
+  String get _totalHits {
+    var request = 0;
+    var response = 0;
+    var init = 0;
+    var listen = 0;
+    for (var client in _hits.values) {
+      for (var i in client.entries) {
+        if (i.key.contains(HitType.request.name)) {
+          request = request + i.value;
+        } else if (i.key.contains(HitType.response.name)) {
+          response = response + i.value;
+        } else if (i.key.contains(HitType.init.name)) {
+          init = init + i.value;
+        } else if (i.key.contains(HitType.listen.name)) {
+          listen = listen + i.value;
+        }
+      }
     }
+    return "$name {\n"
+        "-> ${HitType.init.name}     : $init\n"
+        "-> ${HitType.listen.name}   : $listen\n"
+        "-> ${HitType.request.name}  : $request\n"
+        "-> ${HitType.response.name} : $response\n"
+        "}";
   }
 }

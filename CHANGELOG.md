@@ -1,3 +1,3 @@
-## 0.5.8
+## 0.5.9
 
-* Add hit logger to detect api hit count
+* Update hit logger

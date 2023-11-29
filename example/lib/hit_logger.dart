@@ -5,15 +5,32 @@ import 'package:flutter_andomie/core.dart';
 
 void main() async {
   HitLogger.init(
-    "MY_APP",
-    printable: false,
-    loggable: false,
+    name: "LOGGER_APP",
+    onCheck: (tag, value) {
+      log("$tag => $value");
+    },
     onListen: (value) {
+      log(value);
+    },
+    onClientCheck: (value) {
+      return value == "CLIENT-1";
+    },
+    onClientListen: (value) {
       log(value.toString());
     },
   );
-
   runApp(const Application());
+}
+
+Future<String> futureData() async {
+  await Future.delayed(const Duration(seconds: 30));
+  return "Hi, I'm a future data...!";
+}
+
+Stream<String> streamData() {
+  return Stream.periodic(const Duration(seconds: 5), (event) {
+    return "Hi, I'm a stream data... $event!";
+  });
 }
 
 class Application extends StatefulWidget {
@@ -25,6 +42,17 @@ class Application extends StatefulWidget {
 
 class _ApplicationState extends State<Application> {
   @override
+  void initState() {
+    futureData().hitLogger("getMessage", "CLIENT-1").then((value) {
+      // log(value);
+    });
+    streamData().hitLogger("listenMessage", "CLIENT-1").listen((event) {
+      // log(event);
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Api hit counter',
@@ -34,14 +62,14 @@ class _ApplicationState extends State<Application> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             FutureBuilder(
-              future: futureData().hitCounter("futureData"),
+              future: futureData().hitLogger("futureData", "CLIENT-2"),
               builder: (context, snapshot) {
                 return Text(snapshot.data ?? "");
               },
             ),
             const SizedBox(height: 24),
             StreamBuilder(
-              stream: streamData().hitCounter("streamData"),
+              stream: streamData().hitLogger("streamData", "CLIENT-2"),
               builder: (context, snapshot) {
                 return Text(snapshot.data ?? "");
               },
@@ -50,31 +78,5 @@ class _ApplicationState extends State<Application> {
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    initData();
-    super.initState();
-  }
-
-  void initData() {
-    futureData().hitCounter("getMessage").then((value) {
-      // log(value);
-    });
-    streamData().hitCounter("listenMessage").listen((event) {
-      // log(event);
-    });
-  }
-
-  Future<String> futureData() async {
-    await Future.delayed(Duration(seconds: 5));
-    return "Hi, I'm a future data...!";
-  }
-
-  Stream<String> streamData() {
-    return Stream.periodic(Duration(seconds: 2), (event) {
-      return "Hi, I'm a stream data... $event!";
-    });
   }
 }

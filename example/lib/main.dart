@@ -1,21 +1,11 @@
 import 'dart:developer';
-import 'dart:math' as m;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/core.dart';
 
 void main() async {
-  HitLogger.init("EXAMPLE");
-  final random = m.Random();
-  final list = ["a", "b", "c", "d", "e"];
-
-  for (var i = 0; i < 100; i++) {
-    final index = random.nextInt(5);
-    final value = list[2];
-    HitLogger.hit(value);
-  }
-  // WidgetsFlutterBinding.ensureInitialized();
-  // runApp(const Application());
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(const Application());
 }
 
 class Application extends StatelessWidget {

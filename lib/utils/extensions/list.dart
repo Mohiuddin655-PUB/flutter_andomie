@@ -7,6 +7,8 @@ extension ListExtension<E> on List<E>? {
 
   List<E> get use => this ?? [];
 
+  List<E>  get unify => use.toSet().toList();
+
   E? get at => isValid ? use.first : null;
 
   E? get end => isValid ? use.last : null;
@@ -66,6 +68,16 @@ extension ListExtension<E> on List<E>? {
 
   List<E> attachItemsAtLast(List<E> items) => attachItemsAt(items, size);
 
+  List<E> change(bool status, E value) {
+    final a = unify;
+    if (status) {
+      a.insert(0, value);
+    } else {
+      a.remove(value);
+    }
+    return a;
+  }
+
   List<E> removeItem(E item) {
     var list = List<E>.from(use);
     list.remove(item);
@@ -116,4 +128,5 @@ extension ListExtension<E> on List<E>? {
     });
     return list;
   }
+
 }
