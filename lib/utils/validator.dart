@@ -64,34 +64,52 @@ class Validator {
         ((currentYear - current) >= requireAge);
   }
 
-  static bool isValidPath(String? path) {
-    return path != null && path.isNotEmpty && Regs.path.hasMatch(path);
+  static bool isValidPath(String? path, {RegExp? pattern}) {
+    return path != null &&
+        path.isNotEmpty &&
+        (pattern ?? Regs.path).hasMatch(path);
   }
 
-  static bool isValidPhone(String? phone) {
-    return phone != null && phone.isNotEmpty && Regs.phone.hasMatch(phone);
+  static bool isValidPhone(String? phone, {RegExp? pattern}) {
+    return phone != null &&
+        phone.isNotEmpty &&
+        (pattern ?? Regs.phone).hasMatch(phone);
   }
 
-  static bool isValidEmail(String? email) {
-    return email != null && email.isNotEmpty && Regs.email.hasMatch(email);
+  static bool isValidEmail(String? email, {RegExp? pattern}) {
+    return email != null &&
+        email.isNotEmpty &&
+        (pattern ?? Regs.email).hasMatch(email);
   }
 
-  static bool isValidUsername(String? username, [bool withDot = true]) {
+  static bool isValidUsername(
+    String? username, {
+    bool withDot = true,
+    RegExp? pattern,
+  }) {
     if (username != null && username.isNotEmpty) {
       if (withDot) {
-        return Regs.usernameWithDot.hasMatch(username);
+        return (pattern ?? Regs.usernameWithDot).hasMatch(username);
       } else {
-        return Regs.username.hasMatch(username);
+        return (pattern ?? Regs.username).hasMatch(username);
       }
     } else {
       return false;
     }
   }
 
-  static bool isValidPassword(String? password, [int minLength = 6]) {
-    return password != null &&
-        password.isNotEmpty &&
-        password.length >= minLength;
+  static bool isValidPassword(
+    String? password, {
+    int minLength = 6,
+    int maxLength = 20,
+    RegExp? pattern,
+  }) {
+    return isValidString(
+      password,
+      minLength: minLength,
+      maxLength: maxLength,
+      pattern: pattern,
+    );
   }
 
   static bool isValidRetypePassword(String? password, String? retypePassword) {
@@ -141,14 +159,14 @@ class Validator {
     String? value, {
     int maxLength = 0,
     int minLength = 0,
-    RegExp? regs,
+    RegExp? pattern,
   }) {
     bool a = value != null &&
         value.isNotEmpty &&
         !equals(value.toLowerCase(), 'null');
     bool b = maxLength <= 0 ? a : a && value.length <= maxLength;
     bool c = b && value.length >= minLength;
-    bool d = regs != null ? regs.hasMatch(value ?? '') : c;
+    bool d = pattern != null ? pattern.hasMatch(value ?? '') : c;
     return d;
   }
 
@@ -158,17 +176,14 @@ class Validator {
     int minLength = 0,
     RegExp? regs,
   }) {
-    List<bool> list = [];
-    for (String value in values) {
-      if (Validator.isValidString(
+    final list = values.where((value) {
+      return isValidString(
         value,
         maxLength: maxLength,
         minLength: minLength,
-        regs: regs,
-      )) {
-        list.add(true);
-      }
-    }
+        pattern: regs,
+      );
+    });
     return list.length == values.length;
   }
 

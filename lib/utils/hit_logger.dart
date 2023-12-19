@@ -5,13 +5,23 @@ typedef OnHitLoggerListen = void Function(String client);
 typedef OnHitLoggerClientCheck = bool Function(String client);
 typedef OnHitLoggerClientListen = void Function(ClientLogs value);
 
-enum HitType { init, listen, request, response }
+enum HitType {
+  none(""),
+  init("init"),
+  listen("listen"),
+  request("request"),
+  response("response");
+
+  final String name;
+
+  const HitType(this.name);
+}
 
 extension HitLoggerFutureExtension<T> on Future<T> {
   Future<T> hitLogger(String tag, [String? client]) async {
-    HitLogger.log(tag, HitType.request, client: client);
+    HitLogger.log(tag, type: HitType.request, client: client);
     final data = await this;
-    HitLogger.log(tag, HitType.response, client: client, data: data);
+    HitLogger.log(tag, type: HitType.response, client: client, data: data);
     return data;
   }
 }
@@ -19,9 +29,9 @@ extension HitLoggerFutureExtension<T> on Future<T> {
 extension HitLoggerStreamExtension<T> on Stream<T> {
   Stream<T> hitLogger(String key, [String? client]) {
     final controller = StreamController<T>();
-    HitLogger.log(key, HitType.init, client: client);
+    HitLogger.log(key, type: HitType.init, client: client);
     listen((event) {
-      HitLogger.log(key, HitType.listen, client: client, data: event);
+      HitLogger.log(key, type: HitType.listen, client: client, data: event);
       controller.add(event);
     });
     return controller.stream;
@@ -34,6 +44,20 @@ class ClientLogs {
   final Map<String, int> logs;
 
   const ClientLogs._(this.name, this.client, this.logs);
+
+  int getHits([String? key]) {
+    if (key == null || key.isEmpty) {
+      var counter = 0;
+      for (var i in logs.entries) {
+        if (i.key.contains(HitType.none.name)) {
+          counter = counter + i.value;
+        }
+      }
+      return counter;
+    } else {
+      return logs["$key-${HitType.none.name}"] ?? 0;
+    }
+  }
 
   int getInitialHits([String? key]) {
     if (key == null || key.isEmpty) {
@@ -168,8 +192,8 @@ class HitLogger {
   static HitLogger get _i => init();
 
   static void log(
-    String tag,
-    HitType type, {
+    String tag, {
+    HitType type = HitType.none,
     String? client,
     dynamic data,
   }) {

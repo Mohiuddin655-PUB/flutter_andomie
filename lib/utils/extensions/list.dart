@@ -7,7 +7,7 @@ extension ListExtension<E> on List<E>? {
 
   List<E> get use => this ?? [];
 
-  List<E>  get unify => use.toSet().toList();
+  List<E> get unify => use.toSet().toList();
 
   E? get at => isValid ? use.first : null;
 
@@ -78,6 +78,20 @@ extension ListExtension<E> on List<E>? {
     return a;
   }
 
+  List<E> changeOnce(E value) {
+    final a = unify;
+    if (a.contains(value)) {
+      a.remove(value);
+    } else {
+      a.insert(0, value);
+    }
+    return a;
+  }
+
+  List<R> convert<R>(R Function(E value) callback) {
+    return use.map(callback).toList();
+  }
+
   List<E> removeItem(E item) {
     var list = List<E>.from(use);
     list.remove(item);
@@ -128,5 +142,4 @@ extension ListExtension<E> on List<E>? {
     });
     return list;
   }
-
 }

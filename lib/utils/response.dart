@@ -514,32 +514,38 @@ class Response<T> {
 
   Snapshot? getSnapshot<Snapshot>() => snapshot is Snapshot ? snapshot : null;
 
+  String get beautify {
+    return "Response {\n"
+        "\tAvailable      : $_available\n"
+        "\tBackups        : $backups\n"
+        "\tCancel         : $_cancel\n"
+        "\tComplete       : $_complete\n"
+        "\tData           : $data\n"
+        "\tError          : $_error\n"
+        "\tException      : $exception\n"
+        "\tFailed         : $_failed\n"
+        "\tFeedback       : $feedback\n"
+        "\tIgnores        : $ignores\n"
+        "\tInternet Error : $_internetError\n"
+        "\tLoading        : $_loading\n"
+        "\tMessage        : $message\n"
+        "\tNullable       : $_nullable\n"
+        "\tPaused         : $_paused\n"
+        "\tProgress       : $progress\n"
+        "\tRequest Code   : $requestCode\n"
+        "\tResult         : $result\n"
+        "\tSnapshot       : $snapshot\n"
+        "\tStopped        : $_stopped\n"
+        "\tStatus         : $status\n"
+        "\tSuccessful     : $_successful\n"
+        "\tTimeout        : $_timeout\n"
+        "\tValid          : $_valid\n"
+        "}";
+  }
+
   @override
   String toString() {
-    return "Request Code : $requestCode\n"
-        "Available : $_available\n"
-        "Cancel : $_cancel\n"
-        "Complete : $_complete\n"
-        "Error : $_error\n"
-        "Failed : $_failed\n"
-        "Internet Error : $_internetError\n"
-        "Loading : $_loading\n"
-        "Nullable : $_nullable\n"
-        "Paused : $_paused\n"
-        "Stopped : $_stopped\n"
-        "Successful : $_successful\n"
-        "Timeout : $_timeout\n"
-        "Valid : $_valid\n"
-        "Progress : $progress\n"
-        "Status : $status\n"
-        "Exception : $exception\n"
-        "Message : $message\n"
-        "Feedback : $feedback\n"
-        "Snapshot : $snapshot\n"
-        "Data : $data\n"
-        "Result : $result\n"
-        "Backups : $backups\n"
-        "Ignores : $ignores";
+    return "Response (Request Code: $requestCode, Available: $_available, Cancel: $_cancel, Complete: $_complete, Error: $_error, Failed: $_failed, Internet Error: $_internetError, Loading: $_loading, Nullable: $_nullable, Paused: $_paused, Stopped: $_stopped, Successful: $_successful, Timeout: $_timeout, Valid: $_valid, Progress: $progress, Status: $status, Exception: $exception, Message: $message, Feedback: $feedback, Snapshot: $snapshot, Data: $data, Result: $result, Backups: $backups, Ignores: $ignores)";
   }
 }
 

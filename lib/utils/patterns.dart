@@ -11,6 +11,7 @@ class Patterns {
 
   static const String phone = r'^[+]*[(]{0,1}[0-9]{1,4}+$';
   static const String phone2 = r'^(?:[+0][1-9])?[0-9]{10,12}$';
+  static const String phone3 = r'^\+?[0-9]{7,15}$';
   static const String url =
       r'(http|https)://[\w-]+(\.[\w-]+)+([\w.,@?^=%&amp;:/~+#-]*[\w@?^=%&amp;/~+#-])?';
   static const String path = r"^[a-zA-Z_]\w*(/[a-zA-Z_]\w*)*$";

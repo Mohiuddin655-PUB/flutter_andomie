@@ -2,9 +2,13 @@ library extensions;
 
 import 'package:flutter/material.dart';
 
+import '../entities/entities.dart';
+
 part 'boolean.dart';
 
 part 'double.dart';
+
+part 'entity_list.dart';
 
 part 'int.dart';
 
