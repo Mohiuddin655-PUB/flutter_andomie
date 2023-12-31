@@ -395,20 +395,6 @@ class DateProvider {
   }
 }
 
-extension DurationExtension on Duration {
-  int get inCurrentDays => inDays;
-
-  int get inCurrentHours => inHours - (inDays * 24);
-
-  int get inCurrentMinutes => inMinutes - (inHours * 60);
-
-  int get inCurrentSeconds => inSeconds - (inMinutes * 60);
-
-  int get inCurrentMilliseconds => inMilliseconds - (inSeconds * 1000);
-
-  int get inCurrentMicroseconds => inMicroseconds - (inMilliseconds * 1000);
-}
-
 extension TimeFormatExtension on TimeFormats? {
   String get use => this?.value ?? "";
 

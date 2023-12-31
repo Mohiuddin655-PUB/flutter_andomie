@@ -11,6 +11,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:encrypt/encrypt.dart' as crypto;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_andomie/core.dart';
 import 'package:intl/intl.dart';
 
 export 'utils/entities/entities.dart';
@@ -18,6 +19,7 @@ export 'utils/enums/enums.dart';
 export 'utils/extensions/extensions.dart';
 export 'utils/helpers/helpers.dart';
 export 'utils/models/models.dart';
+export 'utils/sleeper.dart';
 
 part 'utils/app_icon.dart';
 
