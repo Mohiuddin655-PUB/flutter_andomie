@@ -3,7 +3,7 @@ import 'dart:async';
 typedef OnSleepCompleteListener = void Function();
 typedef OnSleepRemainingListener = void Function(Duration value);
 
-class Sleeper {
+class SleepingTimer {
   final Duration duration;
   final Duration periodicTime;
 
@@ -16,7 +16,7 @@ class Sleeper {
   Timer? _timer;
   Timer? _prediction;
 
-  Sleeper(
+  SleepingTimer(
     this.duration, {
     this.periodicTime = const Duration(seconds: 1),
   });

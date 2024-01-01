@@ -31,7 +31,7 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Sleeper sleeper = Sleeper(const Duration(seconds: 30, minutes: 1, hours: 25));
+  SleepingTimer sleeper = SleepingTimer(const Duration(seconds: 30, minutes: 1, hours: 25));
   Duration remainingDuration = Duration.zero;
 
   @override

@@ -19,7 +19,7 @@ export 'utils/enums/enums.dart';
 export 'utils/extensions/extensions.dart';
 export 'utils/helpers/helpers.dart';
 export 'utils/models/models.dart';
-export 'utils/sleeper.dart';
+export 'utils/sleeping_timer.dart';
 
 part 'utils/app_icon.dart';
 
@@ -56,6 +56,8 @@ part 'utils/patterns.dart';
 part 'utils/provider.dart';
 
 part 'utils/random_provider.dart';
+
+part 'utils/rank_generator.dart';
 
 part 'utils/regex.dart';
 
