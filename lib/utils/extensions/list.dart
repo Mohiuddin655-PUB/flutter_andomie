@@ -69,23 +69,23 @@ extension ListExtension<E> on List<E>? {
   List<E> attachItemsAtLast(List<E> items) => attachItemsAt(items, size);
 
   List<E> change(bool status, E value) {
-    final a = unify;
+    final a = use;
     if (status) {
       a.insert(0, value);
     } else {
       a.remove(value);
     }
-    return a;
+    return a.unify;
   }
 
   List<E> changeOnce(E value) {
-    final a = unify;
+    final a = use;
     if (a.contains(value)) {
       a.remove(value);
     } else {
       a.insert(0, value);
     }
-    return a;
+    return a.unify;
   }
 
   List<R> convert<R>(R Function(E value) callback) {

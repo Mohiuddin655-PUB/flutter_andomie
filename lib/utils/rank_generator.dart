@@ -1,6 +1,6 @@
 part of '../utils.dart';
 
-typedef OnRankGenerateListener = void Function();
+typedef OnRankGenerateListener = void Function(int value);
 
 class RankGenerator {
   final int percentage;
@@ -40,7 +40,7 @@ class RankGenerator {
       _current = _current + _increment;
       if (_grantMode) {
         _granted = true;
-        _generate?.call();
+        _generate?.call(_current);
       }
     }
   }
