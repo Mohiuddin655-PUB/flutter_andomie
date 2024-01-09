@@ -12,9 +12,9 @@ class KeyProvider {
       return Replacement.auto(name).toLowerCase();
     } else {
       final ms = timeMills ?? DateProvider.currentMS;
-      final extra = RandomProvider.getRandomString(
-        KeyFormat.allowedNumbers,
-        extraKeySize,
+      final extra = RandomProvider.getString(
+        data: KeyFormat.allowedNumbers,
+        max: extraKeySize,
       );
       final key = "$ms$extra";
       return key;
