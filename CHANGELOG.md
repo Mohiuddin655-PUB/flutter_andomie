@@ -1,3 +1,6 @@
-## 0.5.14
+## 0.5.15
 
-* Update random seed
+* Add path replacer
+* Add pagination
+* Update random provider
+* Documentations some files

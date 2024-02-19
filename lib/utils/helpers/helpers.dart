@@ -12,15 +12,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils.dart';
 
 part 'boolean_preference_helper.dart';
-
 part 'clipboard_helper.dart';
-
 part 'data_preference_helper.dart';
-
 part 'dialog_helper.dart';
-
 part 'preference_helper.dart';
-
 part 'runnable_helper.dart';
-
 part 'screen_preference_helper.dart';

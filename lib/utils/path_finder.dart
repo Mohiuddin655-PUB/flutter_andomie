@@ -1,12 +1,15 @@
 part of '../utils.dart';
 
+/// Utility class for working with paths.
 class PathFinder {
   static const String _pathRegs = r"^[a-zA-Z_]\w*(/[a-zA-Z_]\w*)*$";
 
+  /// Splits a path into segments.
   static List<String> segments(String path) {
     return RegExp(_pathRegs).hasMatch(path) ? path.split("/") : [];
   }
 
+  /// Retrieves path information, including pairs of segments and an ending.
   static PathInfo info(String path) {
     final isValid = path.isNotEmpty && RegExp(_pathRegs).hasMatch(path);
     if (isValid) {
@@ -29,6 +32,7 @@ class PathFinder {
   }
 }
 
+/// Information about a path, including ending and pairs of segments.
 class PathInfo {
   final bool invalid;
   final String ending;
@@ -46,6 +50,7 @@ class PathInfo {
   }
 }
 
+/// Represents a pair of path segments.
 class PathTween {
   final String x1;
   final String x2;

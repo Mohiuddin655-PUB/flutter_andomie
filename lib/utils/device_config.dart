@@ -1,8 +1,13 @@
 part of '../utils.dart';
 
+/// A class representing configuration for different devices.
 class DeviceConfig {
   final Device mobile, tab, laptop, desktop, tv;
 
+  /// Constructs a new instance of [DeviceConfig].
+  ///
+  /// The parameters [mobile], [tab], [laptop], [desktop], and [tv] represent
+  /// configurations for different types of devices.
   const DeviceConfig({
     this.mobile = const Device(
       x: DeviceInfo.mobileX,
@@ -36,34 +41,44 @@ class DeviceConfig {
     ),
   });
 
+  /// Checks if the platform is Android.
   bool get isAndroid => Platform.isAndroid;
 
+  /// Checks if the platform is Fuchsia.
   bool get isFuchsia => Platform.isFuchsia;
 
+  /// Checks if the platform is iOS.
   bool get isIOS => Platform.isIOS;
 
+  /// Checks if the platform is Linux.
   bool get isLinux => Platform.isLinux;
 
+  /// Checks if the platform is macOS.
   bool get isMacOS => Platform.isMacOS;
 
+  /// Checks if the platform is Windows.
   bool get isWindows => Platform.isWindows;
 
+  /// Checks if the given coordinates represent a mobile device.
   bool isMobile(double cx, double cy) => isDevice(mobile, cx, cy);
 
+  /// Checks if the given coordinates represent a tab device.
   bool isTab(double cx, double cy) => isDevice(tab, cx, cy);
 
+  /// Checks if the given coordinates represent a laptop device.
   bool isLaptop(double cx, double cy) => isDevice(laptop, cx, cy);
 
+  /// Checks if the given coordinates represent a desktop device.
   bool isDesktop(double cx, double cy) => isDevice(desktop, cx, cy);
 
+  /// Checks if the given coordinates represent any configured device.
   bool isDevice(Device device, double cx, double cy) {
     final x = device.aspectRatio;
     final y = device.ratio(cx, cy);
-    // print('\n${device.name}\t => X : ${x.toStringAsFixed(2)}');
-    // print('${device.name}\t => Y : ${y.toStringAsFixed(2)}');
     return x > y;
   }
 
+  /// Determines the type of the device based on the given coordinates.
   DeviceType deviceType(double cx, double cy) {
     if (isMobile(cx, cy)) {
       return DeviceType.mobile;
@@ -79,10 +94,12 @@ class DeviceConfig {
   }
 }
 
+/// A class representing device information such as screen dimensions and font variants.
 class Device extends Size {
   final String name;
   final double fontVariant;
 
+  /// Constructs a new instance of [Device] with specified dimensions and optional parameters.
   const Device({
     required double x,
     required double y,
@@ -107,6 +124,7 @@ class Device extends Size {
   double ratio(double cx, double cy) => Size(cx, cy).aspectRatio;
 }
 
+/// A class containing static constants representing default dimensions and font variants for different devices.
 class DeviceInfo {
   static const double mobileX = 10, mobileY = 16, mobileVariant = 3.6;
   static const double tabX = 1, tabY = 1, tabVariant = 5;
@@ -115,6 +133,7 @@ class DeviceInfo {
   static const double tvX = 0, tvY = 0, tvVariant = 8;
 }
 
+/// An enumeration representing different types of devices.
 enum DeviceType {
   mobile,
   tab,

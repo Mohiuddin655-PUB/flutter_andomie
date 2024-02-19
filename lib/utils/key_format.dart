@@ -1,6 +1,8 @@
 part of '../utils.dart';
 
 class KeyFormat {
+  const KeyFormat._();
+
   static const String allowCapitalCharacters = "QWERTYUIOPASDFGHJKLZXCVBNM";
   static const String allowedSmallCharacters = "qwertyuiopasdfghjklzxcvbn";
   static const String allowedSpecialCharacters = "!@%^&*()_+~`-={}|';:?.,<>";

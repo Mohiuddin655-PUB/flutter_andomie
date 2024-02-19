@@ -6,7 +6,14 @@ class Validator {
   static bool equals(Object? value, Object? compareValue) =>
       value == compareValue;
 
-  static bool isMatched(Object matcher, Object value) {
+  static bool isChecked(Object? checker, List<dynamic>? list) {
+    return checker != null &&
+        list != null &&
+        list.isNotEmpty &&
+        list.contains(checker);
+  }
+
+  static bool isMatched(Object? matcher, Object? value) {
     return Validator.isValidObject(matcher) &&
         matcher.toString() == value.toString();
   }
@@ -27,75 +34,54 @@ class Validator {
     return booleans.length == vLength;
   }
 
-  static bool isChecked(dynamic checker, List<dynamic>? list) {
-    return checker != null &&
-        list != null &&
-        list.isNotEmpty &&
-        list.contains(checker);
-  }
-
   static bool isDigit(String? value) {
-    return value != null && Regs.numeric.hasMatch(value);
+    return value != null && Patterns.numeric.hasMatch(value);
   }
 
   static bool isLetter(String? value) {
-    return value != null && Regs.letter.hasMatch(value);
+    return value != null && Patterns.letter.hasMatch(value);
   }
 
   static bool isNumeric(String? value) {
     return value != null && double.tryParse(value) != null;
   }
 
-  static bool isValidDay(dynamic day) {
+  static bool isValidDay(Object? day) {
     int current = Converter.toInt(day);
     return (current >= 1) && (current <= 31);
   }
 
-  static bool isValidMonth(dynamic month) {
+  static bool isValidDigit(String? value) {
+    return value != null &&
+        value.isNotEmpty &&
+        equals(value, Converter.toNumeric(value, true));
+  }
+
+  static bool isValidEmail(String? email, [RegExp? pattern]) {
+    return email != null &&
+        email.isNotEmpty &&
+        (pattern ?? Patterns.email).hasMatch(email);
+  }
+
+  static bool isValidMonth(Object? month) {
     int current = Converter.toInt(month);
     return (current >= 1) && (current <= 12);
   }
 
-  static bool isValidYear(dynamic year, int requireAge) {
-    int current = Converter.toInt(year);
-    int currentYear = DateProvider.currentYear;
-    return (current > 1900) &&
-        (current < currentYear) &&
-        ((currentYear - current) >= requireAge);
-  }
-
-  static bool isValidPath(String? path, {RegExp? pattern}) {
+  static bool isValidPath(String? path, [RegExp? pattern]) {
     return path != null &&
         path.isNotEmpty &&
-        (pattern ?? Regs.path).hasMatch(path);
+        (pattern ?? Patterns.path).hasMatch(path);
   }
 
-  static bool isValidPhone(String? phone, {RegExp? pattern}) {
+  static bool isValidPhone(String? phone, [RegExp? pattern]) {
     return phone != null &&
         phone.isNotEmpty &&
-        (pattern ?? Regs.phone).hasMatch(phone);
+        (pattern ?? Patterns.phone).hasMatch(phone);
   }
 
-  static bool isValidEmail(String? email, {RegExp? pattern}) {
-    return email != null &&
-        email.isNotEmpty &&
-        (pattern ?? Regs.email).hasMatch(email);
-  }
-
-  static bool isValidUsername(
-    String? username, {
-    bool withDot = true,
-    RegExp? pattern,
-  }) {
-    if (username != null && username.isNotEmpty) {
-      if (withDot) {
-        return (pattern ?? Regs.usernameWithDot).hasMatch(username);
-      } else {
-        return (pattern ?? Regs.username).hasMatch(username);
-      }
-    } else {
-      return false;
-    }
+  static bool isValidRetypePassword(String? password, String? retypePassword) {
+    return isValidPassword(password) && equals(password, retypePassword);
   }
 
   static bool isValidPassword(
@@ -112,14 +98,28 @@ class Validator {
     );
   }
 
-  static bool isValidRetypePassword(String? password, String? retypePassword) {
-    return isValidPassword(password) && equals(password, retypePassword);
+  static bool isValidUsername(
+    String? username, {
+    bool withDot = true,
+    RegExp? pattern,
+  }) {
+    if (username != null && username.isNotEmpty) {
+      if (withDot) {
+        return (pattern ?? Patterns.usernameWithDot).hasMatch(username);
+      } else {
+        return (pattern ?? Patterns.username).hasMatch(username);
+      }
+    } else {
+      return false;
+    }
   }
 
-  static bool isValidDigit(String? value) {
-    return value != null &&
-        value.isNotEmpty &&
-        equals(value, Converter.toNumeric(value, true));
+  static bool isValidYear(Object? year, int requireAge) {
+    int current = Converter.toInt(year);
+    int currentYear = DateProvider.currentYear;
+    return (current > 1900) &&
+        (current < currentYear) &&
+        ((currentYear - current) >= requireAge);
   }
 
   static bool isValidDigitWithLetter(String? value) {
@@ -128,7 +128,7 @@ class Validator {
         equals(value, Converter.toDigitWithLetter(value));
   }
 
-  static bool isValidDigitWithPlus(String value) {
+  static bool isValidDigitWithPlus(String? value) {
     return isValidString(value) &&
         equals(value, Converter.toDigitWithPlus(value));
   }
@@ -139,19 +139,19 @@ class Validator {
         equals(value, Converter.toLetter(value));
   }
 
-  static bool isValidList(List<dynamic>? list) {
+  static bool isValidList(List? list) {
     return list != null && list.isNotEmpty;
   }
 
-  static bool isValidSet<T>(Set<dynamic>? list) {
+  static bool isValidSet(Set? list) {
     return list != null && list.isNotEmpty;
   }
 
-  static bool isValidObject(dynamic value) {
+  static bool isValidObject(Object? value) {
     return value != null;
   }
 
-  static bool isInstance<T>(dynamic value, T instance) {
+  static bool isInstance<T>(Object? value, T instance) {
     return value != null && value.runtimeType == instance.runtimeType;
   }
 
@@ -188,10 +188,117 @@ class Validator {
   }
 
   static bool isValidWebURL(String? url) {
-    return url != null && url.isNotEmpty && Regs.url.hasMatch(url);
+    return url != null && url.isNotEmpty && Patterns.url.hasMatch(url);
   }
 
   static bool isRank(double rating, double min) {
     return rating >= min;
+  }
+}
+
+extension DoubleValidator on double {
+  bool isRank(double min) => Validator.isRank(this, min);
+}
+
+extension ListValidator on List? {
+  bool get isValidList => Validator.isValidList(this);
+}
+
+extension ObjectValidator on Object? {
+  bool get isValidDay => Validator.isValidDay(this);
+
+  bool get isValidMonth => Validator.isValidMonth(this);
+
+  bool get isValidObject => Validator.isValidObject(this);
+
+  bool equals(Object? other) => Validator.equals(this, other);
+
+  bool isChecked(List<dynamic>? list) => Validator.isChecked(this, list);
+
+  bool isMatched(Object other) => Validator.isMatched(this, other);
+
+  bool isInstance<T>() => Validator.isInstance(this, T);
+
+  bool isValidYear(int requireAge) => Validator.isValidYear(this, requireAge);
+}
+
+extension SetValidator on Set? {
+  bool get isValidSet => Validator.isValidSet(this);
+}
+
+extension StringValidator on String? {
+  bool get isDigit => Validator.isDigit(this);
+
+  bool get isLetter => Validator.isLetter(this);
+
+  bool get isNumeric => Validator.isNumeric(this);
+
+  bool get isValidDigit => Validator.isValidDigit(this);
+
+  bool get isValidDigitWithLetter => Validator.isValidDigitWithLetter(this);
+
+  bool get isValidDigitWithPlus => Validator.isValidDigitWithPlus(this);
+
+  bool get isValidLetter => Validator.isValidLetter(this);
+
+  bool get isValidWebUrl => Validator.isValidWebURL(this);
+
+  bool isValidEmail([RegExp? pattern]) => Validator.isValidEmail(this, pattern);
+
+  bool isValidPath([RegExp? pattern]) => Validator.isValidPath(this, pattern);
+
+  bool isValidPhone([RegExp? pattern]) => Validator.isValidPhone(this, pattern);
+
+  bool isValidRetypePassword(String? other) {
+    return Validator.isValidRetypePassword(this, other);
+  }
+
+  bool isValidPassword({
+    int minLength = 6,
+    int maxLength = 20,
+    RegExp? pattern,
+  }) {
+    return Validator.isValidPassword(
+      this,
+      maxLength: maxLength,
+      minLength: minLength,
+      pattern: pattern,
+    );
+  }
+
+  bool isValidString({
+    int maxLength = 0,
+    int minLength = 0,
+    RegExp? pattern,
+  }) {
+    return Validator.isValidString(
+      this,
+      maxLength: maxLength,
+      minLength: minLength,
+      pattern: pattern,
+    );
+  }
+
+  bool isValidUsername({bool withDot = true, RegExp? pattern}) {
+    return Validator.isValidUsername(this, withDot: withDot, pattern: pattern);
+  }
+}
+
+extension StringsValidator on List<String>? {
+  bool isMatchedList(List<String>? matchers) {
+    return Validator.isMatchedList(matchers, this);
+  }
+
+  bool isValidStrings({
+    int maxLength = 0,
+    int minLength = 0,
+    RegExp? regs,
+  }) {
+    return Validator.isValidStrings(
+      this ?? [],
+      maxLength: maxLength,
+      minLength: minLength,
+      regs: regs,
+    );
   }
 }

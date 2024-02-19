@@ -39,27 +39,62 @@ enum DateFormats {
   const DateFormats(this.value);
 }
 
+/// Represents a time duration in a human-readable format.
 class Realtime {
+  /// Indicates if the time is today.
   final bool today;
+
+  /// Indicates if the time is tomorrow.
   final bool tomorrow;
+
+  /// Indicates if the time is yesterday.
   final bool yesterday;
+
+  /// Number of days in the duration.
   final int days;
+
+  /// Number of hours in the duration.
   final int hours;
+
+  /// Number of minutes in the duration.
   final int minutes;
+
+  /// Number of seconds in the duration.
   final int seconds;
+
+  /// Number of milliseconds in the duration.
   final int milliseconds;
+
+  /// Number of microseconds in the duration.
   final int microseconds;
 
+  /// Gets the duration in hours after the specified time.
   int get afterHours => hours * -1;
 
+  /// Gets the duration in minutes after the specified time.
   int get afterMinutes => minutes * -1;
 
+  /// Gets the duration in seconds after the specified time.
   int get afterSeconds => seconds * -1;
 
+  /// Gets the duration in milliseconds after the specified time.
   int get afterMilliseconds => milliseconds * -1;
 
+  /// Gets the duration in microseconds after the specified time.
   int get afterMicroseconds => microseconds * -1;
 
+  /// Constructs a [Realtime] instance with the specified parameters.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Realtime myTime = Realtime(
+  ///   today: true,
+  ///   hours: 2,
+  ///   minutes: 30,
+  /// );
+  /// print(myTime.isHourMode);  // Output: true
+  /// ```
   const Realtime({
     this.today = false,
     this.tomorrow = false,
@@ -72,6 +107,15 @@ class Realtime {
     this.microseconds = 0,
   });
 
+  /// Constructs a [Realtime] instance from the specified [Duration].
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// Duration myDuration = Duration(hours: 2, minutes: 30);
+  /// Realtime myTime = Realtime.fromDuration(myDuration);
+  /// print(myTime.isHourMode);  // Output: true
+  /// ```
   factory Realtime.fromDuration(Duration duration) {
     var a = duration.inCurrentDays;
     var isToday = a == 0;
@@ -91,22 +135,37 @@ class Realtime {
     );
   }
 
+  /// Constructs a [Realtime] instance from the specified [DateTime].
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// DateTime myDateTime = DateTime.now().subtract(Duration(hours: 2, minutes: 30));
+  /// Realtime myTime = Realtime.fromDateTime(myDateTime);
+  /// print(myTime.isHourMode);  // Output: true
+  /// ```
   factory Realtime.fromDateTime(DateTime dateTime) {
     return Realtime.fromDuration(
       DateTime.now().difference(dateTime),
     );
   }
 
+  /// Indicates if the duration represents hours.
   bool get isHourMode => hours > 0;
 
+  /// Indicates if the duration represents minutes.
   bool get isMinuteMode => minutes > 0;
 
+  /// Indicates if the duration represents seconds.
   bool get isSecondMode => seconds > 0;
 
+  /// Indicates if the duration is after the specified number of hours.
   bool get isAfterHourMode => afterHours > 0;
 
+  /// Indicates if the duration is after the specified number of minutes.
   bool get isAfterMinuteMode => afterMinutes > 0;
 
+  /// Indicates if the duration is after the specified number of seconds.
   bool get isAfterSecondMode => afterSeconds > 0;
 }
 
@@ -143,37 +202,54 @@ class RealtimeTextFormat {
   });
 }
 
+/// Provides utility methods related to date and time.
 class DateProvider {
   const DateProvider._();
 
+  /// Gets the current time in milliseconds since epoch.
   static int get currentMS {
     return DateTime.now().millisecondsSinceEpoch;
   }
 
+  /// Gets the current day of the month.
   static int get currentDay {
     return DateTime.now().day;
   }
 
+  /// Gets the current month.
   static int get currentMonth {
     return DateTime.now().month;
   }
 
+  /// Gets the current year.
   static int get currentYear {
     return DateTime.now().year;
   }
 
+  /// Converts milliseconds since epoch to the day of the month.
   static int toDay(int timeMills) {
     return DateTime.fromMillisecondsSinceEpoch(timeMills).day;
   }
 
+  /// Converts milliseconds since epoch to the month.
   static int toMonth(int timeMills) {
     return DateTime.fromMillisecondsSinceEpoch(timeMills).month;
   }
 
+  /// Converts milliseconds since epoch to the year.
   static int toYear(int timeMills) {
     return DateTime.fromMillisecondsSinceEpoch(timeMills).year;
   }
 
+  /// Converts milliseconds since epoch to a formatted date string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String formattedDate = DateProvider.toDate(myTime, dateFormat: DateFormats.dateDMCY);
+  /// print(formattedDate);  // Output: "06-02-2024"
+  /// ```
   static String toDate(
     int ms, {
     String? format,
@@ -191,6 +267,14 @@ class DateProvider {
     );
   }
 
+  /// Converts UTC components to a formatted date string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// String utcDate = DateProvider.toDateFromUTC(2024, 2, 6);
+  /// print(utcDate);  // Output: "06-02-2024"
+  /// ```
   static String toDateFromUTC(
     int year,
     int month,
@@ -214,6 +298,14 @@ class DateProvider {
     }
   }
 
+  /// Converts UTC components to milliseconds since epoch.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int utcMS = DateProvider.toMSFromUTC(2024, 2, 6);
+  /// print(utcMS);  // Output: milliseconds since epoch for 06-02-2024
+  /// ```
   static int toMSFromUTC(
     int year, [
     int month = 1,
@@ -229,21 +321,55 @@ class DateProvider {
       hour,
       minute,
       second,
-    ).millisecond;
+    ).millisecondsSinceEpoch;
   }
 
+  /// Converts a date string to milliseconds since epoch.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// String dateString = "2024-02-06";
+  /// int dateMS = DateProvider.toMSFromSource(dateString);
+  /// print(dateMS);  // Output: milliseconds since epoch for 06-02-2024
+  /// ```
   static int toMSFromSource(String? source) {
-    return DateTime.tryParse(source ?? "")?.millisecond ?? 0;
+    return DateTime.tryParse(source ?? "")?.millisecondsSinceEpoch ?? 0;
   }
 
+  /// Checks if the given milliseconds since epoch represents today.
   static bool isToday(int? ms) => ms.isToday;
 
+  /// Checks if the given milliseconds since epoch represents tomorrow.
   static bool isTomorrow(int? ms) => ms.isTomorrow;
 
+  /// Checks if the given milliseconds since epoch represents yesterday.
   static bool isYesterday(int? ms) => ms.isYesterday;
 
+  /// Converts milliseconds since epoch to a human-readable relative time string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String relativeTime = DateProvider.realtime(myTime);
+  /// print(relativeTime);  // Output: "Now" or "2 hours ago" or "Yesterday at 10:30 AM"
+  /// ```
   static String realtime(int? ms) => toRealtime(ms);
 
+  /// Converts milliseconds since epoch to a customizable relative time string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String customRelativeTime = DateProvider.toRealtime(
+  ///   myTime,
+  ///   onRealtimeByHours: (value) => "Custom hours: ${value.hours}",
+  ///   onRealtimeByMinutes: (value) => "Custom minutes: ${value.minutes}",
+  /// );
+  /// print(customRelativeTime);  // Output: Custom hours: 2
+  /// ```
   static String toRealtime(
     int? ms, {
     bool showRealtime = true,
@@ -294,7 +420,7 @@ class DateProvider {
             return onRealtimeByHours(realtime);
           } else {
             int _ = realtime.hours;
-            return "$_ ${textFormat.hour.getText(_)} ${textFormat.ago}";
+            return "$_ ${textFormat.hour.apply(_)} ${textFormat.ago}";
           }
         }
 
@@ -304,7 +430,7 @@ class DateProvider {
             return onRealtimeByMinutes(realtime);
           } else {
             int _ = realtime.minutes;
-            return "$_ ${textFormat.minute.getText(_)} ${textFormat.ago}";
+            return "$_ ${textFormat.minute.apply(_)} ${textFormat.ago}";
           }
         }
 
@@ -314,7 +440,7 @@ class DateProvider {
             return onRealtimeByAfterHours(realtime);
           } else {
             int _ = realtime.afterHours;
-            return "${textFormat.after} $_ ${textFormat.hour.getText(_)}";
+            return "${textFormat.after} $_ ${textFormat.hour.apply(_)}";
           }
         }
 
@@ -324,7 +450,7 @@ class DateProvider {
             return onRealtimeByAfterMinutes(realtime);
           } else {
             int _ = realtime.afterMinutes;
-            return "${textFormat.after} $_ ${textFormat.minute.getText(_)}";
+            return "${textFormat.after} $_ ${textFormat.minute.apply(_)}";
           }
         }
 
@@ -334,7 +460,7 @@ class DateProvider {
             return onRealtimeByAfterSeconds(realtime);
           } else {
             int _ = realtime.afterSeconds;
-            return "${textFormat.after} $_ ${textFormat.second.getText(_)}";
+            return "${textFormat.after} $_ ${textFormat.second.apply(_)}";
           }
         }
 
@@ -345,7 +471,7 @@ class DateProvider {
           } else {
             int _ = realtime.seconds;
             if (whenShowNow < _) {
-              return "$_ ${textFormat.second.getText(_)} ${textFormat.ago}";
+              return "$_ ${textFormat.second.apply(_)} ${textFormat.ago}";
             } else {
               return textFormat.now;
             }
@@ -416,8 +542,39 @@ extension TimeExtension on int? {
 
   bool get isYesterday => DateTime.fromMillisecondsSinceEpoch(_v).isYesterday;
 
+  /// Converts milliseconds since epoch to a human-readable relative time string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String relativeTime = DateProvider.realtime(myTime);
+  /// print(relativeTime);  // Output: "Now" or "2 hours ago" or "Yesterday at 10:30 AM"
+  /// ```
   String get realtime => toRealtime();
 
+  /// Converts the custom date to a formatted string.
+  ///
+  /// The method provides flexibility for custom formatting options.
+  ///
+  /// Parameters:
+  /// - [format]: Custom date and time format string.
+  /// - [local]: Optional parameter to specify the locale for formatting.
+  /// - [timeFormat]: Enum specifying the time format (e.g., hour, minute, second).
+  /// - [dateFormat]: Enum specifying the date format (e.g., day, month, year).
+  /// - [separator]: Separator string between date and time components.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myDate = DateTime.now().millisecondsSinceEpoch;
+  /// String formattedDate = myDate.toDate(
+  ///   dateFormat: DateFormats.dateDMCY,
+  ///   timeFormat: TimeFormats.timeHMa,
+  ///   separator: " at ",
+  /// );
+  /// print(formattedDate);  // Output: "06-02-2024 at 03:45 PM"
+  /// ```
   String toDate({
     String? format,
     String? local,
@@ -434,6 +591,19 @@ extension TimeExtension on int? {
     );
   }
 
+  /// Converts milliseconds since epoch to a customizable relative time string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String customRelativeTime = DateProvider.toRealtime(
+  ///   myTime,
+  ///   onRealtimeByHours: (value) => "Custom hours: ${value.hours}",
+  ///   onRealtimeByMinutes: (value) => "Custom minutes: ${value.minutes}",
+  /// );
+  /// print(customRelativeTime);  // Output: Custom hours: 2
+  /// ```
   String toRealtime({
     bool showRealtime = true,
     int whenShowNow = 10,
@@ -499,6 +669,28 @@ extension DateExtension on DateTime? {
     return now.day == _v.day && now.month == _v.month && now.year == _v.year;
   }
 
+  /// Converts the custom date to a formatted string.
+  ///
+  /// The method provides flexibility for custom formatting options.
+  ///
+  /// Parameters:
+  /// - [format]: Custom date and time format string.
+  /// - [local]: Optional parameter to specify the locale for formatting.
+  /// - [timeFormat]: Enum specifying the time format (e.g., hour, minute, second).
+  /// - [dateFormat]: Enum specifying the date format (e.g., day, month, year).
+  /// - [separator]: Separator string between date and time components.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// DateTime myDate = DateTime.now();
+  /// String formattedDate = myDate.toDate(
+  ///   dateFormat: DateFormats.dateDMCY,
+  ///   timeFormat: TimeFormats.timeHMa,
+  ///   separator: " at ",
+  /// );
+  /// print(formattedDate);  // Output: "06-02-2024 at 03:45 PM"
+  /// ```
   String toDate({
     String? format,
     String? local,
@@ -518,6 +710,19 @@ extension DateExtension on DateTime? {
     return DateFormat(format, local).format(_v);
   }
 
+  /// Converts milliseconds since epoch to a customizable relative time string.
+  ///
+  /// Example:
+  ///
+  /// ```dart
+  /// int myTime = DateProvider.currentMS;
+  /// String customRelativeTime = DateProvider.toRealtime(
+  ///   myTime,
+  ///   onRealtimeByHours: (value) => "Custom hours: ${value.hours}",
+  ///   onRealtimeByMinutes: (value) => "Custom minutes: ${value.minutes}",
+  /// );
+  /// print(customRelativeTime);  // Output: Custom hours: 2
+  /// ```
   String toRealtime({
     bool showRealtime = true,
     int whenShowNow = 10,

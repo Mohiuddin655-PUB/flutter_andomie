@@ -1,8 +1,19 @@
+/// A utility class for performing string replacements.
 part of '../utils.dart';
 
 class Replacement {
   const Replacement._();
 
+  /// Automatically replaces characters based on predefined replacement rules.
+  ///
+  /// Parameters:
+  /// - [value]: The input string to perform replacements on.
+  ///
+  /// Example:
+  /// ```dart
+  /// String result = Replacement.auto("Hello! How are you?");
+  /// print(result); // Output: 'Hello How are you'
+  /// ```
   static String auto(String value) {
     for (int index = 0; index < value.length; index++) {
       for (String reg in Regex.none) {
@@ -15,6 +26,18 @@ class Replacement {
     return value;
   }
 
+  /// Replaces specific characters in the input string with the specified replacement.
+  ///
+  /// Parameters:
+  /// - [value]: The input string to perform replacements on.
+  /// - [replacement]: The string to replace the matched characters with.
+  /// - [regex]: A list of regular expressions to match characters for replacement.
+  ///
+  /// Example:
+  /// ```dart
+  /// String result = Replacement.single("Hello, World!", "-", ["!"]);
+  /// print(result); // Output: 'Hello, World-'
+  /// ```
   static String single(
     String value,
     String replacement,
@@ -28,6 +51,18 @@ class Replacement {
     return value;
   }
 
+  /// Replaces multiple occurrences of characters in the input string with corresponding replacements.
+  ///
+  /// Parameters:
+  /// - [value]: The input string to perform replacements on.
+  /// - [replacements]: A list of strings to replace matched characters with.
+  /// - [regex]: A list of regular expressions to match characters for replacement.
+  ///
+  /// Example:
+  /// ```dart
+  /// String result = Replacement.multiple("Hello, World!", ["_", "+"], [" ", "!"]);
+  /// print(result); // Output: 'Hello+_World_'
+  /// ```
   static String multiple(
     String value,
     List<String> replacements,
@@ -43,7 +78,9 @@ class Replacement {
   }
 }
 
+/// A collection of common regular expressions for character removal.
 class Regex {
+  /// List of characters to remove from the input string.
   static const List<String> none = [
     "!",
     "@",
@@ -71,6 +108,7 @@ class Regex {
     ".",
   ];
 
+  /// List of characters to replace with underscores in the input string.
   static const List<String> slash = [
     " ",
     "\"",
