@@ -1,6 +1,3 @@
-## 0.5.15
+## 0.5.16
 
-* Add path replacer
-* Add pagination
-* Update random provider
-* Documentations some files
+* Library version updates

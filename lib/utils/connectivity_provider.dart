@@ -37,7 +37,8 @@ class ConnectivityProvider {
 
   /// Checks if the device is connected to any network.
   Future<bool> get isConnected async {
-    final ConnectivityResult status = await ConnectivityService.I.checkStatus;
+    final statuses = await ConnectivityService.I.checkStatus;
+    final status = statuses.firstOrNull;
     final mobile = status == ConnectivityResult.mobile;
     final wifi = status == ConnectivityResult.wifi;
     final ethernet = status == ConnectivityResult.ethernet;
@@ -60,17 +61,17 @@ class ConnectivityService {
   static Connectivity get connectivity => _connectivity ??= Connectivity();
 
   /// Checks the current connectivity status of the device.
-  Future<ConnectivityResult> get checkStatus async =>
+  Future<List<ConnectivityResult>> get checkStatus async =>
       await connectivity.checkConnectivity();
 
   /// Stream of connectivity changes.
-  Stream<ConnectivityResult> get onConnectivityChanged =>
+  Stream<List<ConnectivityResult>> get onConnectivityChanged =>
       connectivity.onConnectivityChanged;
 
   /// Checks if the specified connectivity result is currently available.
-  Future<bool> isAvailable(ConnectivityResult result) async {
+  Future<bool> isAvailable(ConnectivityResult? result) async {
     final status = await checkStatus;
-    return status == result;
+    return status.firstOrNull == result;
   }
 
   /// Checks if the connectivity status changes based on the specified [ConnectivityType].
@@ -86,7 +87,7 @@ class ConnectivityService {
     ConnectivityType type = ConnectivityType.single,
   ]) async {
     final result = await getDynamicResult(type);
-    return isAvailable(result);
+    return isAvailable(result.firstOrNull);
   }
 
   /// Gets the dynamic connectivity result based on the specified [ConnectivityType].
@@ -98,7 +99,8 @@ class ConnectivityService {
   /// ```dart
   /// ConnectivityResult result = await ConnectivityService.I.getDynamicResult(ConnectivityType.single);
   /// ```
-  Future<ConnectivityResult> getDynamicResult(ConnectivityType type) async {
+  Future<List<ConnectivityResult>> getDynamicResult(
+      ConnectivityType type) async {
     switch (type) {
       case ConnectivityType.first:
         return await onConnectivityChanged.first;
