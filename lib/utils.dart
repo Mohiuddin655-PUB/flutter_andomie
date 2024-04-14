@@ -36,7 +36,6 @@ part 'utils/provider.dart';
 part 'utils/random_provider.dart';
 part 'utils/rank_generator.dart';
 part 'utils/replacement.dart';
-part 'utils/response.dart';
 part 'utils/screen_loader.dart';
 part 'utils/singleton.dart';
 part 'utils/size_config.dart';
