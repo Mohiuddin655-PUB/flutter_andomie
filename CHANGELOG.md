@@ -1,3 +1,4 @@
-## 0.5.16
+## 0.5.17
 
 * Library version updates
+* Unnecessary code removes

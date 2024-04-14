@@ -36,8 +36,8 @@ final class Schedule extends Scheduler<int> {
 
   factory Schedule.from(Object? source) {
     return Schedule(
-      start: source.entityValue("start") ?? 0,
-      end: source.entityValue("end") ?? 0,
+      start: source.findByKey("start", 0),
+      end: source.findByKey("end", 0),
     );
   }
 

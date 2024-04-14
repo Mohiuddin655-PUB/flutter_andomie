@@ -150,11 +150,11 @@ class Time {
     );
   }
 
-  factory Time.from(Object? source) {
+  factory Time.from(Map<String, dynamic>? source) {
     return Time(
-      hour: source.entityValue("hour"),
-      minute: source.entityValue("minute"),
-      second: source.entityValue("second"),
+      hour: source.get("hour"),
+      minute: source.get("minute"),
+      second: source.get("second"),
     );
   }
 
@@ -246,12 +246,9 @@ class TimeSchedule extends Scheduler<Time> {
   });
 
   factory TimeSchedule.from(Map<String, dynamic> source) {
-    var start = source.entityObject("start", (value) => Time.from(value));
-    var end = source.entityObject("end", (value) => Time.from(value));
-    return TimeSchedule(
-      start: start ?? const Time.none(),
-      end: end ?? const Time.none(),
-    );
+    var start = Time.from(source.get("start"));
+    var end = Time.from(source.get("end"));
+    return TimeSchedule(start: start, end: end);
   }
 
   @override

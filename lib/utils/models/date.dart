@@ -94,9 +94,9 @@ class Date {
 
   factory Date.from(Object? source) {
     return Date(
-      year: source.entityValue("year"),
-      month: source.entityValue("month"),
-      day: source.entityValue("day"),
+      year: source.findByKey("year", 0),
+      month: source.findByKey("month", 0),
+      day: source.findByKey("day", 0),
     );
   }
 
@@ -160,12 +160,9 @@ final class DateSchedule extends Scheduler<Date> {
   });
 
   factory DateSchedule.from(Map<String, dynamic> source) {
-    var start = source.entityObject("start", (value) => Date.from(value));
-    var end = source.entityObject("end", (value) => Date.from(value));
-    return DateSchedule(
-      start: start ?? const Date.none(),
-      end: end ?? const Date.none(),
-    );
+    var start = Date.from(source.get("start"));
+    var end = Date.from(source.get("end", 0));
+    return DateSchedule(start: start, end: end);
   }
 
   @override
