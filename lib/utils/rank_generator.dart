@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 /// Callback signature for the rank generation listener.
 typedef OnRankGenerateListener = void Function(int value);
 

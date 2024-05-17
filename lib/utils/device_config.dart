@@ -1,4 +1,6 @@
-part of '../utils.dart';
+import 'dart:io';
+
+import 'package:flutter/material.dart';
 
 /// A class representing configuration for different devices.
 class DeviceConfig {

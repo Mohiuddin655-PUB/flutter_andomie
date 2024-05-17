@@ -1,7 +1,11 @@
-/// A utility class for generating random values.
-part of '../utils.dart';
+import 'dart:math';
 
+import 'package:flutter/material.dart';
+
+/// A utility class for generating random values.
 class RandomProvider {
+  const RandomProvider._();
+
   /// Generates a random integer within the specified range.
   ///
   /// Parameters:
@@ -69,7 +73,7 @@ class RandomProvider {
     int min = 0,
     int? seed,
   }) {
-    if (Validator.isValidList(data)) {
+    if (data.isNotEmpty) {
       return data[getInt(max: data.length, min: min, seed: seed)];
     } else {
       return null;

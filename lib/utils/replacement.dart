@@ -1,6 +1,6 @@
-/// A utility class for performing string replacements.
-part of '../utils.dart';
+import 'validator.dart';
 
+/// A utility class for performing string replacements.
 class Replacement {
   const Replacement._();
 

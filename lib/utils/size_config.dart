@@ -1,4 +1,8 @@
-part of '../utils.dart';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+
+import 'device_config.dart';
 
 /// Utility class for handling size-related configurations in a Flutter application.
 class SizeConfig {

@@ -1,4 +1,4 @@
-part of '../utils.dart';
+import 'dart:async';
 
 typedef OnHitLoggerCheck = void Function(String tag, dynamic data);
 typedef OnHitLoggerListen = void Function(String client);

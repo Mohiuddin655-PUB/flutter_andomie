@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 /// A class for handling text formats with singular and optional plural forms.
 class TextFormat {
   /// The singular form of the text.

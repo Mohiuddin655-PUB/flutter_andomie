@@ -1,4 +1,6 @@
-## 0.5.18
+## 0.5.19
 
-* Library version updates
-* Unnecessary code removes
+* Add color generator utils
+* Add number utils
+* Add iterator extension
+* Remove unnecessary codes

@@ -1,4 +1,6 @@
-part of '../utils.dart';
+import 'package:flutter/material.dart';
+
+import 'singleton.dart';
 
 abstract class OnScreenLoaderInterface<T> {
   void onDefault(BuildContext context) {}

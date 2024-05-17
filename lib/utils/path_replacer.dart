@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 /// Utility class for replacing placeholders in a path with provided values.
 class PathReplacer {
   const PathReplacer._();

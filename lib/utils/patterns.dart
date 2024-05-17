@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 class Patterns {
   static final RegExp digit = RegExp(Regs.digit.value);
   static final RegExp numeric = RegExp(Regs.numeric.value);

@@ -1,8 +1,6 @@
-// utils.dart
+import 'dart:developer';
 
 /// A utility class for building structured logs with tags.
-part of '../utils.dart';
-
 class LogBuilder {
   final String tag;
   String _builder = '';
@@ -104,6 +102,6 @@ class LogBuilder {
   /// Builds and logs the constructed log.
   void build() {
     _builder = "$_builder}\n\n";
-    developer.log(_builder, name: tag);
+    log(_builder, name: tag);
   }
 }

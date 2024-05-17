@@ -1,6 +1,10 @@
-/// A utility class for various conversion operations.
-part of '../utils.dart';
+import 'package:flutter/material.dart';
 
+import 'number.dart';
+import 'replacement.dart';
+import 'validator.dart';
+
+/// A utility class for various conversion operations.
 /// Provides methods for modifying and converting values.
 class Converter {
   const Converter._();
@@ -143,18 +147,10 @@ class Converter {
     int counter,
     String singularName,
     String pluralName, [
-    Counter counterType = Counter.kmb,
+    NumberUnits unit = NumberUnits.auto,
   ]) {
     if (counter > 1) {
-      switch (counterType) {
-        case Counter.k:
-          return "${Counter.toKCount(counter)} $pluralName";
-        case Counter.km:
-          return "${Counter.toKMCount(counter)} $pluralName";
-        case Counter.kmb:
-        default:
-          return "${Counter.toKMBCount(counter)} $pluralName";
-      }
+      return "${unit.read(counter).text} $pluralName";
     } else {
       return "$counter $singularName";
     }
@@ -167,9 +163,9 @@ class Converter {
     List<dynamic> list,
     String singularName,
     String pluralName, [
-    Counter counterType = Counter.kmb,
+    NumberUnits unit = NumberUnits.auto,
   ]) {
-    return toKMB(list.length, singularName, pluralName, counterType);
+    return toKMB(list.length, singularName, pluralName, unit);
   }
 
   /// Converts a comma-separated string or list to a list of a specified type.

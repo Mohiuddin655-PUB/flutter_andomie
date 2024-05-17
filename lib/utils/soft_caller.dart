@@ -1,8 +1,8 @@
 typedef OnSoftCaller = void Function(bool called);
 
-class SoftCaller<T extends Object> {
-  final Map<T, bool> calls;
-  final Map<T, OnSoftCaller> callers;
+class SoftCaller<Key extends Object> {
+  final Map<Key, bool> calls;
+  final Map<Key, OnSoftCaller> callers;
 
   const SoftCaller._()
       : calls = const {},
@@ -12,19 +12,19 @@ class SoftCaller<T extends Object> {
 
   static SoftCaller get i => _i ?? const SoftCaller._();
 
-  void addCaller(T tag, OnSoftCaller caller) {
-    callers.putIfAbsent(tag, () => caller);
+  void addCaller(Key key, OnSoftCaller caller) {
+    callers.putIfAbsent(key, () => caller);
   }
 
-  void removeCaller(T tag) {
-    callers.remove(tag);
+  void removeCaller(Key key) {
+    callers.remove(key);
   }
 
-  void call(T tag) {
-    final caller = callers[tag];
+  void call(Key key) {
+    final caller = callers[key];
     if (caller != null) {
-      final called = calls[tag];
-      calls[tag] = true;
+      final called = calls[key];
+      calls[key] = true;
       caller(called ?? false);
     }
   }

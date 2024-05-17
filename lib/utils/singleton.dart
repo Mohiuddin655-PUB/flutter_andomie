@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 typedef SingletonInstanceCaller<T extends Object> = T Function();
 typedef SingletonAsyncInstanceCaller<T extends Object> = Future<T> Function();
 

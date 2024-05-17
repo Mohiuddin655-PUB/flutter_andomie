@@ -4,211 +4,123 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
-#### APP_ICON
+#### NUMBER
+
+* Real number to human readable numbers. (ex: 1.1K, 1.5M, 1B etc)
+* Real bytes to human readable bytes. (ex: 120.56 KB, 117.74 MB, 11.5 GB, etc)
+* Human readable number to real numbers. (ex: 10000, 1500000, 1000000000 etc)
+* Human readable bytes to real bytes. (ex: 1024, 4759737, 8374587347 etc)
 
 ```dart
 void main() {
-  // Using AppIconBuilder to create an instance of AppIcon
-  AppIconBuilder iconBuilder = AppIconBuilder();
-  AppIcon customIcon = iconBuilder.build(
-    regular: 'custom_regular.svg',
-    solid: 'custom_solid.svg',
-    bold: 'custom_bold.svg',
-  );
+  // Example 1: Convert number to readable bytes
+  Readable readableBytes = Number.toReadableBytes(2048);
+  print(readableBytes); // Output: 2.00 KB
 
-  // Using automatic naming convention to create an instance of AppIcon
-  AppIcon autoIcon = AppIcon.auto('auto_icon');
+  // Example 2: Convert number to readable number
+  Readable readableNumber = Number.toReadableNumber(1500000);
+  print(readableNumber); // Output: 1.5 M
 
-  print('Regular Icon Path: ${customIcon.regular}');
-  print('Solid Icon Path: ${customIcon.solid}');
-  print('Bold Icon Path: ${customIcon.bold}');
+  // Example 3: Use unit methods
+  print(ByteUnits.auto.read(2048)); // Output: 2.00 KB
+  print(NumberUnits.auto.read(1500000)); // Output: 1.5 M
+
+  // Example 4: Use extension methods
+  print(2048.toReadableBytes()); // Output: 2.00 KB
+  print(1500000.toReadableNumber()); // Output: 1.5 M
+
+  // Example 1: Convert readable bytes to real bytes
+  double realBytes = Number.toRealBytes(2, ByteUnits.kb);
+  print(realBytes); // Output: 2048.00
+
+  // Example 2: Convert readable number to real number
+  double realNumbers = Number.toRealNumber(1.5, NumberUnits.m);
+  print(realNumbers); // Output: 1500000.00
+
+  // Example 3: Use unit methods
+  print(ByteUnits.kb.write(2)); // Output: 2048.00
+  print(NumberUnits.m.write(1.5)); // Output: 1500000.00
+
+  // Example 4: Use extension methods
+  print(2.toRealBytes(ByteUnits.kb)); // Output: 2048.00
+  print(1.5.toRealNumber(NumberUnits.m)); // Output: 1500000.00
 }
 ```
 
-#### CONNECTIVITY_PROVIDER
+#### COLOR_GENERATOR
 
-```dart
-void main() async {
-  // Using ConnectivityProvider to check connectivity status
-  bool isWifiConnected = await ConnectivityProvider.I.isWifi;
-  print('Is Wi-Fi Connected: $isWifiConnected');
-
-  // Using ConnectivityService to monitor connectivity changes
-  bool isConnected = await ConnectivityService.I.onChangedStatus();
-  print('Is Connected: $isConnected');
-
-  // Using ConnectivityService to monitor network connection
-  bool isConnectedNetwork = await ConnectivityService.I.isConnected;
-  print('Is Connected Network: $isConnectedNetwork');
-}
-```
-
-#### CONVERTER
-
-```dart
-void main() {
-  // Example for asString method
-  List<String> stringList = ['apple', 'orange', 'banana'];
-  String formattedString = Converter.asString(stringList);
-  print('Formatted String: $formattedString');
-  // Output: Formatted String: apple, orange and banana
-
-  // Example for toCountingNumber method
-  List<int> numberList = [1, 2, 3, 4, 5];
-  int countingNumber = Converter.toCountingNumber(numberList);
-  print('Counting Number: $countingNumber');
-  // Output: Counting Number: 5
-
-  // Example for toCountingState method
-  int current = 2;
-  int total = 5;
-  String countingState = Converter.toCountingState(current, total);
-  print('Counting State: $countingState');
-  // Output: Counting State: 2/5
-
-  // Example for toCountingText method
-  List<String> textList = ['one', 'two', 'three'];
-  String countingText = Converter.toCountingText(textList);
-  print('Counting Text: $countingText');
-  // Output: Counting Text: 3
-
-  // Example for toCountingWithPlus method
-  int size = 8;
-  int limit = 5;
-  String countingWithPlus = Converter.toCountingWithPlus(size, limit);
-  print('Counting With Plus: $countingWithPlus');
-  // Output: Counting With Plus: 5+
-
-  // Example for toLetter method
-  String stringWithDigits = 'abc123';
-  String lettersOnly = Converter.toLetter(stringWithDigits);
-  print('Letters Only: $lettersOnly');
-  // Output: Letters Only: abc
-
-  // Example for toDigitWithLetter method
-  String stringWithSpecialChars = 'abc123!@#';
-  String digitWithLetter = Converter.toDigitWithLetter(stringWithSpecialChars);
-  print('Digits with Letters: $digitWithLetter');
-  // Output: Digits with Letters: abc123
-
-  // Example for toDigitWithPlus method
-  String stringWithPlus = '123abc!@#';
-  String digitWithPlus = Converter.toDigitWithPlus(stringWithPlus);
-  print('Digits with Plus: $digitWithPlus');
-  // Output: Digits with Plus: 123+
-
-  // Example for toDouble method
-  dynamic doubleValue = '3.14';
-  double convertedDouble = Converter.toDouble(doubleValue);
-  print('Converted Double: $convertedDouble');
-  // Output: Converted Double: 3.14
-
-  // Example for toInt method
-  dynamic intValue = '42';
-  int convertedInt = Converter.toInt(intValue);
-  print('Converted Int: $convertedInt');
-  // Output: Converted Int: 42
-}
-```
-
-#### COUNTER
+* Generate a single random color
+* Generate a list of random colors
+* Generate a list of colors from a provided list with random alpha values
 
 ```dart
 void main() {
-  // Using the Counter enum to convert counting values
-  String kCount = Counter.toKCount(1500); // Output: "1.5K"
-  String kmCount = Counter.toKMCount(1200000); // Output: "1.2M"
-  String kmbCount = Counter.toKMBCount(1500000000); // Output: "1.5B"
+  // Example 1: Generate a single random color
+  Color randomColor = ColorGenerator.generate(minOpacity: 100, maxOpacity: 200);
+  print(randomColor); // Output: Color with random ARGB values
 
-  // Using the CounterExtension on an integer to convert counting values
-  int value = 2500;
-  String kCountValue = value.toKCount; // Output: "2.5K"
-  String kmCountValue = value.toKMCount; // Output: "2.5K"
-  String kmbCountValue = value.toKMBCount; // Output: "2.5K"
+  // Example 2: Generate a list of random colors
+  List<Color> randomColors = ColorGenerator.generates(length: 5);
+  randomColors.forEach((color) => print(color)); // Output: List of random colors
+
+  // Example 3: Generate a list of colors from a provided list with random alpha values
+  List<Color> baseColors = [Color(0xFFFF0000), Color(0xFF00FF00), Color(0xFF0000FF)];
+  List<Color> customColors = ColorGenerator.generates(length: 3, colors: baseColors);
+  customColors.forEach((color) => print(color)); // Output: List of colors with random alpha
 }
 ```
 
-#### DATE_PROVIDER
+#### IN_APP_ICON
+
+* Three state asset icon paths. (Ex. regular, solid, bold)
 
 ```dart
-void main() {
-  // Example: Using Realtime and DateProvider classes
-  int currentTimeMillis = DateProvider.currentMS;
-  print(currentTimeMillis);
-
-  DateTime someDateTime = DateTime(2023, 5, 15, 10, 30);
-  Realtime realtime = Realtime.fromDateTime(someDateTime);
-  print(realtime.isToday); // Output: false
-
-  print(currentTimeMillis.toRealtime()); // Output: Now
-
-  print(someDateTime.toDate()); // Output: 15-05-2023
-}
-```
-
-#### DEVICE_CONFIG
-
-```dart
-import '../utils.dart'; // Import the file containing DeviceConfig
 
 void main() {
-  // Create an instance of DeviceConfig
-  DeviceConfig deviceConfig = DeviceConfig();
+  InAppIcon home = InAppIcon.svg("ic_home");
+  print(home.regular); // assets/icons/ic_home_regular.svg
+  print(home.solid); // assets/icons/ic_home_solid.svg
+  print(home.bold); // assets/icons/ic_home_bold.svg
 
-  // Example 1: Check platform type
-  print('Is Android? ${deviceConfig.isAndroid}');
-  print('Is iOS? ${deviceConfig.isIOS}');
-  print('Is Windows? ${deviceConfig.isWindows}');
-
-  // Example 2: Determine device type based on screen dimensions
-  double screenWidth = 360; // Example screen width in logical pixels
-  double screenHeight = 640; // Example screen height in logical pixels
-
-  DeviceType currentDeviceType = deviceConfig.deviceType(screenWidth, screenHeight);
-
-  print('Current Device Type: $currentDeviceType');
-
-  // Example 3: Check if the screen represents a mobile device
-  bool isMobileDevice = deviceConfig.isMobile(screenWidth, screenHeight);
-  print('Is Mobile Device? $isMobileDevice');
-
-  // Example 4: Access device information
-  print('Mobile Device Width: ${deviceConfig.mobile.width}');
-  print('Mobile Device Height: ${deviceConfig.mobile.height}');
-  print('Mobile Device Font Variant: ${deviceConfig.mobile.fontVariant}');
-
-  // Example 5: Check if the screen represents a desktop device
-  bool isDesktopDevice = deviceConfig.isDesktop(screenWidth, screenHeight);
-  print('Is Desktop Device? $isDesktopDevice');
+  InAppIcon notification = InAppIcon.png("ic_notification");
+  print(notification.regular); // assets/icons/ic_notification_regular.png
+  print(notification.solid); // assets/icons/ic_notification_solid.png
+  print(notification.bold); // assets/icons/ic_notification_bold.png
 }
 ```
 
-#### ENCRYPTOR
+#### ITERATOR_HELPER
 
 ```dart
-void main() async {
-  // Create an instance of Encryptor with default values.
-  Encryptor encryptor = Encryptor();
+class Product {
+  final String id;
+  final double price;
+  final String name;
 
-  // Example input data to be encrypted.
-  Map<String, dynamic> inputData = {
-    "username": "john_doe",
-    "password": "secure_password",
-  };
+  const Product(this.id, this.price, this.name);
 
-  try {
-    // Encrypt the input data.
-    Map<String, dynamic> encryptedRequest = await encryptor.input(inputData);
-    print(
-        "Encrypted Request: $encryptedRequest"); // Encrypted Request: {data: U2FsdGVkX1+1/vzorN1cnBQHK6TZYz2oh6Y7B8+CpeEFiUjxkN6RsbO4RYgSTN3RTawmAT3OXi4=, passcode: passcode}
+  Future<double> get discountPrice => Future.value(price - (price * 0.5));
+}
 
-    // Decrypt the response.
-    Map<String, dynamic> decryptedResponse = await encryptor.output(encryptedRequest);
-    print(
-        "Decrypted Response: $decryptedResponse"); // Decrypted Response: {username: john_doe, password: secure_password}
-  } catch (e) {
-    print("Encryption/Decryption error: $e");
-  }
+void main() {
+  final items = List.generate(10, (index) {
+    return Product("id_$index", 10, "Item ${index + 1}");
+  });
+
+  items.reduceAsyncAs(0.0, (value, element) async {
+    return value + await element.discountPrice;
+  }).then((value) {
+    print("Total discount price: $value");
+  });
+
+  final totalPrice = items.reduceAs(0.0, (value, element) {
+    return value + element.price;
+  });
+  print("Total price: $totalPrice");
+
+  final product = items[3];
+  final index = items.findIndex(-1, (element) => element.id == product.id);
+  print("The product index: $index");
 }
 ```
 
@@ -310,53 +222,6 @@ Total Hits: API_HIT_LOGGER {
 }
 API_HIT_LOGGER (client_1) {
 -> init
-
-#### KEY_PROVIDER
-
-```dart
-void main() {
-  // Using imgKey to generate a unique image key
-  String imageKey = KeyProvider.imgKey;
-  print(imageKey); // Output: Current date and time formatted as 'yyyyMMddHHmmss'.
-
-// Using generateKey with a name
-  String keyWithName = KeyProvider.generateKey(name: 'MyImage');
-  print(keyWithName); // Output: 'myimage'
-
-// Using generateKey with a timestamp
-  String timestampKey = KeyProvider.generateKey(timeMills: 1644613725000);
-  print(timestampKey); // Output: '1644613725000xxxxx' (xxxxx is a random string of 5 characters)
-
-}
-```
-
-#### LIST_CREATOR
-
-```dart
-void main() {
-  // Sample list of integers
-  List<int> myList = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11];
-
-  // Create a ListCreator with a capacity of 3
-  ListCreator<int> creator = ListCreator(3);
-
-  // Load the sample list into the ListCreator
-  creator.load(myList);
-
-  // Get the first collection (chunk) from the ListCreator
-  List<int> firstCollection = creator.collection();
-  print("First Collection: $firstCollection"); // First Collection: [1, 2, 3]
-
-  // Get the second collection from the ListCreator
-  List<int> secondCollection = creator.collection();
-  print("Second Collection: $secondCollection"); // Second Collection: [4, 5, 6]
-
-  // Get all collections created by the ListCreator
-  List<List<int>> allCollections = creator.collections;
-  print(
-      "All Collections: $allCollections"); // All Collections: [[1, 2, 3], [4, 5, 6], [7, 8, 9], [10, 11]]
-}
-```
 
 #### LOG_BUILDER
 
@@ -678,7 +543,6 @@ void main() {
 }
 ```
 
-
 #### PATTERNS
 
 ```dart
@@ -729,34 +593,6 @@ void main() {
   // Example for validating a path with a hierarchical structure
   print(Patterns.path3.hasMatch('path/to/something')); // true
   print(Patterns.path3.hasMatch('invalid/path with spaces')); // false (contains spaces)
-}
-```
-
-#### URL_PROVIDER
-
-```dart
-void main() {
-  // Example using UrlProvider.createByBase
-  String fullUrlByBase = UrlProvider.createByBase("https://example.com", "api/data");
-  print("Using UrlProvider.createByBase: $fullUrlByBase"); // Output: https://example.com/api/data
-
-  // Example using UrlProvider.createByCustom
-  String fullUrlByCustom = UrlProvider.createByCustom("ftp", "example.org", "files/docs");
-  print(
-      "Using UrlProvider.createByCustom: $fullUrlByCustom"); // Output: ftp://example.org/files/docs
-
-  // Example using UrlProvider.createByHttp
-  String fullUrlByHttp = UrlProvider.createByHttp("example.com", "api/data");
-  print("Using UrlProvider.createByHttp: $fullUrlByHttp"); // Output: http://example.com/api/data
-
-  // Example using UrlProvider.createByHttps
-  String fullUrlByHttps = UrlProvider.createByHttps("example.com", "api/data");
-  print("Using UrlProvider.createByHttps: $fullUrlByHttps"); // Output: https://example.com/api/data
-
-  // Example using UrlBuilder
-  UrlBuilder urlBuilder = UrlBuilder("https", "example.com");
-  String fullUrlByBuilder = urlBuilder.create("api/data");
-  print("Using UrlBuilder: $fullUrlByBuilder"); // Output: https://example.com/api/data
 }
 ```
 

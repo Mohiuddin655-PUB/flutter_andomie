@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 /// Utility class for working with paths.
 class PathFinder {
   static const String _pathRegs = r"^[a-zA-Z_]\w*(/[a-zA-Z_]\w*)*$";

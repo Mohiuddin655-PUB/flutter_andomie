@@ -1,5 +1,3 @@
-part of '../utils.dart';
-
 /// Utility class for providing common functionality related to data lists.
 ///
 /// The [Provider] class includes static methods to retrieve the suggested
@@ -35,7 +33,7 @@ class Provider {
     int index = 0;
     if (list != null && list.isNotEmpty) {
       for (index = 0; index < list.length; index++) {
-        if (Validator.equals(query, list[index])) {
+        if (query == list[index]) {
           return index;
         }
       }

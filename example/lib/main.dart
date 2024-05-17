@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_andomie/core.dart';
 
@@ -30,13 +28,10 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var a = Time(hour: 0, minute: 0, second: 0);
-    var b = Date(year: 2022, month: 1, day: 2);
-    var c = b.toDateTime(a);
-    log(c.toString());
+    var a = DateTime.timestamp();
     return Scaffold(
       body: SafeArea(
-        child: Text(c.toRealtime(
+        child: Text(a.toRealtime(
           showRealtime: true,
           whenShowNow: 10,
         )),
