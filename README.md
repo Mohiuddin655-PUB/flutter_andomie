@@ -92,35 +92,45 @@ void main() {
 #### ITERATOR_HELPER
 
 ```dart
-class Product {
-  final String id;
-  final double price;
-  final String name;
-
-  const Product(this.id, this.price, this.name);
-
-  Future<double> get discountPrice => Future.value(price - (price * 0.5));
-}
-
 void main() {
-  final items = List.generate(10, (index) {
-    return Product("id_$index", 10, "Item ${index + 1}");
-  });
+  final items = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
-  items.reduceAsyncAs(0.0, (value, element) async {
-    return value + await element.discountPrice;
+  // Use convertAs operation to convert all data
+  final allItemAsText = items.convertAs("", (value, element) {
+    return "$value $element";
+  });
+  print("All number as text: $allItemAsText"); // All number as text:  0 1 2 3 4 5 6 7 8 9
+
+  // Use convertAsyncAs operation to convert all future data
+  items.convertAsyncAs(0, (value, element) async {
+    return value + await Future.value(element);
   }).then((value) {
-    print("Total discount price: $value");
+    print("Total: $value"); // Total: 45
   });
 
-  final totalPrice = items.reduceAs(0.0, (value, element) {
-    return value + element.price;
+  // Use customizeAs operation to customize all data with validation check
+  final allEvenNumbers = items.customizeAs((element) {
+    return element;
+  }, (value) {
+    return value.isEven;
   });
-  print("Total price: $totalPrice");
+  print("All even numbers: $allEvenNumbers"); // All even numbers: [0, 2, 4, 6, 8]
 
-  final product = items[3];
-  final index = items.findIndex(-1, (element) => element.id == product.id);
-  print("The product index: $index");
+  // Use customizeAsyncAs operation to customize all future data with validation check
+  items.customizeAsyncAs(
+        (element) async {
+      return await Future.value(element);
+    },
+        (value) {
+      return value.isOdd;
+    },
+  ).then((value) {
+    print("All odd numbers: $value"); // All odd numbers: [1, 3, 5, 7, 9]
+  });
+
+  // Use findIndex operation to find index with null safety
+  final index = items.findIndex(-1, (element) => element == 5);
+  print("index: $index"); // index: 4
 }
 ```
 

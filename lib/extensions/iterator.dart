@@ -23,7 +23,7 @@ extension IterableExtension<E> on Iterable<E> {
     return initial;
   }
 
-  R reduceAs<R>(R initial, R Function(R value, E element) combine) {
+  R convertAs<R>(R initial, R Function(R value, E element) combine) {
     Iterator<E> iterator = this.iterator;
     if (!iterator.moveNext()) return initial;
     R value = combine(initial, iterator.current);
@@ -33,7 +33,7 @@ extension IterableExtension<E> on Iterable<E> {
     return value;
   }
 
-  Future<R> reduceAsyncAs<R>(
+  Future<R> convertAsyncAs<R>(
     R initial,
     Future<R> Function(R value, E element) combine,
   ) async {
@@ -44,5 +44,37 @@ extension IterableExtension<E> on Iterable<E> {
       value = await combine(value, iterator.current);
     }
     return value;
+  }
+
+  Iterable<R> customizeAs<R>(
+    R Function(E element) combine, [
+    bool Function(R value)? checker,
+  ]) {
+    List<R> initial = [];
+    Iterator<E> iterator = this.iterator;
+    if (!iterator.moveNext()) return initial;
+    R value = combine(iterator.current);
+    if (checker == null || checker(value)) initial.add(value);
+    while (iterator.moveNext()) {
+      R value = combine(iterator.current);
+      if (checker == null || checker(value)) initial.add(value);
+    }
+    return initial;
+  }
+
+  Future<Iterable<R>> customizeAsyncAs<R>(
+    Future<R> Function(E element) combine, [
+    bool Function(R value)? checker,
+  ]) async {
+    List<R> initial = [];
+    Iterator<E> iterator = this.iterator;
+    if (!iterator.moveNext()) return initial;
+    R value = await combine(iterator.current);
+    if (checker == null || checker(value)) initial.add(value);
+    while (iterator.moveNext()) {
+      R value = await combine(iterator.current);
+      if (checker == null || checker(value)) initial.add(value);
+    }
+    return initial;
   }
 }
