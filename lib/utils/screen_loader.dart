@@ -5,9 +5,9 @@ import 'singleton.dart';
 abstract class OnScreenLoaderInterface<T> {
   void onDefault(BuildContext context) {}
 
-  void onHold(ProviderEvent<T> event);
+  void onHold(ScreenLoaderEvent<T> event);
 
-  void onSkip(ProviderEvent<T> event) {}
+  void onSkip(ScreenLoaderEvent<T> event) {}
 }
 
 mixin OnScreenLoaderMixin<T> implements OnScreenLoaderInterface<T> {
@@ -15,14 +15,14 @@ mixin OnScreenLoaderMixin<T> implements OnScreenLoaderInterface<T> {
   void onDefault(BuildContext context) {}
 
   @override
-  void onSkip(ProviderEvent event) {}
+  void onSkip(ScreenLoaderEvent event) {}
 }
 
 class ScreenLoader<T> {
   final BuildContext context;
   final bool holdable;
   final OnScreenLoaderMixin<T> mixin;
-  final List<Loader<T>> loaders;
+  final List<ScreenLoaderItem<T>> loaders;
 
   const ScreenLoader._({
     required this.context,
@@ -35,7 +35,7 @@ class ScreenLoader<T> {
     required BuildContext context,
     bool holdable = true,
     required OnScreenLoaderMixin<T> mixin,
-    required List<Loader<T>> loaders,
+    required List<ScreenLoaderItem<T>> loaders,
   }) {
     return Singleton.instanceOf(() {
       return ScreenLoader<T>._(
@@ -50,9 +50,9 @@ class ScreenLoader<T> {
   Future call([BuildContext? context]) async {
     if (loaders.isNotEmpty) {
       for (int index = 0; index < loaders.length; index++) {
-        Loader<T> loader = loaders[index];
+        ScreenLoaderItem<T> loader = loaders[index];
 
-        ProviderEvent<T> event = ProviderEvent(
+        ScreenLoaderEvent<T> event = ScreenLoaderEvent(
           context ?? this.context,
           loader.value,
         );
@@ -75,18 +75,18 @@ class ScreenLoader<T> {
   void load([BuildContext? context]) => call(context);
 }
 
-class ProviderEvent<T> {
+class ScreenLoaderEvent<T> {
   final BuildContext context;
   final T value;
 
-  const ProviderEvent(this.context, this.value);
+  const ScreenLoaderEvent(this.context, this.value);
 }
 
-class Loader<T> {
+class ScreenLoaderItem<T> {
   final T value;
   final Future<bool> Function(BuildContext context) validation;
 
-  const Loader({
+  const ScreenLoaderItem({
     required this.value,
     required this.validation,
   });

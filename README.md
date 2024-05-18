@@ -4,6 +4,52 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### DATA_EXECUTOR
+
+* Fetch api data and convert to model
+
+```dart
+void main() {
+  // Initialize executor asynchronously
+  final executor = ExampleDataExecutor()..load();
+  print(executor.value);
+
+  // Only notify listeners mode
+  executor.refresh();
+
+  // Re-fetch api data, when complete all data modified then notify all listeners
+  executor.refresh(true);
+
+  executor.listen((value) {}); // The listener gives both data (ex. base, modified)
+  executor.listenOnlyModified((value) {}); // The listener gives only modified data
+}
+
+class Model {
+  final int id;
+
+  const Model(this.id);
+
+  factory Model.from(Map<String, dynamic> json) {
+    return Model(json["id"]);
+  }
+
+  @override
+  String toString() => "Model(id: $id)";
+}
+
+class ExampleDataExecutor extends DataExecutor<Map<String, dynamic>, Model> {
+  @override
+  Future<Iterable<Model>> convert(Iterable<Map<String, dynamic>> root) async {
+    return root.map((e) => Model.from(e));
+  }
+
+  @override
+  Future<Iterable<Map<String, dynamic>>> fetch() {
+    return Future.value(List.generate(5, (index) => {"id": index}));
+  }
+}
+```
+
 #### NUMBER
 
 * Real number to human readable numbers. (ex: 1.1K, 1.5M, 1B etc)

@@ -1,3 +1,15 @@
+## 0.5.21
+
+* Add data executor
+    - load
+    - refresh
+    - listen
+    - listenOnlyModified
+
+* Rename screen loader subclasses
+    - ProviderEvent to ScreenLoaderEvent
+    - Loader to ScreenLoaderItem
+
 ## 0.5.20
 
 * Add some iterator extensions
