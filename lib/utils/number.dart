@@ -72,7 +72,8 @@ enum ByteUnits {
   /// Readable readable = ByteUnits.mb.read(2048);
   /// print(readable); // Output: 2.00 MB
   /// ```
-  Readable read(num value) {
+  Readable read(num? value) {
+    value ??= 0;
     if (this == auto) {
       if (value <= 0) return Readable(0, bytes.name);
       final i = (value == 0) ? 0 : (log(value) / log(1024)).floor();
@@ -83,7 +84,8 @@ enum ByteUnits {
     }
   }
 
-  double write(num value) {
+  double write(num? value) {
+    value ??= 0;
     if (this == auto) {
       if (value <= 0) return 0;
       final i = (value == 0) ? 0 : (log(value) / log(1024)).floor();
@@ -130,7 +132,8 @@ enum NumberUnits {
   /// Readable readable = NumberUnits.m.read(1500000);
   /// print(readable); // Output: 1.5 M
   /// ```
-  Readable read(num value) {
+  Readable read(num? value) {
+    value ??= 0;
     if (this == auto) {
       if (value <= 0) return Readable(0, none.name);
       final i = (value == 0) ? 0 : (log(value) / log(1000)).floor();
@@ -141,7 +144,8 @@ enum NumberUnits {
     }
   }
 
-  double write(num value) {
+  double write(num? value) {
+    value ??= 0;
     if (this == auto) {
       if (value <= 0) return 0;
       final i = (value == 0) ? 0 : (log(value) / log(1000)).floor();
@@ -165,7 +169,7 @@ class Number {
   /// print(readableBytes); // Output: 2.00 KB
   /// ```
   static Readable toReadableBytes(
-    num value, {
+    num? value, {
     ByteUnits unit = ByteUnits.auto,
   }) {
     return unit.read(value);
@@ -179,54 +183,58 @@ class Number {
   /// print(readableNumber); // Output: 1.5 M
   /// ```
   static Readable toReadableNumber(
-    num value, {
+    num? value, {
     NumberUnits unit = NumberUnits.auto,
   }) {
     return unit.read(value);
   }
 
-  static double toRealBytes(num value, ByteUnits unit) {
+  static double toRealBytes(num? value, ByteUnits unit) {
     return unit.write(value);
   }
 
-  static double toRealNumber(num value, NumberUnits unit) {
+  static double toRealNumber(num? value, NumberUnits unit) {
     return unit.write(value);
   }
 }
 
 /// Extension methods on [num] for converting to human-readable formats.
-extension NumberHelper on num {
+extension NumberHelper on num? {
   /// Converts the number to a human-readable byte format.
   ///
   /// Example:
   /// ```dart
-  /// Readable readableBytes = 2048.toReadableBytes();
+  /// Readable readableBytes = 2048.toReadableBytes;
   /// print(readableBytes); // Output: 2.00 KB
   /// ```
-  Readable toReadableBytes([
-    ByteUnits unit = ByteUnits.auto,
-  ]) {
-    return Number.toReadableBytes(this, unit: unit);
-  }
+  Readable get toReadableBytes => ByteUnits.auto.read(this);
 
   /// Converts the number to a human-readable number format.
   ///
   /// Example:
   /// ```dart
-  /// Readable readableNumber = 1500000.toReadableNumber();
+  /// Readable readableNumber = 1500000.toReadableNumber;
   /// print(readableNumber); // Output: 1.5 M
   /// ```
-  Readable toReadableNumber([
-    NumberUnits unit = NumberUnits.auto,
-  ]) {
-    return Number.toReadableNumber(this, unit: unit);
-  }
+  Readable get toReadableNumber => NumberUnits.auto.read(this);
+}
 
-  double toRealBytes(ByteUnits unit) {
-    return Number.toRealBytes(this, unit);
-  }
+extension NumberHelperForIterable on Iterable? {
+  /// Converts the number to a human-readable byte format.
+  ///
+  /// Example:
+  /// ```dart
+  /// Readable readableBytes = 2048.toReadableBytes;
+  /// print(readableBytes); // Output: 2.00 KB
+  /// ```
+  Readable get toReadableBytes => ByteUnits.auto.read(this?.length);
 
-  double toRealNumber(NumberUnits unit) {
-    return Number.toRealNumber(this, unit);
-  }
+  /// Converts the number to a human-readable number format.
+  ///
+  /// Example:
+  /// ```dart
+  /// Readable readableNumber = 1500000.toReadableNumber;
+  /// print(readableNumber); // Output: 1.5 M
+  /// ```
+  Readable get toReadableNumber => NumberUnits.auto.read(this?.length);
 }

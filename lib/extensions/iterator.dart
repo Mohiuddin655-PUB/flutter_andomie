@@ -77,4 +77,20 @@ extension IterableExtension<E> on Iterable<E> {
     }
     return initial;
   }
+
+  List<R> to<R>(
+    R Function(int index, E element) combine, {
+    bool reverse = false,
+    int limit = 0,
+  }) {
+    List<R> initial = [];
+    if (isEmpty) return initial;
+    int index = reverse ? length - 1 : 0;
+    while (elementAtOrNull(index) != null) {
+      if (limit > 0 && initial.length >= limit) break;
+      initial.add(combine(index, elementAt(index)));
+      index = reverse ? index - 1 : index + 1;
+    }
+    return initial;
+  }
 }

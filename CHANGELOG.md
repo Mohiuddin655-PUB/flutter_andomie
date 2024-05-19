@@ -1,3 +1,8 @@
+## 0.5.22
+
+* EncoderDecoder extension support
+* Add iterator to operation for easily set limit and reverse
+
 ## 0.5.21
 
 * Add data executor
