@@ -86,9 +86,25 @@ extension IterableExtension<E> on Iterable<E> {
     List<R> initial = [];
     if (isEmpty) return initial;
     int index = reverse ? length - 1 : 0;
-    while (elementAtOrNull(index) != null) {
-      if (limit > 0 && initial.length >= limit) break;
+    while (index >= 0 && index < length && elementAtOrNull(index) != null) {
+      if (initial.length >= limit) break;
       initial.add(combine(index, elementAt(index)));
+      index = reverse ? index - 1 : index + 1;
+    }
+    return initial;
+  }
+
+  Future<List<R>> toAsync<R>(
+    Future<R> Function(int index, E element) combine, {
+    bool reverse = false,
+    int limit = 0,
+  }) async {
+    List<R> initial = [];
+    if (isEmpty) return initial;
+    int index = reverse ? length - 1 : 0;
+    while (index >= 0 && index < length && elementAtOrNull(index) != null) {
+      if (initial.length >= limit) break;
+      initial.add(await combine(index, elementAt(index)));
       index = reverse ? index - 1 : index + 1;
     }
     return initial;

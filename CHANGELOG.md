@@ -1,3 +1,5 @@
+## 0.5.23
+
 ## 0.5.22
 
 * EncoderDecoder extension support

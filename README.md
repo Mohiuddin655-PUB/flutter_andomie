@@ -174,6 +174,11 @@ void main() {
     print("All odd numbers: $value"); // All odd numbers: [1, 3, 5, 7, 9]
   });
 
+  List<String> cards = items.to(reverse: true, limit: 5, (index, element) {
+    return element.toString();
+  });
+  print(cards); // [50, 49, 48, 47, 46]
+
   // Use findIndex operation to find index with null safety
   final index = items.findIndex(-1, (element) => element == 5);
   print("index: $index"); // index: 4
