@@ -1,12 +1,45 @@
 import 'dart:math';
-import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 /// A utility class for generating random colors.
 class ColorGenerator {
+  final Iterable<Color> _initial;
+
   /// Private constructor to prevent instantiation.
-  const ColorGenerator._();
+  ColorGenerator._(this._initial);
+
+  int _index = 0;
+
+  Color pick([int? index]) {
+    index ??= _index;
+    if (_initial.isNotEmpty) {
+      _index = index + 1;
+      if (index < _initial.length) {
+        return _initial.elementAt(index);
+      } else {
+        return pick(index - _initial.length);
+      }
+    }
+    return Colors.transparent;
+  }
 
   static final _random = Random();
+
+  static ColorGenerator? _i;
+
+  static ColorGenerator get i {
+    final x = _i;
+    if (x != null) {
+      return x;
+    } else {
+      throw UnimplementedError("ColorGenerator not initialized yet");
+    }
+  }
+
+  static void init(Iterable<Color> colors) {
+    _i ??= ColorGenerator._(colors);
+  }
 
   /// Generates a random color with specified opacity range.
   ///

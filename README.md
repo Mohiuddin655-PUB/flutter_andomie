@@ -10,7 +10,7 @@ Collection of utils with advanced style and controlling system.
     * Represents data with a base and modified state.
     * Provides methods to copy and modify the data.
     * Implements equality and hash code based on the data contents.
-  
+
 - DataExecutor
     * Abstract class extending ValueNotifier to manage ExecutedData.
     * Handles loading, converting, and fetching data.
@@ -183,6 +183,7 @@ void main() {
 * Generate a single random color
 * Generate a list of random colors
 * Generate a list of colors from a provided list with random alpha values
+* Pick a color from existing colors by sequence or index
 
 ```dart
 void main() {
@@ -198,6 +199,11 @@ void main() {
   List<Color> baseColors = [Color(0xFFFF0000), Color(0xFF00FF00), Color(0xFF0000FF)];
   List<Color> customColors = ColorGenerator.generates(length: 3, colors: baseColors);
   customColors.forEach((color) => print(color)); // Output: List of colors with random alpha
+  
+  // Example 3: Pick a color from existing colors by sequence or index
+  ColorGenerator.init([Colors.red, Colors.blue, Colors.green]);
+  Color pickedColor = ColorGenerator.i.pick(); // Sequence ways
+  Color pickedColor = ColorGenerator.i.pick(index); // index ways
 }
 ```
 

@@ -1,3 +1,8 @@
+## 0.5.25
+
+* ColorGenerator
+    - Pick color system from existing colors by sequence or index
+
 ## 0.5.24
 
 * SWIPE_LOCK_PROVIDER
@@ -5,7 +10,7 @@
     - Handles swipe actions and locks further swipes after a limit.
     - Resets the swipe count and lockout status.
     - Checks if swipe actions are locked and provides the remaining lockout duration.
-  
+
 * UNDO MANAGER
     - A simple undo manager to keep track of actions and allow undoing the last action.
     - Adds, inserts, and removes actions in a list.
