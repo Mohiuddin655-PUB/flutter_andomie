@@ -2,8 +2,10 @@ import 'dart:math';
 
 /// A utility class for creating and managing lists in chunks.
 class ListGenerator<T> {
+  final int capacity;
+
   /// Creates a new instance of [ListGenerator] with the specified capacity.
-  ListGenerator._();
+  ListGenerator(this.capacity);
 
   List<List<T>> _collections = [];
   int _index = 0;
@@ -31,50 +33,26 @@ class ListGenerator<T> {
     return data;
   }
 
-  static final Map<String, ListGenerator> _proxies = {};
-
   /// Loads a list into the [ListGenerator] and divides it into chunks.
   ///
   /// Example:
   ///
   /// ```dart
   /// List<int> myList = [1, 2, 3, 4, 5, 6, 7, 8];
-  /// ListGenerator<int> generator = ListGenerator.init("numbers", 3, myList);
+  /// ListGenerator<int> generator = ListGenerator<int>(3);
+  /// List<List<int>> parts = generator.load(myList);
+  ///
+  /// Output: [[1, 2, 3],[4, 5, 6],[7, 8]]
   /// ```
-  static ListGenerator<T> init<T>(String name, int capacity, List<T> list) {
-    final instance = ListGenerator<T>._();
+  List<List<T>> load(Iterable<T> list) {
     final limit = max(capacity, 1);
     final n = list.length;
     final parts = <List<T>>[];
     for (int i = 0; i < n; i += limit) {
-      parts.add(list.sublist(i, min(n, i + limit)));
+      parts.add(List<T>.from(list).sublist(i, min(n, i + limit)));
     }
-    instance._collections = parts;
-    instance._index = 0;
-    _proxies[name] = instance;
-    return instance;
-  }
-
-  /// Loads a list into the [ListGenerator] and divides it into chunks.
-  ///
-  /// Example:
-  ///
-  /// ```dart
-  /// List<int> myList = [1, 2, 3, 4, 5, 6, 7, 8];
-  /// ListGenerator.init("numbers", 3, myList);
-  /// ListGenerator<int> generator = ListGenerator.of("numbers");
-  /// ```
-  static ListGenerator<T> of<T>(String name) {
-    final instance = _proxies[name];
-    if (instance is ListGenerator<T>) {
-      return instance;
-    } else {
-      throw UnimplementedError(
-        "ListGenerator not initialize yet for $name\n"
-        "You should initialize for $name like:\n\n"
-        "List<int> myList = [1, 2, 3, 4, 5, 6, 7, 8];\n"
-        "ListGenerator.init('numbers', 3, myList)\n",
-      );
-    }
+    _collections = parts;
+    _index = 0;
+    return _collections;
   }
 }

@@ -1,3 +1,16 @@
+## 0.5.24
+
+* SWIPE_LOCK_PROVIDER
+    - Initializes the swipe lock provider.
+    - Handles swipe actions and locks further swipes after a limit.
+    - Resets the swipe count and lockout status.
+    - Checks if swipe actions are locked and provides the remaining lockout duration.
+  
+* UNDO MANAGER
+    - A simple undo manager to keep track of actions and allow undoing the last action.
+    - Adds, inserts, and removes actions in a list.
+    - Retrieves the length of the list.
+
 ## 0.5.23
 
 ## 0.5.22

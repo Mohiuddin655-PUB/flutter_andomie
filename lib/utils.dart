@@ -23,5 +23,7 @@ export 'utils/singleton.dart';
 export 'utils/size_config.dart';
 export 'utils/sleeping_timer.dart';
 export 'utils/soft_caller.dart';
+export 'utils/swipe_lock_provider.dart';
 export 'utils/text_format.dart';
+export 'utils/undo_manager.dart';
 export 'utils/validator.dart';

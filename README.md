@@ -6,13 +6,45 @@ Collection of utils with advanced style and controlling system.
 
 #### DATA_EXECUTOR
 
-* Fetch api data and convert to model
+- ExecutedData
+    * Represents data with a base and modified state.
+    * Provides methods to copy and modify the data.
+    * Implements equality and hash code based on the data contents.
+  
+- DataExecutor
+    * Abstract class extending ValueNotifier to manage ExecutedData.
+    * Handles loading, converting, and fetching data.
+    * Provides methods to listen for data changes and execute conversions.
 
 ```dart
+class MyDataExecutor extends DataExecutor<int, String> {
+  MyDataExecutor() : super();
+
+  @override
+  Future<String> convert(int root) async {
+    // Example conversion logic
+    return 'Converted $root';
+  }
+
+  @override
+  Future<Iterable<int>> fetch() async {
+    // Example fetch logic
+    return [1, 2, 3, 4, 5];
+  }
+}
+
 void main() {
-  // Initialize executor asynchronously
-  final executor = ExampleDataExecutor()..load();
-  print(executor.value);
+  // Example implementation of DataExecutor
+
+  final executor = MyDataExecutor();
+
+  // Listening for data changes
+  executor.listen((data) {
+    print('Data changed: $data');
+  });
+
+  // Execute loading and converting data
+  executor.load();
 
   // Only notify listeners mode
   executor.refresh();
@@ -23,30 +55,83 @@ void main() {
   executor.listen((value) {}); // The listener gives both data (ex. base, modified)
   executor.listenOnlyModified((value) {}); // The listener gives only modified data
 }
+```
 
-class Model {
-  final int id;
+#### SWIPE_LOCK_PROVIDER
 
-  const Model(this.id);
+* Initializes the swipe lock provider.
+* Handles swipe actions and locks further swipes after a limit.
+* Resets the swipe count and lockout status.
+* Checks if swipe actions are locked and provides the remaining lockout duration.
 
-  factory Model.from(Map<String, dynamic> json) {
-    return Model(json["id"]);
-  }
+```dart
+late SharedPreferences _kPreferences;
 
-  @override
-  String toString() => "Model(id: $id)";
+// Mock implementations for reader and writer
+int? mockReader(String key) {
+  return _kPreferences.getInt(key); // Check previous lock from local db
 }
 
-class ExampleDataExecutor extends DataExecutor<Map<String, dynamic>, Model> {
-  @override
-  Future<Iterable<Model>> convert(Iterable<Map<String, dynamic>> root) async {
-    return root.map((e) => Model.from(e));
-  }
+void mockWriter(String key, int value) {
+  _kPreferences.setInt(key, value); // Save lock instance in local db
+}
 
-  @override
-  Future<Iterable<Map<String, dynamic>>> fetch() {
-    return Future.value(List.generate(5, (index) => {"id": index}));
-  }
+void main() async {
+  // Initialize SharedPreferences (Optional)
+  _kPreferences = await SharedPreferences.getInstance();
+  // Initialize SwipeLockProvider
+  SwipeLockProvider.init(
+    times: 5,
+    lockoutDuration: Duration(hours: 8),
+    reader: mockReader,
+    writer: mockWriter,
+  );
+
+  // Example 1: Check if currently locked
+  bool isLocked = SwipeLockProvider.instance.isLocked;
+  print(isLocked); // Output: false
+
+  // Example 2: Perform a swipe action
+  SwipeLockProvider.instance.swipe();
+  print(SwipeLockProvider.instance.isLocked); // Output depends on swipe count
+
+  // Example 3: Reset the swipe count and lockout status
+  SwipeLockProvider.instance.reset();
+  print(SwipeLockProvider.instance.isLocked); // Output: false
+
+  // Example 4: Get remaining lockout duration
+  Duration remaining = SwipeLockProvider.instance.remaining;
+  print(remaining.inMinutes); // Output: 480 (if locked) or 0 (if not locked)
+
+  // Example 5: Listen provider change
+  SwipeLockProvider.instance.addListener(_onLockChanged);
+
+  // Example 5: Listen provider remove
+  SwipeLockProvider.instance.removeListener(_onLockChanged);
+}
+```
+
+#### UNDO MANAGER
+
+* A simple undo manager to keep track of actions and allow undoing the last action.
+* Adds, inserts, and removes actions in a list.
+* Retrieves the length of the list.
+
+```dart
+void main() {
+  // Example 1: Add and undo actions
+  UndoManager<String> manager = UndoManager<String>();
+  manager.add("Action 1");
+  manager.add("Action 2");
+  print(manager.undo()); // Output: Action 2
+  print(manager.undo()); // Output: Action 1
+  print(manager.undo()); // Output: null
+
+  // Example 2: Insert and undo actions
+  manager.add("Action 1");
+  manager.insert(0, "Action 0");
+  print(manager.undo()); // Output: Action 1
+  print(manager.undo()); // Output: Action 0
 }
 ```
 
@@ -751,3 +836,5 @@ void main() {
   print("Validator isRank: ${4.5.isRank(4.0)}"); // Output: true
 }
 ```
+
+#### Read details here: https://github.com/Mohiuddin655-YMR/flutter_andomie/tree/main/example/lib
