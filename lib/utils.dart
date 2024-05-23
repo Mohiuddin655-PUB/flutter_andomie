@@ -7,6 +7,7 @@ export 'utils/date_converter.dart';
 export 'utils/device_config.dart';
 export 'utils/hit_logger.dart';
 export 'utils/in_app_icon.dart';
+export 'utils/index_provider.dart';
 export 'utils/list_generator.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';

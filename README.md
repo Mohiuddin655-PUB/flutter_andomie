@@ -203,7 +203,6 @@ void main() {
   // Example 3: Pick a color from existing colors by sequence or index
   ColorGenerator.init([Colors.red, Colors.blue, Colors.green]);
   Color pickedColor = ColorGenerator.i.pick(); // Sequence ways
-  Color pickedColor = ColorGenerator.i.pick(index); // index ways
 }
 ```
 

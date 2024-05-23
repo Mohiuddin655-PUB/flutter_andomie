@@ -9,37 +9,23 @@ class ColorGenerator {
   /// Private constructor to prevent instantiation.
   ColorGenerator._(this._initial);
 
-  int _index = 0;
+  int _index = -1;
 
-  Color pick([int? index]) {
-    index ??= _index;
-    if (_initial.isNotEmpty) {
-      _index = index + 1;
-      if (index < _initial.length) {
-        return _initial.elementAt(index);
-      } else {
-        return pick(index - _initial.length);
-      }
+  Color pick() {
+    _index = _index + 1;
+    if (_initial.length <= _index) {
+      _index = _index - _initial.length;
     }
-    return Colors.transparent;
+    return _initial.elementAt(_index);
   }
 
   static final _random = Random();
 
   static ColorGenerator? _i;
 
-  static ColorGenerator get i {
-    final x = _i;
-    if (x != null) {
-      return x;
-    } else {
-      throw UnimplementedError("ColorGenerator not initialized yet");
-    }
-  }
+  static ColorGenerator get i => _i ??= ColorGenerator._(Colors.primaries);
 
-  static void init(Iterable<Color> colors) {
-    _i ??= ColorGenerator._(colors);
-  }
+  static void init(Iterable<Color> colors) => _i ??= ColorGenerator._(colors);
 
   /// Generates a random color with specified opacity range.
   ///

@@ -1,3 +1,14 @@
+## 0.5.26
+
+* IndexProvider
+    - Pick index from length by sequence
+    - Pick index as reverse from length by sequence
+    - Pick T item from length by sequence
+    - Pick T item as reverse from length by sequence
+  
+* ColorGenerator
+    - Pick color system from existing colors by sequence
+
 ## 0.5.25
 
 * ColorGenerator
