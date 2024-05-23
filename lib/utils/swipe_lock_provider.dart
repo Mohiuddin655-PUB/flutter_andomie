@@ -57,7 +57,13 @@ class SwipeLockProvider with ChangeNotifier {
       writer: writer,
     );
     instance._swipe = reader(_kSwipeLimitationTimes) ?? 0;
-    instance._startTimer(now, instance._lockoutTime);
+    final lt = reader(_kSwipeLimitationTime) ?? 0;
+    now ??= DateTime.now();
+    if (instance._isLocked(now: now, lockoutTime: lt)) {
+      final x = DateTime.fromMillisecondsSinceEpoch(lt).difference(now);
+      final y = x > lockoutDuration ? lockoutDuration : x;
+      instance._startTimer(now: now, lockoutTime: lt, remainingDuration: y);
+    }
     return instance;
   }
 
@@ -113,8 +119,12 @@ class SwipeLockProvider with ChangeNotifier {
   Timer? _timer;
   Duration remaining = Duration.zero;
 
-  void _startTimer([DateTime? now, int? lockoutTime]) {
-    remaining = lockoutDuration;
+  void _startTimer({
+    DateTime? now,
+    int? lockoutTime,
+    Duration? remainingDuration,
+  }) {
+    remaining = remainingDuration ?? lockoutDuration;
     if (remaining != Duration.zero) {
       _timer?.cancel();
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {

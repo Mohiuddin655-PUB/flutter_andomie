@@ -1,3 +1,8 @@
+## 0.5.27
+
+* SWIPE_LOCK_PROVIDER
+    - Initial remaining time bug fixed
+
 ## 0.5.26
 
 * IndexProvider
@@ -5,7 +10,7 @@
     - Pick index as reverse from length by sequence
     - Pick T item from length by sequence
     - Pick T item as reverse from length by sequence
-  
+
 * ColorGenerator
     - Pick color system from existing colors by sequence
 
