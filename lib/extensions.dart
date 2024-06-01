@@ -1,6 +1,7 @@
 library extensions;
 
 export 'extensions/boolean.dart';
+export 'extensions/color.dart';
 export 'extensions/double.dart';
 export 'extensions/duration.dart';
 export 'extensions/encoder_decoder.dart';

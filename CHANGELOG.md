@@ -1,7 +1,13 @@
+## 0.5.28
+
+* PROVIDER
+  - check color brightness
+  - check image brightness
+  
 ## 0.5.27
 
 * SWIPE_LOCK_PROVIDER
-    - Initial remaining time bug fixed
+  - Initial remaining time bug fixed
 
 ## 0.5.26
 
