@@ -1,9 +1,10 @@
 import 'dart:typed_data';
-import 'dart:ui';
+
+import 'package:flutter/material.dart';
 
 /// Utility class for providing common functionality related to data lists.
 ///
-/// The [Provider] class includes static methods to retrieve the suggested
+/// The [AndomieUtils] class includes static methods to retrieve the suggested
 /// position of an item in a list based on a query. This can be useful, for
 /// example, in autocomplete scenarios where you want to suggest a position
 /// in the list for a given query.
@@ -19,8 +20,8 @@ import 'dart:ui';
 /// In this example, the `getSuggestedPosition` method will return the index
 /// of the item 'Banana' in the list of fruits. If the item is not found, it
 /// will return the default index, which is the length of the list.
-class Provider {
-  const Provider._();
+class AndomieUtils {
+  const AndomieUtils._();
 
   /// Gets the suggested position of the given query in the provided list.
   ///
@@ -46,7 +47,8 @@ class Provider {
     return index;
   }
 
-  static double brightness(Color color) {
+  static double brightness(Color? color) {
+    color ??= Colors.transparent;
     double r = 0.299 * color.red;
     double g = 0.587 * color.green;
     double b = 0.114 * color.blue;
@@ -66,9 +68,23 @@ class Provider {
     return average;
   }
 
-  static bool isLight(Color color) => brightness(color) > 0.5;
+  static bool isKeyboardVisible(BuildContext context) {
+    return MediaQuery.viewInsetsOf(context).bottom > 0;
+  }
+
+  static bool isLight(Color? color) => brightness(color) > 0.5;
 
   static bool isLightImage(Uint8List bytes, int width, int height) {
     return brightnessFromImage(bytes, width, height) > 128;
   }
+}
+
+extension ContextualUtilsExtension on BuildContext {
+  bool get isKeyboardVisible => AndomieUtils.isKeyboardVisible(this);
+}
+
+extension ColoredUtilsHelper on Color? {
+  bool get isLight => AndomieUtils.isLight(this);
+
+  bool get isDark => !isLight;
 }

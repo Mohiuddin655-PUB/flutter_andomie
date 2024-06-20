@@ -1,6 +1,6 @@
 import 'package:intl/intl.dart';
 
-import '../extensions/duration.dart';
+import '../models/remaining_duration.dart';
 import 'text_format.dart';
 
 enum TimeFormats {
@@ -120,7 +120,7 @@ class Realtime {
   /// print(myTime.isHourMode);  // Output: true
   /// ```
   factory Realtime.fromDuration(Duration duration) {
-    var a = duration.inCurrentDays;
+    var a = duration.days;
     var isToday = a == 0;
     var isTomorrow = a == 1;
     var isYesterday = a == -1;
@@ -129,12 +129,12 @@ class Realtime {
       today: isToday,
       tomorrow: isTomorrow,
       yesterday: isYesterday,
-      days: duration.inCurrentDays,
-      hours: duration.inCurrentHours,
-      minutes: duration.inCurrentMinutes,
-      seconds: duration.inCurrentSeconds,
-      milliseconds: duration.inCurrentMilliseconds,
-      microseconds: duration.inCurrentMicroseconds,
+      days: duration.days,
+      hours: duration.hours,
+      minutes: duration.minutes,
+      seconds: duration.seconds,
+      milliseconds: duration.milliseconds,
+      microseconds: duration.microseconds,
     );
   }
 

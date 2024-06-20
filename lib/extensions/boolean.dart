@@ -1,4 +1,4 @@
-extension EntityBoolHelper on bool? {
+extension BoolHelper on bool? {
   bool get use => this ?? false;
 
   bool get isValid => this != null;

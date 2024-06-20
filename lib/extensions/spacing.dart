@@ -7,23 +7,21 @@ extension Spacing on num {
 
   SizedBox get h => SizedBox(height: toDouble());
 
-  SizedBox get wh => SizedBox.square(dimension: toDouble());
-
   SizedBox hx(BuildContext context) => context.hx(this);
-
-  SizedBox hhx(BuildContext context) => context.hhx(this);
 
   SizedBox wx(BuildContext context) => context.wx(this);
 
-  SizedBox wwx(BuildContext context) => context.wwx(this);
+  double hxp(BuildContext context) => context.hxp(this);
+
+  double wxp(BuildContext context) => context.wxp(this);
 }
 
 extension SpacingFromScreen on BuildContext {
   Size get size => MediaQuery.sizeOf(this);
 
-  double get width => size.width;
+  double get w => size.width;
 
-  double get height => size.height;
+  double get h => size.height;
 
   num _x(num value) {
     if (value is int && value > 1) {
@@ -33,11 +31,15 @@ extension SpacingFromScreen on BuildContext {
     }
   }
 
-  SizedBox hx(num value) => SizedBox(height: height * _x(value));
+  double hxp(num value) => h * _x(value);
 
-  SizedBox hhx(num value) => SizedBox.square(dimension: height * _x(value));
+  double wxp(num value) => w * _x(value);
 
-  SizedBox wx(num value) => SizedBox(width: width * _x(value));
+  SizedBox hx(num value) => SizedBox(height: hxp(value));
 
-  SizedBox wwx(num value) => SizedBox.square(dimension: width * _x(value));
+  SizedBox hhx(num value) => SizedBox.square(dimension: hxp(value));
+
+  SizedBox wx(num value) => SizedBox(width: wxp(value));
+
+  SizedBox wwx(num value) => SizedBox.square(dimension: wxp(value));
 }
