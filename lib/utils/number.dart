@@ -217,6 +217,46 @@ extension NumberHelper on num? {
   /// print(readableNumber); // Output: 1.5 M
   /// ```
   Readable get toReadableNumber => NumberUnits.auto.read(this);
+
+  /// If [fractionDigits] is 0, the value is formatted with no decimal places.
+  /// Otherwise, it is formatted with the specified number of decimal places,
+  /// and trailing zeros are removed.
+  ///
+  /// Example:
+  /// ```dart
+  /// String number = null.text;
+  /// print(number); // Output:
+  ///
+  /// number = 15.0005.text;
+  /// print(number); // Output: 15
+  ///
+  /// number = 15.0505.text;
+  /// print(number); // Output: 15.05
+  /// ```
+  String get text => toText(2);
+
+  /// If [fractionDigits] is 0, the value is formatted with no decimal places.
+  /// Otherwise, it is formatted with the specified number of decimal places,
+  /// and trailing zeros are removed.
+  ///
+  /// Example:
+  /// ```dart
+  /// String number = null.toText(2);
+  /// print(number); // Output:
+  ///
+  /// number = 15.0005.toText(2);
+  /// print(number); // Output: 15
+  ///
+  /// number = 15.0505.toText(2);
+  /// print(number); // Output: 15.05
+  /// ```
+  String toText([int fractionDigits = 2]) {
+    if (this == null) return "";
+    if (this is int) return toString();
+    final value = this ?? 0.0;
+    if (fractionDigits == 0) return value.toStringAsFixed(0);
+    return "${value.toStringAsFixed(fractionDigits).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "")}${fractionDigits > 1 ? " " : ""}";
+  }
 }
 
 extension NumberHelperForIterable on Iterable? {
@@ -237,4 +277,10 @@ extension NumberHelperForIterable on Iterable? {
   /// print(readableNumber); // Output: 1.5 M
   /// ```
   Readable get toReadableNumber => NumberUnits.auto.read(this?.length);
+}
+
+extension StringNumberHelper on String? {
+  int get asInt => int.tryParse(this ?? "0") ?? 0;
+
+  double get asDouble => double.tryParse(this ?? "0") ?? 0;
 }

@@ -1,3 +1,9 @@
+## 0.5.32
+
+* Add [BMICalculator]
+* Add [auto add or remove number fractionDigits]
+* Add converter [string to num value]
+
 ## 0.5.31
 
 * Model

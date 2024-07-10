@@ -1,14 +1,17 @@
 library utils;
 
 export 'models/remaining_duration.dart';
+export 'utils/bmi_calculator.dart';
 export 'utils/color_generator.dart';
 export 'utils/converter.dart';
+export 'utils/countdown.dart';
 export 'utils/data_executor.dart';
 export 'utils/date_converter.dart';
 export 'utils/device_config.dart';
 export 'utils/hit_logger.dart';
 export 'utils/in_app_icon.dart';
 export 'utils/index_provider.dart';
+export 'utils/key_generator.dart';
 export 'utils/list_generator.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';
@@ -22,7 +25,6 @@ export 'utils/replacement.dart';
 export 'utils/screen_loader.dart';
 export 'utils/singleton.dart';
 export 'utils/size_config.dart';
-export 'utils/countdown.dart';
 export 'utils/soft_caller.dart';
 export 'utils/swipe_lock_provider.dart';
 export 'utils/text_format.dart';
