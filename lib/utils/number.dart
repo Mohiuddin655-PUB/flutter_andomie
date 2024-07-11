@@ -257,6 +257,73 @@ extension NumberHelper on num? {
     if (fractionDigits == 0) return value.toStringAsFixed(0);
     return "${value.toStringAsFixed(fractionDigits).replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "")}${fractionDigits > 1 ? " " : ""}";
   }
+
+  /// Example:
+  /// ```dart
+  /// String number = null.asPlusText;
+  /// print(number); // Output: 0
+  ///
+  /// number = 15.asPlusText;
+  /// print(number); // Output: 15
+  ///
+  /// number = -15.05.asPlusText;
+  /// print(number); // Output: +15.05
+  /// ```
+  String get asPlusText => toPlusText();
+
+  /// Example:
+  /// ```dart
+  /// String number = null.toPlusText();
+  /// print(number); // Output: 0
+  ///
+  /// number = 15.toPlusText();
+  /// print(number); // Output: 15
+  ///
+  /// number = -15.05.toPlusText();
+  /// print(number); // Output: +15.05
+  /// ```
+  String toPlusText([
+    String sign = "+",
+  ]) {
+    num x = this ?? 0;
+    if (x < 0) {
+      x = x * -1;
+      return "$sign$x";
+    }
+    return "$x";
+  }
+
+  /// Example:
+  /// ```dart
+  /// String number = null.asPercentageText;
+  /// print(number); // Output: 0
+  ///
+  /// number = 15.asPercentageText;
+  /// print(number); // Output: 150%
+  ///
+  /// number = 0.15.asPercentageText;
+  /// print(number); // Output: 15%
+  /// ```
+  String get asPercentageText => toPercentageText();
+
+  /// Example:
+  /// ```dart
+  /// String number = null.toPercentageText();
+  /// print(number); // Output: 0
+  ///
+  /// number = 15.toPercentageText();
+  /// print(number); // Output: 150%
+  ///
+  /// number = 0.15.toPercentageText();
+  /// print(number); // Output: 15%
+  /// ```
+  String toPercentageText([
+    String sign = "%",
+  ]) {
+    num x = this ?? 0;
+    if (x is double) x = x * 100;
+    return "${x.toInt()}$sign";
+  }
 }
 
 extension NumberHelperForIterable on Iterable? {

@@ -1,3 +1,8 @@
+## 0.5.35
+
+* Number text format: PlusText [-50.toPlusText("+") to +50]
+* Number text format: PercentageText [0.5.toPercentageText("%") to 50%]
+
 ## 0.5.34
 
 * Number validation using operation and remove math library
