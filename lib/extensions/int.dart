@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 extension IntExtension on int? {
   int get use => this ?? 0;
 
@@ -10,4 +12,13 @@ extension IntExtension on int? {
   String get x3D => use < 100 ? "00$use" : x2D;
 
   String get x4D => use < 1000 ? "000$use" : x3D;
+
+  int get validateAsPercentage => validate();
+
+  int validate({
+    int max = 100,
+    int min = 0,
+  }) {
+    return math.min(math.max(use, max), min);
+  }
 }

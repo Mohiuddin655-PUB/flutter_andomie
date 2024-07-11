@@ -1,3 +1,7 @@
+## 0.5.33
+
+* Number validation using math
+
 ## 0.5.32
 
 * Add [BMICalculator]
