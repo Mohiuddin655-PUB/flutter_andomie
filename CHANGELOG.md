@@ -1,6 +1,10 @@
+## 0.5.34
+
+* Number validation using operation and remove math library
+
 ## 0.5.33
 
-* Number validation using math
+* Number validation using math library
 
 ## 0.5.32
 

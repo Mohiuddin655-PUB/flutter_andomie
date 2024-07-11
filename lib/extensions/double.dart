@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 extension DoubleExtension on double? {
   double get use => this ?? 0;
 
@@ -13,6 +11,13 @@ extension DoubleExtension on double? {
     double max = 1,
     double min = 0,
   }) {
-    return math.min(math.max(use, max), min);
+    final x = use;
+    if (x < min) {
+      return min;
+    } else if (x > max) {
+      return max;
+    } else {
+      return x;
+    }
   }
 }
