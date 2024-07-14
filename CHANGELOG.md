@@ -1,3 +1,8 @@
+## 0.5.36
+
+* Add object finder operations [find, findByKey, findOrNull]
+* Remove object finder operation [get] and replace [findOrNull]
+
 ## 0.5.35
 
 * Number text format: PlusText [-50.toPlusText("+") to +50]
