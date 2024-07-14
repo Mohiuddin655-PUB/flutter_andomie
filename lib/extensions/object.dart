@@ -39,4 +39,16 @@ extension ObjectExtension on Object? {
       }
     }
   }
+
+  T get<T extends Object?>({Object? key, T? defaultValue}) {
+    return find(key: key, defaultValue: defaultValue);
+  }
+
+  T getByKey<T extends Object?>(String key, T defaultValue) {
+    return findByKey(key, defaultValue);
+  }
+
+  T? getOrNull<T extends Object?>({Object? key, T? defaultValue}) {
+    return findOrNull(key: key, defaultValue: defaultValue);
+  }
 }

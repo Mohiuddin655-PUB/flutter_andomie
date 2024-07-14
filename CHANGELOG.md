@@ -1,3 +1,7 @@
+## 0.5.37
+
+* Add object finder operations [get, getByKey, getOrNull]
+
 ## 0.5.36
 
 * Add object finder operations [find, findByKey, findOrNull]
