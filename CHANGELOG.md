@@ -1,3 +1,7 @@
+## 0.5.38
+
+* Update SwipeLockProvider [onSwiped, onLocked, limit, count, lockoutRemainder]
+
 ## 0.5.37
 
 * Add object finder operations [get, getByKey, getOrNull]

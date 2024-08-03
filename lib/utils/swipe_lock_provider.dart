@@ -9,20 +9,42 @@ const _kSwipeLimitationTimes = "__swipe_limitation_times__207448";
 // Function types for reading and writing stored data.
 typedef OnSwipeLockProviderReader = int? Function(String key);
 typedef OnSwipeLockProviderWriter = void Function(String key, int value);
+typedef OnSwipeLockProviderCounter = void Function(int counter);
+typedef OnSwipeLockProviderRemainder = void Function(bool locked);
 
 /// SwipeLockProvider class to manage swipe lock mechanism.
 class SwipeLockProvider with ChangeNotifier {
-  final int times;
-  final Duration lockoutDuration;
   final OnSwipeLockProviderReader reader;
   final OnSwipeLockProviderWriter writer;
 
+  int _times;
+
+  int get times => _times;
+
+  Duration _lockoutDuration;
+
+  Duration get lockoutDuration => _lockoutDuration;
+
+  bool _lockoutRemainder = true;
+
+  bool get lockoutRemainder => _lockoutRemainder;
+
+  OnSwipeLockProviderCounter? _counter;
+  OnSwipeLockProviderRemainder? _remainder;
+
   SwipeLockProvider._({
-    this.times = 5,
-    this.lockoutDuration = const Duration(hours: 8),
     required this.reader,
     required this.writer,
-  });
+    OnSwipeLockProviderCounter? counter,
+    OnSwipeLockProviderRemainder? remainder,
+    int times = 5,
+    Duration lockoutDuration = const Duration(hours: 8),
+    bool lockoutRemainder = true,
+  })  : _remainder = remainder,
+        _counter = counter,
+        _times = times,
+        _lockoutDuration = lockoutDuration,
+        _lockoutRemainder = lockoutRemainder;
 
   static SwipeLockProvider? _instance;
 
@@ -47,14 +69,20 @@ class SwipeLockProvider with ChangeNotifier {
     int times = 5,
     Duration lockoutDuration = const Duration(hours: 8),
     DateTime? now,
+    bool lockoutRemainder = true,
     required OnSwipeLockProviderReader reader,
     required OnSwipeLockProviderWriter writer,
+    OnSwipeLockProviderCounter? counter,
+    OnSwipeLockProviderRemainder? remainder,
   }) {
     _instance ??= SwipeLockProvider._(
       times: times,
+      lockoutRemainder: lockoutRemainder,
       lockoutDuration: lockoutDuration,
       reader: reader,
       writer: writer,
+      counter: counter,
+      remainder: remainder,
     );
     instance._swipe = reader(_kSwipeLimitationTimes) ?? 0;
     final lt = reader(_kSwipeLimitationTime) ?? 0;
@@ -68,6 +96,8 @@ class SwipeLockProvider with ChangeNotifier {
   }
 
   int _swipe = 0;
+
+  int get count => _swipe;
 
   /// Reads the lockout time from storage.
   int get _lockoutTime => reader(_kSwipeLimitationTime) ?? 0;
@@ -91,18 +121,38 @@ class SwipeLockProvider with ChangeNotifier {
     }
   }
 
+  /// Resets the swipe limit.
+  void limit(int limit) {
+    _times = limit;
+    notifyListeners();
+  }
+
+  /// Resets the swipe lockout time.
+  void lockout(Duration duration) {
+    _lockoutDuration = duration;
+    notifyListeners();
+  }
+
+  /// Resets the swipe lockout remainder.
+  void lockoutRemainderEnable(bool enable) {
+    _lockoutRemainder = enable;
+    notifyListeners();
+  }
+
   /// Resets the swipe count and lockout time.
   void reset() {
     _swipe = 0;
     writer(_kSwipeLimitationTime, 0);
     writer(_kSwipeLimitationTimes, 0);
     notifyListeners();
+    _counter?.call(_swipe);
   }
 
   /// Increments the swipe count and checks if the limit is reached.
   /// Applies lockout if necessary.
   void swipe([DateTime? now]) {
     _swipe++;
+    _counter?.call(_swipe);
     if (_swipe >= times) {
       _swipe = 0;
       now ??= DateTime.now();
@@ -110,10 +160,17 @@ class SwipeLockProvider with ChangeNotifier {
       writer(_kSwipeLimitationTime, lockoutMillis);
       writer(_kSwipeLimitationTimes, 0);
       notifyListeners();
-      _startTimer();
+      _remainder?.call(true);
+      if (lockoutRemainder) _startTimer();
     } else {
       writer(_kSwipeLimitationTimes, _swipe);
     }
+  }
+
+  void onSwiped(OnSwipeLockProviderCounter counter) => _counter = counter;
+
+  void onLocked(OnSwipeLockProviderRemainder remainder) {
+    _remainder = remainder;
   }
 
   Timer? _timer;
@@ -137,12 +194,13 @@ class SwipeLockProvider with ChangeNotifier {
       });
     } else {
       notifyListeners();
+      _remainder?.call(false);
     }
   }
 
   @override
   void dispose() {
     super.dispose();
-    _timer?.cancel();
+    if (lockoutRemainder) _timer?.cancel();
   }
 }
