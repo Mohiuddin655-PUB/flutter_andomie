@@ -1,3 +1,9 @@
+## 0.5.39
+
+* Remove intl and other libraries
+* Add instance mode to use third-party library from real app
+* Modify replacement utils for all none chars to custom chars
+
 ## 0.5.38
 
 * Update SwipeLockProvider [onSwiped, onLocked, limit, count, lockoutRemainder]

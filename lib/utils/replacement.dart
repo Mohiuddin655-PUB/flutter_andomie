@@ -14,13 +14,13 @@ class Replacement {
   /// String result = Replacement.auto("Hello! How are you?");
   /// print(result); // Output: 'Hello How are you'
   /// ```
-  static String auto(String value) {
+  static String auto(String value, [String? replacement]) {
     for (int index = 0; index < value.length; index++) {
       for (String reg in Regex.none) {
-        value = value.replaceAll(reg, "");
+        value = value.replaceAll(reg, replacement ?? "");
       }
       for (String s in Regex.slash) {
-        value = value.replaceAll(s, "_");
+        value = value.replaceAll(s, replacement ?? "_");
       }
     }
     return value;

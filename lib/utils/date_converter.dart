@@ -1,5 +1,4 @@
-import 'package:intl/intl.dart';
-
+import '../instance.dart';
 import '../models/remaining_duration.dart';
 import 'text_format.dart';
 
@@ -710,7 +709,7 @@ extension DateExtension on DateTime? {
         format = dateFormat.use;
       }
     }
-    return DateFormat(format, local).format(_v);
+    return Andomie.i.dateFormatter(format ?? "", local, _v);
   }
 
   /// Converts milliseconds since epoch to a customizable relative time string.
