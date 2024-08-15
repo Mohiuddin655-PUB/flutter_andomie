@@ -1,3 +1,7 @@
+## 0.5.40
+
+* Modify KeyGenerator [uniqueKey, dateKey, generateKey, haxKey, secretKey]
+
 ## 0.5.39
 
 * Remove intl and other libraries

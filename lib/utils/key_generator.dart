@@ -48,19 +48,21 @@ enum KeyFormats {
 class KeyGenerator {
   const KeyGenerator._();
 
+  static String get uniqueKey => generateKey();
+
   /// Generates a unique image key based on the current date and time.
   ///
   /// Example:
   /// ```dart
-  /// String imageKey = KeyGenerator.imgKey;
+  /// String imageKey = KeyGenerator.dateKey;
   /// print(imageKey); // Output: Current date and time formatted as 'yyyyMMddHHmmss'.
   /// ```
-  static String get imgKey {
+  static String get dateKey {
     final a = DateTime.now();
     return "${a.year.x4D}${a.month.x2D}${a.day.x2D}${a.hour.x2D}${a.minute.x2D}${a.second.x2D}";
   }
 
-  List<int> _bytes(ByteType type) {
+  static List<int> _bytes(KeyByteType type) {
     final secure = Random.secure();
     final bytes = Uint8List(type.value);
     for (var i = 0; i < bytes.length; i++) {
@@ -103,7 +105,7 @@ class KeyGenerator {
     }
   }
 
-  String generateHaxKey(List<int> bytes) {
+  static String haxKey(List<int> bytes) {
     var buffer = StringBuffer();
     var hexChars = "0123456789ABCDEF";
     for (var byte in bytes) {
@@ -113,10 +115,10 @@ class KeyGenerator {
     return "$buffer";
   }
 
-  String generateSecretKey(ByteType type) => generateHaxKey(_bytes(type));
+  static String secretKey(KeyByteType type) => haxKey(_bytes(type));
 }
 
-enum ByteType {
+enum KeyByteType {
   x2(2),
   x4(4),
   x8(8),
@@ -127,5 +129,5 @@ enum ByteType {
 
   final int value;
 
-  const ByteType(this.value);
+  const KeyByteType(this.value);
 }
