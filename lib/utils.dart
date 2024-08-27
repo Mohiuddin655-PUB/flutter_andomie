@@ -16,7 +16,7 @@ export 'utils/list_generator.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';
 export 'utils/pagination.dart';
-export 'utils/path_finder.dart';
+export 'utils/path_parser.dart';
 export 'utils/path_replacer.dart';
 export 'utils/patterns.dart';
 export 'utils/random_provider.dart';

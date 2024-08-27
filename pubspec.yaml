@@ -1,6 +1,6 @@
 name: flutter_andomie
 description: Collection of utils with advanced style and controlling system.
-version: 0.5.40
+version: 0.5.41
 homepage: https://github.com/P-YMR/flutter_andomie.git
 
 environment:
@@ -16,5 +16,3 @@ dev_dependencies:
     sdk: flutter
 
   flutter_lints: ^4.0.0
-
-flutter:

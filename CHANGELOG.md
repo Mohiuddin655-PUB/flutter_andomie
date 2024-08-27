@@ -1,3 +1,7 @@
+## 0.5.41
+
+* Rename PathFinder to PathParser and add three fields in PathInfo [source, collections, documents]
+
 ## 0.5.40
 
 * Modify KeyGenerator [uniqueKey, dateKey, generateKey, haxKey, secretKey]
