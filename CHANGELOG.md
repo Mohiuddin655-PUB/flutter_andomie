@@ -1,3 +1,7 @@
+## 0.5.42
+
+* Improve all object finder operations
+
 ## 0.5.41
 
 * Rename PathFinder to PathParser and add three fields in PathInfo [source, collections, documents]

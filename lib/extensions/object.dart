@@ -23,21 +23,29 @@ extension ObjectExtension on Object? {
   }
 
   T? findOrNull<T extends Object?>({Object? key, T? defaultValue}) {
-    var root = this;
-    if (root is Map) {
-      var arguments = root[key];
-      if (arguments is T) {
-        return arguments;
-      } else {
-        return defaultValue;
+    final root = this;
+    final value = root is Map && key != null ? root[key] : root;
+    if (value is T) return value;
+    if (value is num) {
+      if (T == int) return value.toInt() as T;
+      if (T == double) return value.toDouble() as T;
+      if (T == String) return value.toString() as T;
+    }
+    if (value is String) {
+      if (T == num || T == int || T == double) {
+        final number = num.tryParse(value);
+        if (number != null) {
+          if (T == int) return number.toInt() as T;
+          if (T == double) return number.toDouble() as T;
+          return number as T;
+        }
       }
-    } else {
-      if (key == null && root is T) {
-        return root;
-      } else {
-        return defaultValue;
+      if (T == bool) {
+        final boolean = bool.tryParse(value);
+        if (boolean != null) return boolean as T;
       }
     }
+    return defaultValue;
   }
 
   T get<T extends Object?>({Object? key, T? defaultValue}) {
