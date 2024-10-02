@@ -1,3 +1,5 @@
+## 0.5.44
+
 ## 0.5.43
 
 * Add findIndexes from iterable

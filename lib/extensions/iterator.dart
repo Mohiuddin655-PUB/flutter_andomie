@@ -23,13 +23,12 @@ extension IterableExtension<E> on Iterable<E> {
     return initial;
   }
 
-  Iterable<int> findIndexes<A, B>(
-    List<A> a,
-    List<B> b,
-    bool Function(A a, B b) test,
+  Iterable<int> findIndexes<B>(
+    List<B> value,
+    bool Function(E a, B b) test,
   ) {
-    return a.map((a) {
-      return b.indexWhere((b) => test(a, b));
+    return map((a) {
+      return value.indexWhere((b) => test(a, b));
     }).where((e) => e > -1);
   }
 
