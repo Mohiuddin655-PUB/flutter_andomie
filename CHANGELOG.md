@@ -1,3 +1,7 @@
+## 0.5.43
+
+* Add findIndexes from iterable
+
 ## 0.5.42
 
 * Improve all object finder operations

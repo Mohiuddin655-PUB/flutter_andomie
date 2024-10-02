@@ -23,6 +23,16 @@ extension IterableExtension<E> on Iterable<E> {
     return initial;
   }
 
+  Iterable<int> findIndexes<A, B>(
+    List<A> a,
+    List<B> b,
+    bool Function(A a, B b) test,
+  ) {
+    return a.map((a) {
+      return b.indexWhere((b) => test(a, b));
+    }).where((e) => e > -1);
+  }
+
   R convertAs<R>(R initial, R Function(R value, E element) combine) {
     Iterator<E> iterator = this.iterator;
     if (!iterator.moveNext()) return initial;
