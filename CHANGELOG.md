@@ -1,3 +1,8 @@
+## 0.5.45
+
+* Add DataKeeper util to maintain api request only one if data is similar and provide data from
+  local data of DataKeeper
+
 ## 0.5.44
 
 ## 0.5.43
