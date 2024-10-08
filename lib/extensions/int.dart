@@ -11,12 +11,9 @@ extension IntExtension on int? {
 
   String get x4D => use < 1000 ? "000$use" : x3D;
 
-  int get validateAsPercentage => validate();
+  int get asPercentage => apply();
 
-  int validate({
-    int max = 100,
-    int min = 0,
-  }) {
+  int apply({int max = 100, int min = 0}) {
     final x = use;
     if (x < min) {
       return min;

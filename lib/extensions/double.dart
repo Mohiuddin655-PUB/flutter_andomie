@@ -5,12 +5,9 @@ extension DoubleExtension on double? {
 
   bool get isNotValid => !isValid;
 
-  double get validateAsPercentage => validate();
+  double get asPercentage => apply();
 
-  double validate({
-    double max = 1,
-    double min = 0,
-  }) {
+  double apply({double max = 1.0, double min = 0.0}) {
     final x = use;
     if (x < min) {
       return min;

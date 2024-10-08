@@ -7,7 +7,11 @@ extension ObjectExtension on Object? {
 
   bool get isList => this is List;
 
-  bool equals(dynamic compare) => this != null && this == compare;
+  bool equals(dynamic compare) {
+    return this != null &&
+        this == compare &&
+        runtimeType == compare.runtimeType;
+  }
 
   T find<T extends Object?>({Object? key, T? defaultValue}) {
     final T? arguments = findOrNull(key: key, defaultValue: defaultValue);
@@ -23,8 +27,12 @@ extension ObjectExtension on Object? {
   }
 
   T? findOrNull<T extends Object?>({Object? key, T? defaultValue}) {
-    final root = this;
-    final value = root is Map && key != null ? root[key] : root;
+    var root = this;
+    final value = key == null
+        ? root
+        : root is Map
+            ? root[key]
+            : null;
     if (value is T) return value;
     if (value is num) {
       if (T == int) return value.toInt() as T;

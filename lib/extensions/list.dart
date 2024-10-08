@@ -7,6 +7,17 @@ extension ListExtension<E> on List<E>? {
 
   List<E> get unify => List<E>.from(use.toSet());
 
+  List<E> change(E value, [bool Function(E element)? test]) {
+    final a = use;
+    final index = test != null ? a.indexWhere(test) : a.indexOf(value);
+    if (index >= 0) {
+      a.removeAt(index);
+      a.insert(index, value);
+      return a;
+    }
+    return a;
+  }
+
   List<E> toggle(
     E value, {
     bool? exist,

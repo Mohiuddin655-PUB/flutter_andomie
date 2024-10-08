@@ -1,3 +1,8 @@
+## 0.5.46
+
+* Add selection model to use selectable option
+* Add list finder operation for [change]
+
 ## 0.5.45
 
 * Add DataKeeper util to maintain api request only one if data is similar and provide data from
