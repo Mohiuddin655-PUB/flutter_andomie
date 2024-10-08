@@ -1,3 +1,7 @@
+## 0.5.47
+
+* Selection update function renamed [update to copy]
+
 ## 0.5.46
 
 * Add selection model to use selectable option

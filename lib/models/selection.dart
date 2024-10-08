@@ -9,11 +9,17 @@ class Selection<T> {
     required this.data,
   });
 
-  Selection<T> update(bool selected) {
+  Selection<T> get reverse => copy(selected: !selected);
+
+  Selection<T> copy({
+    bool? selected,
+    String? id,
+    T? data,
+  }) {
     return Selection(
-      id: id,
-      data: data,
-      selected: selected,
+      id: id ?? this.id,
+      data: data ?? this.data,
+      selected: selected ?? this.selected,
     );
   }
 
