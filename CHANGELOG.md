@@ -1,3 +1,8 @@
+## 0.5.48
+
+* Update converter
+* Add assets loader util
+
 ## 0.5.47
 
 * Selection update function renamed [update to copy]

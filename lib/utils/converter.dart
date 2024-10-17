@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../extensions/string.dart';
 import 'number.dart';
 import 'replacement.dart';
 import 'validator.dart';
@@ -10,27 +11,31 @@ class Converter {
   const Converter._();
 
   /// Modifies a value (placeholder function).
-  static String modify() {
-    return "";
+  static String? modify(
+    String? value, {
+    CaseFormat? format,
+    CaseType? type,
+    String modifier = '',
+  }) {
+    return value.modify(modifier: modifier, type: type, format: format);
   }
 
   /// Converts a list of strings to a formatted string.
   ///
   /// Example: ['one', 'two', 'three'] -> 'one, two, and three'
-  static String asString(List<String> list) {
-    String buffer = '';
-    if (list.isNotEmpty) {
-      int size = list.length;
-      int end = size - 1;
-      int and = size - 2;
-      for (int index = 0; index < size; index++) {
-        if (index == and) {
-          buffer = '$buffer${list[index]} and ';
-        } else if (index == end) {
-          buffer = '$buffer${list[index]}';
-        } else {
-          buffer = '$buffer${list[index]}, ';
-        }
+  static String? asString(Iterable<String>? iterable) {
+    if (iterable == null || iterable.isEmpty) return null;
+    int size = iterable.length;
+    int end = size - 1;
+    int and = size - 2;
+    String? buffer;
+    for (int index = 0; index < size; index++) {
+      if (index == and) {
+        buffer = '$buffer${iterable.elementAt(index)} and ';
+      } else if (index == end) {
+        buffer = '$buffer${iterable.elementAt(index)}';
+      } else {
+        buffer = '$buffer${iterable.elementAt(index)}, ';
       }
     }
     return buffer;
@@ -39,8 +44,9 @@ class Converter {
   /// Converts a list to a counting number.
   ///
   /// Example: [1, 2, 3] -> 3
-  static int toCountingNumber(List<dynamic>? list) =>
-      list != null && list.isNotEmpty ? list.length : 0;
+  static int toCountingNumber(Iterable? iterable) {
+    return iterable != null && iterable.isNotEmpty ? iterable.length : 0;
+  }
 
   /// Converts current and total values to a counting state string.
   ///
@@ -56,26 +62,25 @@ class Converter {
   /// Converts a list to a counting text.
   ///
   /// Example: [1, 2, 3] -> '3'
-  static String toCountingText(List<dynamic>? list) =>
-      list != null && list.isNotEmpty ? "${list.length}" : "0";
+  static String toCountingText(Iterable? iterable) {
+    return iterable != null && iterable.isNotEmpty ? "${iterable.length}" : "0";
+  }
 
   /// Converts a size and limit to a formatted string with a plus sign if size is greater than limit.
   ///
   /// Example: (8, 5) -> '5+'
-  static String toCountingWithPlus(int size, int limit) =>
-      size > limit ? "$limit+" : "$size";
+  static String toCountingWithPlus(int size, int limit) {
+    return size > limit ? "$limit+" : "$size";
+  }
 
   /// Converts a string to contain only letters.
   ///
   /// Example: 'abc123' -> 'abc'
-  static String toLetter(String? value) {
+  static String? toLetter(String? value) {
+    if (value == null || value.isEmpty) return null;
     String buffer = '';
-    if (value != null) {
-      for (String character in value.characters) {
-        if (Validator.isLetter(character)) {
-          buffer = '$buffer$character';
-        }
-      }
+    for (String character in value.characters) {
+      if (Validator.isLetter(character)) buffer = '$buffer$character';
     }
     return buffer;
   }
@@ -83,13 +88,12 @@ class Converter {
   /// Converts a string to contain only digits and letters.
   ///
   /// Example: 'abc123!@#' -> 'abc123'
-  static String toDigitWithLetter(String? value) {
+  static String? toDigitWithLetter(String? value) {
+    if (value == null || value.isEmpty) return null;
     String buffer = '';
-    if (value != null) {
-      for (String character in value.characters) {
-        if (Validator.isDigit(character) || Validator.isLetter(character)) {
-          buffer = '$buffer$character';
-        }
+    for (String character in value.characters) {
+      if (Validator.isDigit(character) || Validator.isLetter(character)) {
+        buffer = '$buffer$character';
       }
     }
     return buffer;
@@ -98,13 +102,12 @@ class Converter {
   /// Converts a string to contain only digits and a plus sign.
   ///
   /// Example: '123abc!@#' -> '123+'
-  static String toDigitWithPlus(String? value) {
+  static String? toDigitWithPlus(String? value) {
+    if (value == null || value.isEmpty) return null;
     String buffer = '';
-    if (value != null) {
-      for (String character in value.characters) {
-        if (character == '+' || Validator.isDigit(character)) {
-          buffer = '$buffer$character';
-        }
+    for (String character in value.characters) {
+      if (character == '+' || Validator.isDigit(character)) {
+        buffer = '$buffer$character';
       }
     }
     return buffer;
@@ -113,7 +116,7 @@ class Converter {
   /// Converts a value to a double.
   ///
   /// Example: '3.14' -> 3.14
-  static double toDouble(dynamic value) {
+  static double toDouble(Object? value) {
     if (value is String) {
       return double.tryParse(value) ?? 0.0;
     } else if (value is int) {
@@ -128,7 +131,7 @@ class Converter {
   /// Converts a value to an integer.
   ///
   /// Example: '42' -> 42
-  static int toInt(dynamic value) {
+  static int toInt(Object? value) {
     if (value is String) {
       return int.tryParse(value) ?? 0;
     } else if (value is int) {

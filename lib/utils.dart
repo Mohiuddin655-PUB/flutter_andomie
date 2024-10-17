@@ -1,6 +1,7 @@
 library utils;
 
 export 'models/remaining_duration.dart';
+export 'utils/assets.dart';
 export 'utils/bmi_calculator.dart';
 export 'utils/color_generator.dart';
 export 'utils/converter.dart';
@@ -10,7 +11,6 @@ export 'utils/data_keeper.dart';
 export 'utils/date_converter.dart';
 export 'utils/device_config.dart';
 export 'utils/hit_logger.dart';
-export 'utils/in_app_icon.dart';
 export 'utils/index_provider.dart';
 export 'utils/key_generator.dart';
 export 'utils/list_generator.dart';
