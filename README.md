@@ -4,6 +4,41 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### ORDERED_LIST_SEQUENCE
+```dart
+class OrderedListView extends StatelessWidget {
+  final List<String> items;
+
+  OrderedListView({required this.items, required this.orderedListStyle});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView.builder(
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        // Format the index based on the selected ordered list style
+        String listPrefix = OrderedListSequence.lowerRoman.sequence(index);
+
+        return ListTile(
+          title: Text('$listPrefix) ${items[index]}'),
+        );
+      },
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(title: Text('Ordered List View')),
+      body: OrderedListView(
+        items: ['Item 1', 'Item 2', 'Item 3', 'Item 4'],// Choose the style here
+      ),
+    ),
+  ));
+}
+```
+
 #### DATA_EXECUTOR
 
 - ExecutedData

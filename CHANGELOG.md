@@ -1,3 +1,7 @@
+## 0.5.49
+
+* Add OrderedListSequence util to counting list index as sequence like a, b, c, ..., aa, ab, ac, ...
+
 ## 0.5.48
 
 * Update converter
