@@ -70,10 +70,10 @@ extension ObjectExtension on Object? {
   }
 
   T findByKey<T extends Object?>(
-    String key,
-    T defaultValue, [
+    String key, {
+    T? defaultValue,
     ObjectBuilder<T>? builder,
-  ]) {
+  }) {
     return find(key: key, defaultValue: defaultValue, builder: builder);
   }
 
@@ -94,7 +94,7 @@ extension ObjectExtension on Object? {
 
   List<T> finds<T extends Object?>({
     Object? key,
-    List<T>? defaultValue,
+    List<T> defaultValue = const [],
     ObjectBuilder<T>? builder,
   }) {
     final List<T>? arguments = findsOrNull(
@@ -110,11 +110,15 @@ extension ObjectExtension on Object? {
   }
 
   List<T> findsByKey<T extends Object?>(
-    String key,
-    List<T> defaultValue, [
+    String key, {
+    List<T> defaultValue = const [],
     ObjectBuilder<T>? builder,
-  ]) {
-    return finds(key: key, defaultValue: defaultValue, builder: builder);
+  }) {
+    return finds(
+      key: key,
+      defaultValue: defaultValue,
+      builder: builder,
+    );
   }
 
   List<T>? findsOrNull<T extends Object?>({
@@ -133,15 +137,39 @@ extension ObjectExtension on Object? {
     return List.from(iterable);
   }
 
-  T get<T extends Object?>({Object? key, T? defaultValue}) {
-    return find(key: key, defaultValue: defaultValue);
+  T get<T extends Object?>({
+    Object? key,
+    T? defaultValue,
+    ObjectBuilder<T>? builder,
+  }) {
+    return find(
+      key: key,
+      defaultValue: defaultValue,
+      builder: builder,
+    );
   }
 
-  T getByKey<T extends Object?>(String key, T defaultValue) {
-    return findByKey(key, defaultValue);
+  T getByKey<T extends Object?>(
+    String key, {
+    T? defaultValue,
+    ObjectBuilder<T>? builder,
+  }) {
+    return findByKey(
+      key,
+      defaultValue: defaultValue,
+      builder: builder,
+    );
   }
 
-  T? getOrNull<T extends Object?>({Object? key, T? defaultValue}) {
-    return findOrNull(key: key, defaultValue: defaultValue);
+  T? getOrNull<T extends Object?>({
+    Object? key,
+    T? defaultValue,
+    ObjectBuilder<T>? builder,
+  }) {
+    return findOrNull(
+      key: key,
+      defaultValue: defaultValue,
+      builder: builder,
+    );
   }
 }

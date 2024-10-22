@@ -16,7 +16,7 @@ export 'utils/key_generator.dart';
 export 'utils/list_generator.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';
-export 'utils/ordered_list_sequence.dart';
+export 'utils/ordered_list_style.dart';
 export 'utils/pagination.dart';
 export 'utils/path_parser.dart';
 export 'utils/path_replacer.dart';

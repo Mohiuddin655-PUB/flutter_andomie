@@ -1,16 +1,27 @@
-enum OrderedListSequence {
-  number("1.", "number"),
-  lowerAlpha("a.", "lower alpha"),
-  upperAlpha("A.", "upper alpha"),
-  lowerRoman("i.", "lower roman"),
-  upperRoman("I.", "upper roman"),
-  lowerGreek("α.", "lower greek"),
-  upperGreek("Α.", "upper greek");
+enum OrderedListStyle {
+  number("1", "number"),
+  lowerAlpha("a", "lower_alpha"),
+  upperAlpha("A", "upper_alpha"),
+  lowerRoman("i", "lower_roman"),
+  upperRoman("I", "upper_roman"),
+  lowerGreek("α", "lower_greek"),
+  upperGreek("Α", "upper_greek");
 
   final String sign;
   final String name;
 
-  const OrderedListSequence(this.sign, this.name);
+  const OrderedListStyle(this.sign, this.name);
+
+  static OrderedListStyle? from(String? style) {
+    if (style == null) return null;
+    if (style.length != 1) {
+      style =
+          style.trim().toLowerCase().replaceAll(" ", "_").replaceAll("-", "_");
+    }
+    return values.where((e) {
+      return e.sign == style || e.name == style;
+    }).firstOrNull;
+  }
 
   /// Use Case:
   /// ```dart
@@ -19,55 +30,55 @@ enum OrderedListSequence {
   ///
   /// Example:
   ///
-  /// Number sequence generation like: [OrderedListSequence.number]
+  /// Number sequence generation like: [OrderedListStyle.number]
   /// ```
   /// 1, 2, 3, ..., 97, 98, 99, ..., 100, 101, ...
   /// ```
   ///
-  /// Lowercase alphabetic sequence generation like: [OrderedListSequence.lowerAlpha]
+  /// Lowercase alphabetic sequence generation like: [OrderedListStyle.lowerAlpha]
   /// ```
   /// a, b, c, ..., aa, ab, ac, ..., aba, abb, ...
   /// ```
   ///
-  /// Uppercase alphabetic sequence generation like: [OrderedListSequence.upperAlpha]
+  /// Uppercase alphabetic sequence generation like: [OrderedListStyle.upperAlpha]
   /// ```
   /// A, B, C, ..., AA, AB, AC, ..., ABA, ABB, ...
   /// ```
   ///
-  /// Lowercase Roman numeral sequence generation like: [OrderedListSequence.lowerRoman]
+  /// Lowercase Roman numeral sequence generation like: [OrderedListStyle.lowerRoman]
   /// ```
   /// i, ii, iii, ..., xcvii, xcviii, xcix, ..., c, ci, ...
   /// ```
   ///
-  /// Uppercase Roman numeral sequence generation like: [OrderedListSequence.upperRoman]
+  /// Uppercase Roman numeral sequence generation like: [OrderedListStyle.upperRoman]
   /// ```
   /// I, II, III, ..., XCVII, XCVIII, XCIX, ..., C, CI, ...
   /// ```
   ///
-  /// Lowercase Greek letter sequence generation like: [OrderedListSequence.lowerGreek]
+  /// Lowercase Greek letter sequence generation like: [OrderedListStyle.lowerGreek]
   /// ```
   /// α, β, γ, ..., αα, αβ, αγ, ..., βα, ββ, ...
   /// ```
   ///
-  /// Uppercase Greek letter sequence generation like: [OrderedListSequence.upperGreek]
+  /// Uppercase Greek letter sequence generation like: [OrderedListStyle.upperGreek]
   /// ```
   /// Α, Β, Γ, ..., ΑΑ, ΑΒ, ΑΓ, ..., ΒΑ, ΒΒ, ...
   /// ```
   String sequence(int index) {
     switch (this) {
-      case OrderedListSequence.number:
+      case OrderedListStyle.number:
         return '${index + 1}';
-      case OrderedListSequence.lowerAlpha:
+      case OrderedListStyle.lowerAlpha:
         return _alpha(index);
-      case OrderedListSequence.upperAlpha:
+      case OrderedListStyle.upperAlpha:
         return _alpha(index, true);
-      case OrderedListSequence.lowerRoman:
+      case OrderedListStyle.lowerRoman:
         return _roman(index + 1).toLowerCase();
-      case OrderedListSequence.upperRoman:
+      case OrderedListStyle.upperRoman:
         return _roman(index + 1);
-      case OrderedListSequence.lowerGreek:
+      case OrderedListStyle.lowerGreek:
         return _greek(index);
-      case OrderedListSequence.upperGreek:
+      case OrderedListStyle.upperGreek:
         return _greek(index, true);
     }
   }
@@ -176,5 +187,56 @@ enum OrderedListSequence {
       }
     });
     return result;
+  }
+}
+
+extension OrderedListSequenceHelper on int {
+  /// Use Case:
+  /// ```dart
+  /// OrderedListSequence.number.sequence(index)
+  /// ```
+  ///
+  /// Example:
+  ///
+  /// Number sequence generation like: [style: 1 or number]
+  /// ```
+  /// 1, 2, 3, ..., 97, 98, 99, ..., 100, 101, ...
+  /// ```
+  ///
+  /// Lowercase alphabetic sequence generation like: [style: a or lower_alpha]
+  /// ```
+  /// a, b, c, ..., aa, ab, ac, ..., aba, abb, ...
+  /// ```
+  ///
+  /// Uppercase alphabetic sequence generation like: [style: A or upper_alpha]
+  /// ```
+  /// A, B, C, ..., AA, AB, AC, ..., ABA, ABB, ...
+  /// ```
+  ///
+  /// Lowercase Roman numeral sequence generation like: [style: i or lower_roman]
+  /// ```
+  /// i, ii, iii, ..., xcvii, xcviii, xcix, ..., c, ci, ...
+  /// ```
+  ///
+  /// Uppercase Roman numeral sequence generation like: [style: I or upper_roman]
+  /// ```
+  /// I, II, III, ..., XCVII, XCVIII, XCIX, ..., C, CI, ...
+  /// ```
+  ///
+  /// Lowercase Greek letter sequence generation like: [style: α or lower_greek]
+  /// ```
+  /// α, β, γ, ..., αα, αβ, αγ, ..., βα, ββ, ...
+  /// ```
+  ///
+  /// Uppercase Greek letter sequence generation like: [style: Α or upper_greek]
+  /// ```
+  /// Α, Β, Γ, ..., ΑΑ, ΑΒ, ΑΓ, ..., ΒΑ, ΒΒ, ...
+  String sequence(
+    int index, [
+    String style = "1",
+  ]) {
+    final s = OrderedListStyle.from(style);
+    if (s == null) return style;
+    return s.sequence(index);
   }
 }

@@ -1,3 +1,8 @@
+## 0.5.50
+
+* Change findByKey, getByKey, findsByKey, and getsByKey params structures
+* Renamed OrderedListSequence to OrderedListStyle and implement from factory method with extension
+
 ## 0.5.49
 
 * Add OrderedListSequence util to counting list index as sequence like a, b, c, ..., aa, ab, ac, ...
