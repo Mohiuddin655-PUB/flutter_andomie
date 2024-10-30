@@ -1,3 +1,7 @@
+## 0.5.51
+
+* Add locales util
+
 ## 0.5.50
 
 * Change findByKey, getByKey, findsByKey, and getsByKey params structures

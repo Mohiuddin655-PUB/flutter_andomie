@@ -14,6 +14,7 @@ export 'utils/hit_logger.dart';
 export 'utils/index_provider.dart';
 export 'utils/key_generator.dart';
 export 'utils/list_generator.dart';
+export 'utils/locales.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';
 export 'utils/ordered_list_style.dart';
