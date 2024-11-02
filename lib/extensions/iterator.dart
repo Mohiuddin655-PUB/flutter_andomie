@@ -87,6 +87,44 @@ extension IterableExtension<E> on Iterable<E> {
     return initial;
   }
 
+  E? firstWhereOrNull(bool Function(E) test) {
+    try {
+      return firstWhere(test);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  E? lastWhereOrNull(bool Function(E) test) {
+    try {
+      return lastWhere(test);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  List<E> mergeByTags(List<String> tags, String Function(E) matcher) {
+    final List<E> orderedItems = [];
+    final List<E> remainingItems = [];
+
+    // Separate the items in value based on tags
+    for (var e in this) {
+      if (tags.contains(matcher(e))) {
+        orderedItems.add(e);
+      } else {
+        remainingItems.add(e);
+      }
+    }
+
+    // Arrange orderedItems in the same order as tags
+    orderedItems.sort((a, b) {
+      return tags.indexOf(matcher(a)).compareTo(tags.indexOf(matcher(b)));
+    });
+
+    // Combine the ordered items with the remaining items
+    return [...orderedItems, ...remainingItems];
+  }
+
   List<R> to<R>(
     R Function(int index, E element) combine, {
     bool reverse = false,

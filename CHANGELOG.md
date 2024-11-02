@@ -1,3 +1,7 @@
+## 0.5.52
+
+* Add firstWhereOrNull, lastWhereOrNull, and mergeByTags iterable extensions
+
 ## 0.5.51
 
 * Add locales util
