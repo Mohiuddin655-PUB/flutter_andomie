@@ -1,3 +1,7 @@
+## 0.5.54
+
+* Add Isolation util to use multi-call future data
+
 ## 0.5.53
 
 * Convert update for [asString, asList]

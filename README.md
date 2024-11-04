@@ -4,6 +4,28 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### ISOLATION
+```dart
+void main() async {
+  final isolation = Isolation();
+  await isolation.initialize();
+
+  for (var i = 0; i < 10; i++) {
+    isolation.isolate(_task, i).then((value) {
+      print(value);
+    });
+  }
+}
+
+Future<Map> _task(index) async {
+  for (var i = 0; i < 10; i++) {
+    await Future.delayed(Duration(milliseconds: 10 * index as int));
+    print("Task $index: $i");
+  }
+  return {"data": "Complete this task: $index"};
+}
+```
+
 #### ORDERED_LIST_SEQUENCE
 ```dart
 class OrderedListView extends StatelessWidget {
