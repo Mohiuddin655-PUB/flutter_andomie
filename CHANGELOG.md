@@ -1,3 +1,7 @@
+## 0.5.53
+
+* Convert update for [asString, asList]
+
 ## 0.5.52
 
 * Add firstWhereOrNull, lastWhereOrNull, and mergeByTags iterable extensions
