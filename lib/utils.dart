@@ -25,6 +25,7 @@ export 'utils/path_replacer.dart';
 export 'utils/patterns.dart';
 export 'utils/random_provider.dart';
 export 'utils/rank_generator.dart';
+export 'utils/rapid_click.dart';
 export 'utils/replacement.dart';
 export 'utils/screen_loader.dart';
 export 'utils/singleton.dart';

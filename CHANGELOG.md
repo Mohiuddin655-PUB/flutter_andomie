@@ -1,3 +1,7 @@
+## 0.5.56
+
+* Add RapidClick util to handle multi-click and apply last click with counter value
+
 ## 0.5.55
 
 * Add loading property inside the Selector model to apply loading mechanism in ui easily
