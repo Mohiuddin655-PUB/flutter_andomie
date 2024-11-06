@@ -1,3 +1,7 @@
+## 0.5.55
+
+* Add loading property inside the Selector model to apply loading mechanism in ui easily
+
 ## 0.5.54
 
 * Add Isolation util to use multi-call future data
