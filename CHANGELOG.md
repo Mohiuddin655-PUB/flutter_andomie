@@ -1,3 +1,7 @@
+## 0.5.57
+
+* Add TextParser util to parse any text to spannable texts
+
 ## 0.5.56
 
 * Add RapidClick util to handle multi-click and apply last click with counter value

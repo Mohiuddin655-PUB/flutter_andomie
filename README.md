@@ -4,6 +4,15 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### TEXT_PARSER
+```dart
+void main() {
+  String normalText = "My name is Mr. X. I'm <CUSTOM_TAG_1><CUSTOM_TAG_2>24</CUSTOM_TAG_2></CUSTOM_TAG_1> old.";
+  List<SpanText> parsedText = TextParser.parse(normalText);
+  print(parsedText); // OUTPUT: [NormalText(text: My name is Mr. X. I'm ), SpannedText(text: 24, types: [CUSTOM_TAG_1, CUSTOM_TAG_2]), NormalText(text:  old.)]
+}
+```
+
 #### RAPID_CLICK
 ```dart
 import 'dart:developer';
