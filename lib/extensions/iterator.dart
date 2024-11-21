@@ -1,9 +1,7 @@
 import 'dart:math';
 
 extension IterableExtension<E> on Iterable<E> {
-  E get random {
-    return elementAt(Random().nextInt(length));
-  }
+  E get random => elementAt(Random().nextInt(length));
 
   bool isFound(bool Function(E element) checker) {
     Iterator<E> iterator = this.iterator;
@@ -16,6 +14,10 @@ extension IterableExtension<E> on Iterable<E> {
   }
 
   bool isNotFound(bool Function(E element) checker) => !isFound(checker);
+
+  bool isLookup(Iterable<E> other, String Function(E element) checker) {
+    return lookup(other, checker).isNotEmpty;
+  }
 
   bool isSame(Iterable<E> other) => toString() == other.toString();
 
@@ -111,6 +113,13 @@ extension IterableExtension<E> on Iterable<E> {
     }
   }
 
+  Iterable<E> lookup(Iterable<E> other, String Function(E element) checker) {
+    return where((e) {
+      final a = checker(e);
+      return other.map(checker).where((b) => a == b).isEmpty;
+    });
+  }
+
   List<E> mergeByTags(List<String> tags, String Function(E) matcher) {
     final List<E> orderedItems = [];
     final List<E> remainingItems = [];
@@ -164,4 +173,29 @@ extension IterableExtension<E> on Iterable<E> {
     }
     return initial;
   }
+}
+
+extension IterableStringExtension on Iterable<String> {
+  String get text {
+    final items = this;
+    if (items.isEmpty) return '';
+    if (items.length == 1) return items.first;
+
+    final itemList = items.toList();
+    final lastItem = itemList.removeLast();
+
+    return '${itemList.join(', ')} and $lastItem';
+  }
+}
+
+extension IterableNumExtension on Iterable<num> {
+  num get sum => reduce((a, b) => a + b);
+
+  num get sub => reduce((a, b) => a - b);
+
+  num get mul => reduce((a, b) => a * b);
+
+  num get div => reduce((a, b) => a / b);
+
+  num get mod => reduce((a, b) => a % b);
 }

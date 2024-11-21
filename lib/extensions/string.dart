@@ -21,6 +21,22 @@ extension StringExtension on String? {
 
   String get uppercaseBySentence => modify(format: CaseFormat.sentence);
 
+  String? get cleanedText {
+    if (this == null) return null;
+    return this!
+        .replaceAll(RegExp(r'\s*,\s*'), ', ')
+        .replaceAll(RegExp(r'\s+'), ' ')
+        .trim();
+  }
+
+  List<String> get list => use
+      .replaceAll(RegExp(r'\b(and|And|AND)\b', caseSensitive: false), ',')
+      .replaceAll(RegExp(r'\s*,\s*'), ',')
+      .replaceAll(RegExp(r'\s+'), ' ')
+      .replaceAll(RegExp(r',+'), ',')
+      .trim()
+      .split(",");
+
   String modify({
     CaseFormat? format,
     CaseType? type,

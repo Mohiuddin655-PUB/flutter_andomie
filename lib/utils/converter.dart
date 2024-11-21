@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../extensions/iterator.dart';
 import '../extensions/string.dart';
 import 'number.dart';
 import 'replacement.dart';
@@ -25,33 +26,14 @@ class Converter {
   /// Example: ['one', 'two', 'three'] -> 'one, two, and three'
   static String? asString(Iterable<String>? iterable) {
     if (iterable == null || iterable.isEmpty) return null;
-    int size = iterable.length;
-    int end = size - 1;
-    int and = size - 2;
-    String buffer = '';
-    for (int index = 0; index < size; index++) {
-      if (index == and) {
-        buffer = '$buffer${iterable.elementAt(index)} and ';
-      } else if (index == end) {
-        buffer = '$buffer${iterable.elementAt(index)}';
-      } else {
-        buffer = '$buffer${iterable.elementAt(index)}, ';
-      }
-    }
-    if (buffer.isEmpty) return null;
-    return buffer;
+    return iterable.text;
   }
 
-  static List<String>? asList(
-    String? source, [
-    List<String> replacements = const [" and ", " And ", " & "],
-  ]) {
+  static List<String>? asList(String? source) {
     if (source == null || source.isEmpty) return null;
-    final replacedData = Replacement.single(source, ',', replacements);
-    final data = replacedData.split(",");
-    final filtered = data.where((e) => e.isNotEmpty).toList();
-    if (filtered.isEmpty) return null;
-    return filtered;
+    final list = source.list;
+    if (list.isEmpty) return null;
+    return list;
   }
 
   /// Converts a list to a counting number.

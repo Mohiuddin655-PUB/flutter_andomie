@@ -1,3 +1,8 @@
+## 0.5.59
+
+* Add isLookup, lookup, text, sub, sum, mul, div, etc operations in iterable extension
+* Add list and cleanedText operations in string extension
+
 ## 0.5.58+1
 
 * Add isSame operation in iterable extension
