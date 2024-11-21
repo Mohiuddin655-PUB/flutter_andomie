@@ -1,4 +1,10 @@
+import 'dart:math';
+
 extension IterableExtension<E> on Iterable<E> {
+  E get random {
+    return elementAt(Random().nextInt(length));
+  }
+
   bool isFound(bool Function(E element) checker) {
     Iterator<E> iterator = this.iterator;
     if (!iterator.moveNext()) return false;

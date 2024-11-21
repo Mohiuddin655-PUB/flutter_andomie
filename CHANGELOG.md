@@ -1,3 +1,7 @@
+## 0.5.58
+
+* Add random picker in iterable extension
+
 ## 0.5.57
 
 * Add TextParser util to parse any text to spannable texts
