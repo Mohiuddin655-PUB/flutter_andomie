@@ -17,6 +17,8 @@ extension IterableExtension<E> on Iterable<E> {
 
   bool isNotFound(bool Function(E element) checker) => !isFound(checker);
 
+  bool isSame(Iterable<E> other) => toString() == other.toString();
+
   int findIndex(int initial, bool Function(E element) query) {
     Iterator<E> iterator = this.iterator;
     if (!iterator.moveNext()) return initial;

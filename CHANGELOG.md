@@ -1,3 +1,7 @@
+## 0.5.58+1
+
+* Add isSame operation in iterable extension
+
 ## 0.5.58
 
 * Add random picker in iterable extension
