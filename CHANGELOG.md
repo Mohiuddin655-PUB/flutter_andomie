@@ -1,3 +1,7 @@
+## 0.5.60
+
+* Renamed DataKeeper to CacheManager
+
 ## 0.5.59
 
 * Add isLookup, lookup, text, sub, sum, mul, div, etc operations in iterable extension
