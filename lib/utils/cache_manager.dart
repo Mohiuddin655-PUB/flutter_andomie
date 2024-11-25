@@ -28,7 +28,7 @@ class CacheManager {
     return "$name:$type#$code";
   }
 
-  Future<T> request<T>(
+  Future<T> cache<T>(
     String name, {
     bool? cached,
     Iterable<Object?> keyProps = const [],

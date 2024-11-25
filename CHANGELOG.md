@@ -1,3 +1,7 @@
+## 0.5.61
+
+* Rename CacheManager caller function request to cache
+
 ## 0.5.60
 
 * Renamed DataKeeper to CacheManager
