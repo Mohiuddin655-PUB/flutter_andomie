@@ -1,3 +1,8 @@
+## 0.5.62
+
+* Add AndomieIcon to make any icon as three states like [regular, solid, bold]
+* Convert AssetIcon as AndomieIcon
+
 ## 0.5.61
 
 * Rename CacheManager caller function request to cache

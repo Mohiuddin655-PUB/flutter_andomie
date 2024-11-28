@@ -1,4 +1,5 @@
 import '../instance.dart';
+import 'icon.dart';
 
 class AndomieAssets {
   final String package;
@@ -15,43 +16,52 @@ class AndomieAssets {
     return Andomie.iOrNull?.assets ?? const AndomieAssets();
   }
 
-  String ic(String name) => "$package/$icons/$name";
+  String? ic(String? name) {
+    if (name == null || name.isEmpty) return null;
+    return "$package/$icons/$name";
+  }
 
-  String img(String name) => "$package/$images/$name";
+  String? img(String? name) {
+    if (name == null || name.isEmpty) return null;
+    return "$package/$images/$name";
+  }
 }
 
-class AssetIcon {
-  final String _regular;
-  final String _solid;
-  final String _bold;
+class AssetIcon extends AndomieIcon<String> {
+  @override
+  String get regular => regularOrNull ?? '';
 
-  String get regular => AndomieAssets.i.ic(_regular);
+  @override
+  String get solid => solidOrNull ?? '';
 
-  String get solid => AndomieAssets.i.ic(_solid);
+  @override
+  String get bold => boldOrNull ?? '';
 
-  String get bold => AndomieAssets.i.ic(_bold);
+  @override
+  String? get regularOrNull => AndomieAssets.i.ic(super.regularOrNull);
 
-  String regularBold(bool selected) {
-    if (selected) return bold;
-    return regular;
-  }
+  @override
+  String? get solidOrNull => AndomieAssets.i.ic(super.solidOrNull);
 
-  String regularSolid(bool selected) {
-    if (selected) return solid;
-    return regular;
-  }
+  @override
+  String? get boldOrNull => AndomieAssets.i.ic(super.boldOrNull);
 
   const AssetIcon({
-    String? regular,
-    String? solid,
-    String? bold,
-  })  : _regular = regular ?? bold ?? solid ?? "",
-        _solid = solid ?? bold ?? regular ?? "",
-        _bold = bold ?? solid ?? regular ?? "";
+    super.regular,
+    super.solid,
+    super.bold,
+  });
+
+  @override
+  String toString() => "$AssetIcon#$hashCode($stringify)";
 }
 
-extension AndomieAssetsHelper on String {
-  String get ic => AndomieAssets.i.ic(this);
+extension AndomieAssetsHelper on String? {
+  String get ic => icOrNull ?? '';
 
-  String get img => AndomieAssets.i.img(this);
+  String get img => imgOrNull ?? '';
+
+  String? get icOrNull => AndomieAssets.i.ic(this);
+
+  String? get imgOrNull => AndomieAssets.i.img(this);
 }
