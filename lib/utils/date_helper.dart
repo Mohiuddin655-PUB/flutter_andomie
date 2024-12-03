@@ -232,8 +232,8 @@ class DateHelper {
 
   static bool isWeekday(int day) => weekday == day;
 
-  DateTime getRecentWeekday(int weekday, [DateTime? initial]) {
-    // Get the current date
+  static DateTime toRecentWeekday(int weekday, [DateTime? initial]) {
+    // Get the initial date
     final today = initial ?? DateTime.now();
 
     // Calculate how many days to subtract to get the recent weekday
