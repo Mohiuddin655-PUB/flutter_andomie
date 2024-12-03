@@ -1,5 +1,5 @@
 import 'converter.dart';
-import 'date_converter.dart';
+import 'date_helper.dart';
 import 'patterns.dart';
 
 class Validator {
@@ -118,7 +118,7 @@ class Validator {
 
   static bool isValidYear(Object? year, int requireAge) {
     int current = Converter.toInt(year);
-    int currentYear = DateConverter.currentYear;
+    int currentYear = DateHelper.currentYear;
     return (current > 1900) &&
         (current < currentYear) &&
         ((currentYear - current) >= requireAge);

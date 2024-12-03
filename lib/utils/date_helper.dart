@@ -205,8 +205,8 @@ class RealtimeTextFormat {
 }
 
 /// Provides utility methods related to date and time.
-class DateConverter {
-  const DateConverter._();
+class DateHelper {
+  const DateHelper._();
 
   /// Gets the current time in milliseconds since epoch.
   static int get currentMS {
@@ -226,6 +226,24 @@ class DateConverter {
   /// Gets the current year.
   static int get currentYear {
     return DateTime.now().year;
+  }
+
+  static int get weekday => DateTime.now().weekday;
+
+  static bool isWeekday(int day) => weekday == day;
+
+  DateTime getRecentWeekday(int weekday, [DateTime? initial]) {
+    // Get the current date
+    final today = initial ?? DateTime.now();
+
+    // Calculate how many days to subtract to get the recent weekday
+    int difference = today.weekday - weekday;
+
+    // If the difference is negative, go back to the previous week
+    if (difference < 0) difference += 7;
+
+    // Subtract the difference to get the recent weekday
+    return today.subtract(Duration(days: difference));
   }
 
   /// Converts milliseconds since epoch to the day of the month.
@@ -626,7 +644,7 @@ extension TimeExtension on int? {
     String Function(Realtime value, String time)? onRealtimeByToday,
     String Function(Realtime value, String time)? onRealtimeByYesterday,
   }) {
-    return DateConverter.toRealtime(
+    return DateHelper.toRealtime(
       this,
       showRealtime: showRealtime,
       whenShowNow: whenShowNow,
@@ -745,7 +763,7 @@ extension DateExtension on DateTime? {
     String Function(Realtime value, String time)? onRealtimeByToday,
     String Function(Realtime value, String time)? onRealtimeByYesterday,
   }) {
-    return DateConverter.toRealtime(
+    return DateHelper.toRealtime(
       this?.millisecondsSinceEpoch,
       showRealtime: showRealtime,
       whenShowNow: whenShowNow,

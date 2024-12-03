@@ -1,3 +1,8 @@
+## 0.5.63
+
+* Rename DateConverter to DateHelper
+* Add weekday to date
+
 ## 0.5.62
 
 * Add AndomieIcon to make any icon as three states like [regular, solid, bold]

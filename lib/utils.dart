@@ -8,7 +8,7 @@ export 'utils/color_generator.dart';
 export 'utils/converter.dart';
 export 'utils/countdown.dart';
 export 'utils/data_executor.dart';
-export 'utils/date_converter.dart';
+export 'utils/date_helper.dart';
 export 'utils/device_config.dart';
 export 'utils/hit_logger.dart';
 export 'utils/icon.dart';
