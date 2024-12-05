@@ -1,7 +1,5 @@
 class CacheManager {
-  static CacheManager? _i;
-
-  static CacheManager get i => _i ??= CacheManager._();
+  CacheManager._();
 
   final Map<String, dynamic> _db = {};
 
@@ -9,7 +7,18 @@ class CacheManager {
 
   Iterable<dynamic> get values => _db.values;
 
-  CacheManager._();
+  static CacheManager? _i;
+
+  static CacheManager get i => _i ??= CacheManager._();
+
+  static Future<T> cache<T>(
+    String name, {
+    bool? cached,
+    Iterable<Object?> keyProps = const [],
+    required Future<T> Function() callback,
+  }) {
+    return i.put(name, cached: cached, keyProps: keyProps, callback: callback);
+  }
 
   String hashKey(
     Type type,
@@ -28,7 +37,7 @@ class CacheManager {
     return "$name:$type#$code";
   }
 
-  Future<T> cache<T>(
+  Future<T> put<T>(
     String name, {
     bool? cached,
     Iterable<Object?> keyProps = const [],

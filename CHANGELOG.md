@@ -1,3 +1,7 @@
+## 0.5.64
+
+* Add cache function for CacheManager
+
 ## 0.5.63+1
 
 ## 0.5.63
