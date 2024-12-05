@@ -142,6 +142,29 @@ extension IterableExtension<E> on Iterable<E> {
     return [...orderedItems, ...remainingItems];
   }
 
+  /// Rearranges the sequence of a list based on a 0-based index.
+  ///
+  /// The function takes an index and a list of items. It returns a new list
+  /// where the items are rearranged, starting from the specified index
+  /// and wrapping around to the beginning.
+  ///
+  /// Throws an [ArgumentError] if the index is out of range.
+  ///
+  /// Example:
+  /// ```
+  /// final data = ['a', 'b', 'c', 'd', 'e'];
+  /// final result = data.sequence(2); // ['c', 'd', 'e', 'a', 'b']
+  /// ```
+  List<E> sequence(int index) {
+    final items = toList();
+    if (index < 0 || index >= items.length) {
+      throw ArgumentError(
+        'Index must be between 0 and the length of the items list minus one.',
+      );
+    }
+    return [...items.sublist(index), ...items.sublist(0, index)];
+  }
+
   List<R> to<R>(
     R Function(int index, E element) combine, {
     bool reverse = false,

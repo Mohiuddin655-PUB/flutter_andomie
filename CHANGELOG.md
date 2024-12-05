@@ -1,3 +1,7 @@
+## 0.5.65
+
+* Add sequence iterable operation
+
 ## 0.5.64
 
 * Add cache function for CacheManager
