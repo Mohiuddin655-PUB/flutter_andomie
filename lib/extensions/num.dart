@@ -9,19 +9,19 @@ extension NumExtension on num? {
 
   bool get isNotValid => !isValid;
 
+  int asMinPoint(int step) => (use ~/ step) * step;
+
+  int asMaxPoint(int step) => asMinPoint(step) + step;
+
   String toLimitation(
     int limit, {
     String limitSign = "+",
-    LimitPosition limitPosition = LimitPosition.end,
+    bool signAsEnd = true,
   }) {
     if (use > limit) {
-      return limitPosition == LimitPosition.start
-          ? "$limitSign$limit"
-          : "$limit$limitSign";
+      return signAsEnd ? "$limitSign$limit" : "$limit$limitSign";
     } else {
       return "$this";
     }
   }
 }
-
-enum LimitPosition { start, end }

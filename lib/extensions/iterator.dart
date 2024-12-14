@@ -211,14 +211,26 @@ extension IterableStringExtension on Iterable<String> {
   }
 }
 
-extension IterableNumExtension on Iterable<num> {
-  num get sum => reduce((a, b) => a + b);
+extension IterableNumExtension<T extends num> on Iterable<T> {
+  Iterable<T> get use => isEmpty ? [(T == int ? 0 : 0.0) as T] : this;
 
-  num get sub => reduce((a, b) => a - b);
+  Iterable<num> get _ => use;
 
-  num get mul => reduce((a, b) => a * b);
+  T get total {
+    final value = _.reduce((a, b) => a + b);
+    if (T == int) return value.toInt() as T;
+    return value.toDouble() as T;
+  }
 
-  num get div => reduce((a, b) => a / b);
+  T get maximum {
+    final value = _.reduce((a, b) => b > a ? b : a);
+    if (T == int) return value.toInt() as T;
+    return value.toDouble() as T;
+  }
 
-  num get mod => reduce((a, b) => a % b);
+  T get minimum {
+    final value = _.reduce((a, b) => b < a ? b : a);
+    if (T == int) return value.toInt() as T;
+    return value.toDouble() as T;
+  }
 }

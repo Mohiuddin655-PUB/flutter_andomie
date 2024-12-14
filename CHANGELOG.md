@@ -1,3 +1,8 @@
+## 0.5.66
+
+* Add total, maximum, minimum operations in IterableNumExtension
+* Add asMinPoint and asMaxPoint operations in NumExtension
+
 ## 0.5.65
 
 * Add sequence iterable operation
