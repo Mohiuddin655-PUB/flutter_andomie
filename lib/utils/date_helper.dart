@@ -539,6 +539,28 @@ class DateHelper {
       );
     }
   }
+
+  List<DateTime> range({
+    required DateTime start,
+    required DateTime end,
+    Duration difference = const Duration(days: 1),
+  }) {
+    if (start.isAfter(end)) {
+      throw ArgumentError(
+        'Initial date must be before or equal to the end date',
+      );
+    }
+
+    List<DateTime> dates = [];
+    DateTime currentDate = start;
+
+    while (!currentDate.isAfter(end)) {
+      dates.add(currentDate);
+      currentDate = currentDate.add(difference);
+    }
+
+    return dates;
+  }
 }
 
 extension TimeFormatExtension on TimeFormats? {
@@ -681,6 +703,16 @@ extension DateExtension on DateTime? {
 
   bool get isYesterday {
     return isDay(DateTime.now().subtract(const Duration(days: 1)));
+  }
+
+  String get dateOnly {
+    final now = _v;
+    return "${now.year}-${now.month}-${now.day}";
+  }
+
+  String get timeOnly {
+    final now = _v;
+    return "${now.hour}:${now.minute}:${now.second}";
   }
 
   String get realtime => toRealtime();
