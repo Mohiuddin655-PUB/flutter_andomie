@@ -540,7 +540,7 @@ class DateHelper {
     }
   }
 
-  List<DateTime> range({
+  static List<DateTime> range({
     required DateTime start,
     required DateTime end,
     Duration difference = const Duration(days: 1),
