@@ -1,3 +1,7 @@
+## 0.5.69
+
+* Add RouteManager util to monitor page routing
+
 ## 0.5.68+1
 
 * Add dateOnly, timeOnly and range methods in DateHelper
