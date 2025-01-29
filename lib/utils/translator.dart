@@ -27,10 +27,27 @@ final kNumericalDigits = {
   "zh": "〇一二三四五六七八九",
 };
 
+final kRtlTextDirectionalLanguages = [
+  "ar", // Arabic
+  "arc", // Aramaic
+  "dv", // Divehi (Dhivehi, Maldivian)
+  "fa", // Persian (Farsi)
+  "ha", // Hausa (with Arabic script)
+  "he", // Hebrew
+  "khw", // Khowar (with Arabic script)
+  "ks", // Kashmiri (with Arabic script)
+  "ku", // Kurdish (Sorani)
+  "ps", // Pashto
+  "ur", // Urdu
+  "yi" // Yiddish
+];
+
 enum TranslateType { number }
 
 class Translator {
   String? _language;
+  List<String> _rtlLanguages = kRtlTextDirectionalLanguages;
+  Map<String, String> _digits = kNumericalDigits;
 
   Translator._();
 
@@ -40,13 +57,22 @@ class Translator {
 
   static set language(String? value) => _ii._language = value;
 
+  static set rtlLanguages(List<String> value) => _ii._rtlLanguages = value;
+
+  static set digits(Map<String, String> value) => _ii._digits = value;
+
+  static bool isRtlMode([String? language]) {
+    language ??= _ii._language;
+    return _ii._rtlLanguages.contains(language);
+  }
+
   static String translate(
     String value, {
     String? language,
     TranslateType type = TranslateType.number,
   }) {
     language ??= _ii._language ?? 'en';
-    final raw = kNumericalDigits[language] ?? '';
+    final raw = _ii._digits[language] ?? '';
     if (raw.isEmpty) return value;
     final codes = raw.split('');
     final numbers = value.split('');
@@ -57,6 +83,9 @@ class Translator {
       if (code == null) return number;
       return code;
     });
+    if (isRtlMode(language)) {
+      return converted.toList().reversed.toList().join('');
+    }
     return converted.join('');
   }
 }

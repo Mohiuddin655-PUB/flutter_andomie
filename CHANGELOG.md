@@ -1,3 +1,7 @@
+## 0.5.71
+
+* RtdDirection supported translator
+
 ## 0.5.70
 
 * Add number translator
