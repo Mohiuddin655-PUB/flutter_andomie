@@ -4,6 +4,22 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### TRANSLATOR
+```dart
+void main() {
+  final digits = "1234567890.05";
+
+  // USE CASE 1
+  Translator.language = 'bn';
+  final a = digits.trNumber;
+  print(a); // ১২৩৪৫৬৭৮৯০.০৫
+
+  // USE CASE 2
+  final b = digits.translate(language: "ar");
+  print(b); // ١٢٣٤٥٦٧٨٩٠.٠٥
+}
+```
+
 #### ROUTE_MANAGER
 ```dart
 import 'dart:developer';

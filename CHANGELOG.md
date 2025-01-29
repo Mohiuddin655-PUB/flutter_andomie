@@ -1,3 +1,7 @@
+## 0.5.70
+
+* Add number translator
+
 ## 0.5.69
 
 * Add RouteManager util to monitor page routing
