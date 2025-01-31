@@ -1,3 +1,7 @@
+## 0.5.72
+
+* Object findOrNull operation is List of num, String, int, double and bool values supports
+
 ## 0.5.71
 
 * RtdDirection supported translator

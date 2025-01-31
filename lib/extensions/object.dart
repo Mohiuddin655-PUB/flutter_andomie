@@ -41,6 +41,58 @@ extension ObjectExtension on Object? {
         if (boolean != null) return boolean as T;
       }
     }
+    if (source is Iterable) {
+      final type = T.toString();
+      if (type.contains("List<String>")) {
+        return source
+            .map((e) {
+              if (e == null) return null;
+              return "$e";
+            })
+            .whereType<String>()
+            .toList() as T;
+      }
+      if (type.contains("List<int>")) {
+        return source
+            .map((e) {
+              if (e is num) return e.toInt();
+              if (e is String) return num.tryParse(e)?.toInt();
+              return null;
+            })
+            .whereType<int>()
+            .toList() as T;
+      }
+      if (type.contains("List<double>")) {
+        return source
+            .map((e) {
+              if (e is num) return e.toDouble();
+              if (e is String) return num.tryParse(e)?.toDouble();
+              return null;
+            })
+            .whereType<double>()
+            .toList() as T;
+      }
+      if (type.contains("List<num>")) {
+        return source
+            .map((e) {
+              if (e is num) return e;
+              if (e is String) return num.tryParse(e);
+              return null;
+            })
+            .whereType<num>()
+            .toList() as T;
+      }
+      if (type.contains("List<bool>")) {
+        return source
+            .map((e) {
+              if (e is bool) return e;
+              if (e is String) return bool.tryParse(e);
+              return null;
+            })
+            .whereType<bool>()
+            .toList() as T;
+      }
+    }
     return null;
   }
 
@@ -137,35 +189,24 @@ extension ObjectExtension on Object? {
     return List.from(iterable);
   }
 
-  T get<T extends Object?>({
+  T get<T extends Object?>([
     Object? key,
     T? defaultValue,
     ObjectBuilder<T>? builder,
-  }) {
-    return find(
-      key: key,
-      defaultValue: defaultValue,
-      builder: builder,
-    );
+  ]) {
+    final T? arguments = getOrNull(key, defaultValue, builder);
+    if (arguments != null) {
+      return arguments;
+    } else {
+      throw UnimplementedError("$T didn't get from this object");
+    }
   }
 
-  T getByKey<T extends Object?>(
-    String key, {
-    T? defaultValue,
-    ObjectBuilder<T>? builder,
-  }) {
-    return findByKey(
-      key,
-      defaultValue: defaultValue,
-      builder: builder,
-    );
-  }
-
-  T? getOrNull<T extends Object?>({
+  T? getOrNull<T extends Object?>([
     Object? key,
     T? defaultValue,
     ObjectBuilder<T>? builder,
-  }) {
+  ]) {
     return findOrNull(
       key: key,
       defaultValue: defaultValue,
