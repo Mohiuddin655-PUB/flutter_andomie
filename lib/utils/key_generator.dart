@@ -96,10 +96,7 @@ class KeyGenerator {
       return Replacement.auto(name).toLowerCase();
     } else {
       final ms = timeMills ?? DateTime.timestamp().millisecondsSinceEpoch;
-      final extra = RandomProvider.getString(
-        data: format.value,
-        max: extraKeySize,
-      );
+      final extra = RandomProvider.string(format.value, max: extraKeySize);
       final key = "$ms$extra";
       return key;
     }

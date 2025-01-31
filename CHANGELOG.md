@@ -1,3 +1,7 @@
+## 0.5.73
+
+* Add randomize operation in RandomProvider and rename other operation names
+
 ## 0.5.72
 
 * Object findOrNull operation is List of num, String, int, double and bool values supports
