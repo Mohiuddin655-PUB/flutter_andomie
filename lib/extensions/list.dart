@@ -5,6 +5,8 @@ extension ListExtension<E> on List<E>? {
 
   List<E> get use => this ?? [];
 
+  List<E>? get verified => isValid ? this : null;
+
   List<E> get unify => List<E>.from(use.toSet());
 
   List<E> change(E value, [bool Function(E element)? test]) {

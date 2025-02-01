@@ -1,3 +1,7 @@
+## 0.5.74
+
+* Add verified operation inside all extensions
+
 ## 0.5.73
 
 * Add randomize operation in RandomProvider and rename other operation names

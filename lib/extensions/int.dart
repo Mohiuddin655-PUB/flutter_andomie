@@ -1,6 +1,8 @@
 extension IntExtension on int? {
   int get use => this ?? 0;
 
+  int? get verified => isValid ? this : null;
+
   bool get isValid => use > 0;
 
   bool get isNotValid => !isValid;

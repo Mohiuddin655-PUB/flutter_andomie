@@ -1,6 +1,8 @@
 typedef ObjectBuilder<T> = T Function(dynamic value);
 
 extension ObjectExtension on Object? {
+  Object? get verified => isValid ? this : null;
+
   bool get isValid => this != null;
 
   bool get isNotValid => !isValid;

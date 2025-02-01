@@ -1,6 +1,8 @@
 extension MapExtension on Map<String, dynamic>? {
   Map<String, dynamic> get use => this ?? {};
 
+  Map? get verified => isValid ? this : null;
+
   bool get isValid => use.isNotEmpty;
 
   bool get isNotValid => !isValid;

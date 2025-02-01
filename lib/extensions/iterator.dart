@@ -3,6 +3,12 @@ import 'dart:math';
 extension IterableExtension<E> on Iterable<E> {
   E get random => elementAt(Random().nextInt(length));
 
+  Iterable<E>? get verified => isValid ? this : null;
+
+  bool get isValid => isNotEmpty;
+
+  bool get isNotValid => !isValid;
+
   bool isFound(bool Function(E element) checker) {
     Iterator<E> iterator = this.iterator;
     if (!iterator.moveNext()) return false;

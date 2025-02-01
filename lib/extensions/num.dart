@@ -1,6 +1,8 @@
 extension NumExtension on num? {
   num get use => this ?? 0;
 
+  num? get verified => isValid ? this : null;
+
   int get asInt => use.toInt();
 
   double get asDouble => use.toDouble();

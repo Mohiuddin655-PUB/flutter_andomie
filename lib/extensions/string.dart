@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 extension StringExtension on String? {
   String get use => this ?? "";
 
+  String? get verified => isValid ? this : null;
+
   bool get isValid => use.isNotEmpty;
 
   bool get isNotValid => !isValid;
