@@ -1,4 +1,4 @@
-library extensions;
+library;
 
 export 'extensions/boolean.dart';
 export 'extensions/double.dart';

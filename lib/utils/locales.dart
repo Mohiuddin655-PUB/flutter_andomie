@@ -129,10 +129,10 @@ class Locales {
     final name = source["name"];
     final native = source["native"];
     final code = source["code"];
-    final c = code is String ? code : "en_US";
+    final c = code is String ? code : "";
     return Locales(
-      name: name is String ? name : "English",
-      native: native is String ? native : "English",
+      name: name is String ? name : "",
+      native: native is String ? native : "",
       code: c,
       locale: parse(c),
     );
@@ -150,16 +150,22 @@ class Locales {
     } else if (source.contains("-")) {
       codes = source.split("-");
     }
-    if (codes.isEmpty || codes.length != 2) return null;
-    final lc = codes.first;
-    final cc = codes.last;
+    if (codes.isEmpty) return null;
+    final lc = codes.elementAt(0);
+    final cc = codes.elementAtOrNull(1);
     return Locale(lc, cc);
   }
 
-  static bool _filter(Map data, String locale) => locale == data['code'];
+  static bool _filter(Map data, Locale locale) {
+    final code = data['code'];
+    if (code is! String) return false;
+    final mLocale = parse(code);
+    return mLocale.languageCode == locale.languageCode;
+  }
 
   static String? languageName(String locale) {
-    return kLanguages.where((e) => _filter(e, locale)).firstOrNull?["name"];
+    final mLocale = parse(locale);
+    return kLanguages.where((e) => _filter(e, mLocale)).firstOrNull?["name"];
   }
 
   static Iterable<String> languageNames() {
@@ -167,7 +173,8 @@ class Locales {
   }
 
   static String? nativeName(String locale) {
-    return kLanguages.where((e) => _filter(e, locale)).firstOrNull?["native"];
+    final mLocale = parse(locale);
+    return kLanguages.where((e) => _filter(e, mLocale)).firstOrNull?["native"];
   }
 
   static Iterable<String> nativeNames() {
@@ -202,7 +209,13 @@ class Locales {
 }
 
 extension LocaleHelper on Locale {
-  String? get name => Locales.languageName("${languageCode}_$countryCode");
+  String? get name {
+    if (countryCode == null) return Locales.languageName(languageCode);
+    return Locales.languageName("${languageCode}_$countryCode");
+  }
 
-  String? get nativeName => Locales.nativeName("${languageCode}_$countryCode");
+  String? get nativeName {
+    if (countryCode == null) return Locales.nativeName(languageCode);
+    return Locales.nativeName("${languageCode}_$countryCode");
+  }
 }

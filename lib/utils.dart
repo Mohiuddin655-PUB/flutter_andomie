@@ -1,6 +1,5 @@
-library utils;
+library;
 
-export 'models/remaining_duration.dart';
 export 'utils/assets.dart';
 export 'utils/bmi_calculator.dart';
 export 'utils/cache_manager.dart';

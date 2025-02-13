@@ -1,3 +1,7 @@
+## 0.6.0
+
+* Add CountryHelper
+
 ## 0.5.74
 
 * Add verified operation inside all extensions
