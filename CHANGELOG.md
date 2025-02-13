@@ -1,3 +1,7 @@
+## 0.6.1
+
+* Locale filter improved
+
 ## 0.6.0
 
 * Add CountryHelper
