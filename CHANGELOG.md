@@ -1,3 +1,9 @@
+## 0.6.2
+
+* Remove Locales utils
+* Add Language model to find language details about language by code
+* Add Country model to find country details about country by code
+
 ## 0.6.1
 
 * Locale filter improved

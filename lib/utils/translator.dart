@@ -1,53 +1,12 @@
-final kNumericalDigits = {
-  "ar": "٠١٢٣٤٥٦٧٨٩",
-  "as": "০১২৩৪৫৬৭৮৯",
-  "bn": "০১২৩৪৫৬৭৮৯",
-  "dv": "٠١٢٣٤٥٦٧٨٩",
-  "dz": "༠༡༢༣༤༥༦༧༨༩",
-  "fa": "۰۱۲۳۴۵۶۷۸۹",
-  "gu": "૦૧૨૩૪૫૬૭૮૯",
-  "hi": "०१२३४५६७८९",
-  "ja": "０１２３４５６７８９",
-  "km": "០១២៣៤៥៦៧៨៩",
-  "kn": "೦೧೨೩೪೫೬೭೮೯",
-  "ko": "０１２３４５６７８９",
-  "lo": "໐໑໒໓໔໕໖໗໘໙",
-  "ml": "൦൧൨൩൪൫൬൭൮൯",
-  "mr": "०१२३४५६७८९",
-  "my": "၀၁၂၃၄၅၆၇၈၉",
-  "ne": "०१२३४५६७८९",
-  "or": "୦୧୨୩୪୫୬୭୮୯",
-  "ps": "۰۱۲۳۴۵۶۷۸۹",
-  "sd": "۰۱۲۳۴۵۶۷۸۹",
-  "ta": "௦௧௨௩௪௫௬௭௮௯",
-  "te": "౦౧౨౩౪౫౬౭౮౯",
-  "th": "๐๑๒๓๔๕๖๗๘๙",
-  "ug": "٠١٢٣٤٥٦٧٨٩",
-  "ur": "۰۱۲۳۴۵۶۷۸۹",
-  "zh": "〇一二三四五六七八九",
-};
-
-final kRtlTextDirectionalLanguages = [
-  "ar", // Arabic
-  "arc", // Aramaic
-  "dv", // Divehi (Dhivehi, Maldivian)
-  "fa", // Persian (Farsi)
-  "ha", // Hausa (with Arabic script)
-  "he", // Hebrew
-  "khw", // Khowar (with Arabic script)
-  "ks", // Kashmiri (with Arabic script)
-  "ku", // Kurdish (Sorani)
-  "ps", // Pashto
-  "ur", // Urdu
-  "yi" // Yiddish
-];
+import '../contents/language_numerical_digits.dart';
+import '../contents/rtl_directional_languages.dart';
 
 enum TranslateType { number }
 
 class Translator {
   String? _language;
   List<String> _rtlLanguages = kRtlTextDirectionalLanguages;
-  Map<String, String> _digits = kNumericalDigits;
+  Map<String, String> _digits = kLanguageNumericalDigits;
 
   Translator._();
 

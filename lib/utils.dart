@@ -16,7 +16,6 @@ export 'utils/isolation.dart';
 export 'utils/key_generator.dart';
 export 'utils/lazy_notifier.dart';
 export 'utils/list_generator.dart';
-export 'utils/locales.dart';
 export 'utils/log_builder.dart';
 export 'utils/number.dart';
 export 'utils/ordered_list_style.dart';

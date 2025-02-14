@@ -1,172 +1,122 @@
-import 'dart:convert';
+import '../contents/country_codes_in_iso3.dart';
+import '../contents/country_currency_codes.dart';
+import '../contents/country_currency_names_in_english.dart';
+import '../contents/country_currency_names_in_native.dart';
+import '../contents/country_currency_symbols.dart';
+import '../contents/country_flags.dart';
+import '../contents/country_language_codes.dart';
+import '../contents/country_names_in_english.dart';
+import '../contents/country_names_in_native.dart';
+import '../contents/country_nationalities_in_english.dart';
+import '../contents/country_nationalities_in_native.dart';
+import '../contents/country_phone_codes.dart';
+import '../contents/language_names_in_english.dart';
+import '../contents/language_names_in_native.dart';
+import '../contents/language_numerical_digits.dart';
 
-import '../contents/countries.dart';
+final kCountries = kCountryNamesInEnglish.keys.map(Country.fromCode);
 
 class Country {
-  final String name;
-  final String nameNatively;
-  final String isoCode;
-  final String iso3Code;
-  final String phoneCode;
-  final String currencyCode;
-  final String currencyName;
-  final String currencyNameNatively;
-  final String currencySymbol;
-  final String languageCode;
-  final String languageName;
-  final String languageNameNatively;
-  final List<String> languages;
-  final String digits;
-  final double gdp;
-  final double population;
-  final double wealthiest;
-  final String flag;
+  final String code;
+  final String? codeInIso3;
+  final String? currencyCode;
+  final String? currencyName;
+  final String? currencyNameInNative;
+  final String? currencySymbol;
+  final String? flag;
+  final String? languageCode;
+  final String? languageName;
+  final String? languageNameInNative;
+  final String? languageNumericalDigits;
+  final String? name;
+  final String? nameInNative;
+  final String? nationality;
+  final String? nationalityInNative;
+  final String? phoneCode;
 
-  const Country({
-    this.name = "",
-    this.nameNatively = "",
-    this.flag = "",
-    this.isoCode = "",
-    this.iso3Code = "",
-    this.phoneCode = "",
-    this.currencyCode = "",
-    this.currencyName = "",
-    this.currencyNameNatively = "",
-    this.currencySymbol = "",
-    this.languageCode = "",
-    this.languageName = "",
-    this.languageNameNatively = "",
-    this.languages = const [],
-    this.digits = "",
-    this.gdp = 0,
-    this.population = 0,
-    this.wealthiest = 0,
+  const Country._(
+    this.code, {
+    this.codeInIso3,
+    this.currencyCode,
+    this.currencyName,
+    this.currencyNameInNative,
+    this.currencySymbol,
+    this.flag,
+    this.languageCode,
+    this.languageName,
+    this.languageNameInNative,
+    this.languageNumericalDigits,
+    this.name,
+    this.nameInNative,
+    this.nationality,
+    this.nationalityInNative,
+    this.phoneCode,
   });
 
-  String get locale => "${languageCode}_$isoCode";
-
-  static Country? from(Object? source) {
-    if (source is String) {
-      if (source.startsWith("{")) {
-        source = jsonDecode(source);
-      } else {
-        return kCountries.map(Country.from).where((e) {
-          return e?.locale == source ||
-              e?.isoCode == source ||
-              e?.languageCode == source ||
-              e?.iso3Code == source ||
-              e?.currencyCode == source ||
-              e?.name == source ||
-              e?.languageName == source ||
-              e?.currencyName == source ||
-              e?.phoneCode == source ||
-              e?.currencyNameNatively == source ||
-              e?.currencySymbol == source ||
-              e?.flag == source ||
-              e?.languageNameNatively == source ||
-              e?.nameNatively == source;
-        }).firstOrNull;
-      }
+  factory Country.fromCode(String code, [String? languageCode]) {
+    code = code.toUpperCase();
+    languageCode ??= kCountryLanguageCodes[code];
+    languageCode = languageCode?.toLowerCase();
+    if (["CN", "TW"].contains(code)) {
+      languageCode = "zh_$code";
     }
-    if (source is! Map) return null;
-    final name =
-        source['name'] ?? source["countryName"] ?? source["country_name"];
 
-    final nameNatively = source['nameNatively'] ??
-        source["name_natively"] ??
-        source["country_name_native"];
-
-    final flag = source['flag'];
-
-    final isoCode = source['isoCode'] ??
-        source['iso_code'] ??
-        source["countryCode"] ??
-        source["country_code"];
-
-    final iso3Code = source['iso3Code'] ??
-        source['iso3_code'] ??
-        source["countryCodeIso3"] ??
-        source["country_code_iso3"];
-
-    final phoneCode = source['phoneCode'] ?? source['phone_code'];
-
-    final currencyCode =
-        source['currency'] ?? source['currencyCode'] ?? source['currency_code'];
-
-    final currencyName = source['currencyName'] ?? source['currency_name'];
-
-    final currencyNameNatively = source['currencyNameNatively'] ??
-        source['currency_name_native'] ??
-        source['currency_name_natively'];
-
-    final currencySymbol =
-        source['currencySymbol'] ?? source['currency_symbol'];
-
-    final languageCode =
-        source["language"] ?? source['languageCode'] ?? source['language_code'];
-
-    final languageName = source['languageName'] ?? source['language_name'];
-
-    final languageNameNatively = source['languageNameNatively'] ??
-        source['language_name_natively'] ??
-        source['language_name_native'];
-
-    final digits =
-        source['digits'] ?? source['country_digits'] ?? source['countryDigits'];
-
-    final gdp = source['gdp'] ?? source['country_gdp'] ?? source['countryGdp'];
-
-    final languages = source['languages'] ??
-        source['sub_languages'] ??
-        source['subLanguages'];
-
-    final wealthiest = source['wealthiest'] ??
-        source['country_wealthiest'] ??
-        source['countryWealthiest'];
-
-    final population = source['population'] ??
-        source['country_population'] ??
-        source['countryPopulation'];
-
-    return Country(
-      name: name is String ? name : "",
-      nameNatively: nameNatively is String ? nameNatively : "",
-      flag: flag is String ? flag : "",
-      isoCode: isoCode is String ? isoCode : '',
-      iso3Code: iso3Code is String ? iso3Code : '',
-      phoneCode: phoneCode is String ? phoneCode : '',
-      currencyCode: currencyCode is String ? currencyCode : '',
-      currencyName: currencyName is String ? currencyName : '',
-      currencyNameNatively:
-          currencyNameNatively is String ? currencyNameNatively : '',
-      currencySymbol: currencySymbol is String ? currencySymbol : '',
-      languageCode: languageCode is String ? languageCode : '',
-      languageName: languageName is String ? languageName : '',
-      languageNameNatively:
-          languageNameNatively is String ? languageNameNatively : '',
-      digits: digits is String ? digits : "",
-      gdp: gdp is double ? gdp : 0,
-      languages:
-          languages is List ? languages.map((e) => e.toString()).toList() : [],
-      wealthiest: wealthiest is double ? wealthiest : 0,
-      population: population is double ? population : 0,
+    return Country._(
+      code,
+      codeInIso3: kCountryCodesInIso3[code],
+      currencyCode: kCountryCurrencyCodes[code],
+      currencyName: kCountryCurrencyNamesInEnglish[code],
+      currencyNameInNative: kCountryCurrencyNamesInNative[code],
+      currencySymbol: kCountryCurrencySymbols[code],
+      flag: kCountryFlags[code],
+      languageCode: languageCode,
+      languageName: kLanguageNamesInEnglish[languageCode],
+      languageNameInNative: kLanguageNamesInNative[languageCode],
+      languageNumericalDigits: kLanguageNumericalDigits[languageCode],
+      name: kCountryNamesInEnglish[code],
+      nameInNative: kCountryNamesInNative[code],
+      nationality: kCountryNationalitiesInEnglish[code],
+      nationalityInNative: kCountryNationalitiesInNative[code],
+      phoneCode: kCountryPhoneCodes[code],
     );
   }
 
+  static Country? tryParse(String locale) {
+    if (locale.trim().isEmpty) return null;
+    List<String> codes = [];
+    if (locale.contains("_")) {
+      codes = locale.split("_");
+    } else if (locale.contains("-")) {
+      codes = locale.split("-");
+    }
+    if (codes.length != 2) return null;
+    String lc = codes.elementAt(0);
+    String cc = codes.elementAt(1);
+    return Country.fromCode(cc, lc);
+  }
+
+  String get locale => "${languageCode}_$code";
+
   bool searchCountry(String query) {
     if (query.startsWith("+")) query = query.replaceAll("+", "").trim();
-    return isoCode.toLowerCase().startsWith(query.toLowerCase()) ||
+    final name = this.name ?? "";
+    return code.toLowerCase().startsWith(query.toLowerCase()) ||
         name.toLowerCase().startsWith(query.toLowerCase());
   }
 
   bool searchCurrency(String query) {
     if (query.startsWith("+")) query = query.replaceAll("+", "").trim();
+    final currencyCode = this.currencyCode ?? "";
+    final currencyName = this.currencyName ?? "";
     return currencyCode.toLowerCase().startsWith(query.toLowerCase()) ||
         currencyName.toLowerCase().startsWith(query.toLowerCase());
   }
 
   bool searchLanguage(String query) {
     if (query.startsWith("+")) query = query.replaceAll("+", "").trim();
+    final languageCode = this.languageCode ?? "";
+    final languageName = this.languageName ?? "";
+    final name = this.name ?? "";
     return languageCode.toLowerCase().startsWith(query.toLowerCase()) ||
         languageName.toLowerCase().startsWith(query.toLowerCase()) ||
         name.toLowerCase().startsWith(query.toLowerCase());
@@ -174,53 +124,40 @@ class Country {
 
   bool searchPhone(String query) {
     if (query.startsWith("+")) query = query.replaceAll("+", "").trim();
+    final phoneCode = this.phoneCode ?? "";
+    final name = this.name ?? "";
     return phoneCode.toLowerCase().startsWith(query.toLowerCase()) ||
-        isoCode.toLowerCase().startsWith(query.toLowerCase()) ||
+        code.toLowerCase().startsWith(query.toLowerCase()) ||
         name.toLowerCase().startsWith(query.toLowerCase());
   }
 
   Map<String, dynamic> get source {
     return {
-      "name": name,
-      "nameNatively": nameNatively,
-      "isoCode": isoCode,
-      "iso3Code": iso3Code,
-      "phoneCode": phoneCode,
+      "code": code,
+      "codeInIso3": codeInIso3,
       "currencyCode": currencyCode,
       "currencyName": currencyName,
-      "currencyNameNatively": currencyNameNatively,
+      "currencyNameInNative": currencyNameInNative,
       "currencySymbol": currencySymbol,
+      "flag": flag,
       "languageCode": languageCode,
       "languageName": languageName,
-      "languageNameNatively": languageNameNatively,
-      "flag": flag,
-      "digits": digits,
-      "gdp": gdp,
-      "languages": languages,
-      "wealthiest": wealthiest,
-      "population": population,
+      "languageNameInNative": languageNameInNative,
+      "languageNumericalDigits": languageNumericalDigits,
+      "name": name,
+      "nameInNative": nameInNative,
+      "nationality": nationality,
+      "nationalityInNative": nationalityInNative,
+      "phoneCode": phoneCode,
     };
   }
 
-  String get json => jsonEncode(source);
+  @override
+  int get hashCode => source.hashCode;
 
   @override
-  int get hashCode => json.hashCode;
+  bool operator ==(Object other) => other is Country && other.source == source;
 
   @override
-  bool operator ==(Object other) => other is Country && other.json == json;
-
-  @override
-  String toString() => '$Country('
-      'name:"$name",nameNatively:"$nameNatively",'
-      'isoCode:"$isoCode",iso3Code:"$iso3Code",'
-      'phoneCode:"$phoneCode",'
-      'currencyCode:"$currencyCode",currencyName:"$currencyName",currencyNameNatively:"$currencyNameNatively",currencySymbol:"${currencySymbol.replaceAll("\$", '\\' '\$')}",'
-      'languageCode:"$languageCode",languageName:"$languageName",languageNameNatively:"$languageNameNatively", languages: ${languages.map((e) => '"$e"').toList()},'
-      'digits: "$digits",'
-      'gdp: $gdp,'
-      'population: $population,'
-      'wealthiest: $wealthiest,'
-      'flag:"$flag",'
-      ')';
+  String toString() => "$Country($source)";
 }
