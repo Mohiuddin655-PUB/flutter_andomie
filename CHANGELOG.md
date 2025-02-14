@@ -1,3 +1,7 @@
+## 0.6.3
+
+* Add jv, nb, nn, sa, ti, tk, and tt languages
+
 ## 0.6.2
 
 * Remove Locales utils
