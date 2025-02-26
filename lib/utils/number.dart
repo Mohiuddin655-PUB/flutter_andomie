@@ -249,7 +249,24 @@ class Number {
   ///
   /// Returns a [num] representing the parsed number.
   static num parse(String formattedNumber, [String? locale]) {
-    return Andomie.decimalParser(locale, formattedNumber);
+    try {
+      return Andomie.decimalParser(locale, formattedNumber);
+    } catch (_) {
+      return parse(formattedNumber, Number.locale(formattedNumber));
+    }
+  }
+
+  static String? locale(String text) {
+    if (text.contains(RegExp(r'[0-9]'))) {
+      int periodCount = text.split('.').length - 1;
+      int commaCount = text.split(',').length - 1;
+      if (periodCount > commaCount) return 'de_DE';
+      return 'en_US';
+    }
+    if (text.contains(RegExp(r'[০-৯]'))) return 'bn_BD';
+    if (text.contains(RegExp(r'[٠-٩]'))) return 'ar_SA';
+    if (text.contains(RegExp(r'[०-९]'))) return 'hi_IN';
+    return null;
   }
 }
 

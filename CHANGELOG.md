@@ -1,3 +1,7 @@
+## 0.6.5
+
+* Add Number.locale in Number util
+
 ## 0.6.4
 
 * Add Number.format, Number.parse conversions in Number util
