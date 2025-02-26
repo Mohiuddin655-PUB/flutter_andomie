@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import '../instance.dart';
+
 /// Represents a human-readable format for a numeric value.
 final class Readable {
   final num size;
@@ -196,6 +198,59 @@ class Number {
   static double toRealNumber(num? value, NumberUnits unit) {
     return unit.write(value);
   }
+
+  /// Formats a number based on the given locale.
+  ///
+  /// The method takes a [number] and a [locale] string, and formats the number
+  /// according to the locale's decimal pattern.
+  /// class to format the number in a way that is appropriate for the specified locale.
+  ///
+  /// Example:
+  /// ```dart
+  /// Number.format(1234567.89, 'en_US');
+  /// ```
+  /// Output: `'1,234,567.89'`
+  ///
+  /// Example with a different locale:
+  /// ```dart
+  /// Number.format(1234567.89, 'de_DE');
+  /// ```
+  /// Output: `'1.234.567,89'`
+  ///
+  /// [number] The number to be formatted.
+  /// [locale] The locale to use for formatting.
+  ///
+  /// Returns a string representing the formatted number.
+  static String format(num number, [String? locale]) {
+    return Andomie.decimalFormatter(locale, number);
+  }
+
+  /// Parses a formatted number string back to a decimal number.
+  ///
+  /// This method takes a formatted [formattedNumber] string and a [locale] string,
+  /// and parses the formatted string back into a decimal number. The formatted
+  /// number string must match the locale's formatting pattern (e.g., commas,
+  /// periods, spaces, etc.).
+  ///
+  /// Example:
+  /// ```dart
+  /// Number.parse('1,234,567.89', 'en_US');
+  /// ```
+  /// Output: `1234567.89`
+  ///
+  /// Example with a different locale:
+  /// ```dart
+  /// Number.parse('1.234.567,89', 'de_DE');
+  /// ```
+  /// Output: `1234567.89`
+  ///
+  /// [formattedNumber] The formatted number string to be parsed.
+  /// [locale] The locale to use for parsing.
+  ///
+  /// Returns a [num] representing the parsed number.
+  static num parse(String formattedNumber, [String? locale]) {
+    return Andomie.decimalParser(locale, formattedNumber);
+  }
 }
 
 /// Extension methods on [num] for converting to human-readable formats.
@@ -323,6 +378,32 @@ extension NumberHelper on num? {
     num x = this ?? 0;
     if (x is double) x = x * 100;
     return "${x.toInt()}$sign";
+  }
+
+  /// Formats a number based on the given locale.
+  ///
+  /// The method takes a [number] and a [locale] string, and formats the number
+  /// according to the locale's decimal pattern.
+  /// class to format the number in a way that is appropriate for the specified locale.
+  ///
+  /// Example:
+  /// ```dart
+  /// 1234567.89.format('en_US');
+  /// ```
+  /// Output: `'1,234,567.89'`
+  ///
+  /// Example with a different locale:
+  /// ```dart
+  /// 1234567.89.format('de_DE');
+  /// ```
+  /// Output: `'1.234.567,89'`
+  ///
+  /// [number] The number to be formatted.
+  /// [locale] The locale to use for formatting.
+  ///
+  /// Returns a string representing the formatted number.
+  String format([String? locale]) {
+    return Number.format(this ?? 0, locale);
   }
 }
 

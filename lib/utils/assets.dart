@@ -12,9 +12,7 @@ class AndomieAssets {
     this.images = "images",
   });
 
-  static AndomieAssets get i {
-    return Andomie.iOrNull?.assets ?? const AndomieAssets();
-  }
+  static AndomieAssets get i => Andomie.assets;
 
   String? ic(String? name) {
     if (name == null || name.isEmpty) return null;

@@ -1,3 +1,7 @@
+## 0.6.4
+
+* Add Number.format, Number.parse conversions in Number util
+
 ## 0.6.3
 
 * Add jv, nb, nn, sa, ti, tk, and tt languages
