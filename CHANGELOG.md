@@ -1,3 +1,8 @@
+## 0.6.6
+
+* Add Settings
+* AndomieAssets to Assets renamed, updated some props and preload assets system
+
 ## 0.6.5
 
 * Add Number.locale in Number util

@@ -1,6 +1,7 @@
 library;
 
 export 'utils/assets.dart';
+export 'utils/assets_icon.dart';
 export 'utils/bmi_calculator.dart';
 export 'utils/cache_manager.dart';
 export 'utils/color_generator.dart';
@@ -29,6 +30,7 @@ export 'utils/rapid_click.dart';
 export 'utils/replacement.dart';
 export 'utils/route_manager.dart';
 export 'utils/screen_loader.dart';
+export 'utils/settings.dart';
 export 'utils/singleton.dart';
 export 'utils/size_config.dart';
 export 'utils/soft_caller.dart';

@@ -1,5 +1,3 @@
-import 'utils/assets.dart';
-
 typedef OnAndomieDateFormatter = String Function(
   String format,
   String? locale,
@@ -17,18 +15,15 @@ typedef OnAndomieDecimalParser = num Function(
 );
 
 class Andomie {
-  AndomieAssets? _assets;
   OnAndomieDateFormatter? _dateFormatter;
   OnAndomieDecimalFormatter? _decimalFormatter;
   OnAndomieDecimalParser? _decimalParser;
 
   Andomie._({
-    AndomieAssets? assets,
     OnAndomieDateFormatter? dateFormatter,
     OnAndomieDecimalFormatter? decimalFormatter,
     OnAndomieDecimalParser? decimalParser,
-  })  : _assets = assets,
-        _dateFormatter = dateFormatter,
+  })  : _dateFormatter = dateFormatter,
         _decimalFormatter = decimalFormatter,
         _decimalParser = decimalParser;
 
@@ -38,9 +33,6 @@ class Andomie {
 
   /// ```dart
   /// Andomie.init(
-  ///   // ASSET LOADER
-  ///   assets: AndomieAssets(),
-  ///
   ///   // DATE FORMATTER
   ///   dateFormatter: (format, locale, date) {
   ///      return DateFormat(format, locale).format(date);
@@ -58,29 +50,16 @@ class Andomie {
   /// );
   /// ```
   static void init({
-    AndomieAssets? assets,
     OnAndomieDateFormatter? dateFormatter,
     OnAndomieDecimalFormatter? decimalFormatter,
     OnAndomieDecimalParser? decimalParser,
   }) {
     _i = Andomie._(
-      assets: assets,
       dateFormatter: dateFormatter,
       decimalFormatter: decimalFormatter,
       decimalParser: decimalParser,
     );
   }
-
-  /// ```dart
-  /// Andomie.assets = AndomieAssets(
-  ///   package: "assets",
-  ///   icons: "icons",
-  ///   images: "images",
-  /// );
-  /// ```
-  static set assets(AndomieAssets value) => i._assets = value;
-
-  static AndomieAssets get assets => i._assets ?? AndomieAssets();
 
   /// ```dart
   /// Andomie.dateFormatter = (format, locale, date) {
@@ -159,8 +138,4 @@ class Andomie {
       "Then, you can use it.\n",
     );
   }
-}
-
-void main() {
-  Andomie.dateFormatter;
 }

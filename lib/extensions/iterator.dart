@@ -5,9 +5,15 @@ extension IterableExtension<E> on Iterable<E> {
 
   Iterable<E>? get verified => isValid ? this : null;
 
-  bool get isValid => isNotEmpty;
-
   bool get isNotValid => !isValid;
+
+  bool get isPrimitive {
+    final item = firstOrNull;
+    if (item == null) return false;
+    return item is num || item is String || item is bool;
+  }
+
+  bool get isValid => isNotEmpty;
 
   bool isFound(bool Function(E element) checker) {
     Iterator<E> iterator = this.iterator;
@@ -37,6 +43,17 @@ extension IterableExtension<E> on Iterable<E> {
       index++;
     }
     return initial;
+  }
+
+  Iterable<E> removeDuplicates<R>([R Function(E)? key]) {
+    if (isEmpty) return this;
+    if (isPrimitive) return toSet();
+    if (key == null) return this;
+    final map = fold<Map<R, E>>({}, (map, item) {
+      map[key(item)] = item;
+      return map;
+    });
+    return map.values;
   }
 
   Iterable<int> findIndexes<B>(
