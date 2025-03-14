@@ -1,3 +1,7 @@
+## 0.6.7
+
+* Add Configs util to handle application remotely
+
 ## 0.6.6
 
 * Add Settings

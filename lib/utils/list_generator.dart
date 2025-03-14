@@ -13,6 +13,8 @@ class ListGenerator<T> {
   /// Gets the current index of the [ListGenerator].
   int get index => _index;
 
+  int get length => collections.length;
+
   /// Gets all the collections (chunks) created by the [ListGenerator].
   List<List<T>> get collections => _collections;
 
@@ -29,7 +31,7 @@ class ListGenerator<T> {
   List<T> chunk([int? position]) {
     final i = position ?? index;
     final data = collections.length > i ? collections[i] : <T>[];
-    _index++;
+    _index = position ?? (_index + 1);
     return data;
   }
 
@@ -44,7 +46,7 @@ class ListGenerator<T> {
   ///
   /// Output: [[1, 2, 3],[4, 5, 6],[7, 8]]
   /// ```
-  List<List<T>> load(Iterable<T> list) {
+  List<List<T>> load(Iterable<T> list, [int initialIndex = 0]) {
     final limit = max(capacity, 1);
     final n = list.length;
     final parts = <List<T>>[];
@@ -52,7 +54,7 @@ class ListGenerator<T> {
       parts.add(List<T>.from(list).sublist(i, min(n, i + limit)));
     }
     _collections = parts;
-    _index = 0;
+    _index = initialIndex;
     return _collections;
   }
 }

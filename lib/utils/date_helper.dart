@@ -705,15 +705,9 @@ extension DateExtension on DateTime? {
     return isDay(DateTime.now().subtract(const Duration(days: 1)));
   }
 
-  String get dateOnly {
-    final now = _v;
-    return "${now.year}-${now.month}-${now.day}";
-  }
+  String get date => _v.toString().split(" ").first;
 
-  String get timeOnly {
-    final now = _v;
-    return "${now.hour}:${now.minute}:${now.second}";
-  }
+  String get time => _v.toString().split(" ").last.split(".").first;
 
   String get realtime => toRealtime();
 
@@ -817,4 +811,10 @@ extension DateExtension on DateTime? {
       onRealtimeByYesterday: onRealtimeByYesterday,
     );
   }
+}
+
+void main() {
+  final date = DateTime.now();
+  print(date.date);
+  print(date.time);
 }
