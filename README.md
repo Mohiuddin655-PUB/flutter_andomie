@@ -4,6 +4,126 @@ Collection of utils with advanced style and controlling system.
 
 ### UTILS
 
+#### MAP_COMPARISON
+```dart
+void main() {
+  final oldData = {
+    "launch_mode": true,
+    "secrets": {
+      "object": {
+        "active": "v1",
+        "versions": {
+          "v1": {
+            "version": "v1",
+            "key": "OLD_DOC_KEY",
+            "iv": "OLD_DOC_IV",
+            "secret": "OLD_DOC_SECRET"
+          }
+        }
+      },
+      "password": {
+        "active": "v1",
+        "versions": {
+          "v1": {
+            "version": "v1",
+            "key": "OLD_PASSWORD_KEY",
+            "iv": "OLD_PASSWORD_IV",
+            "secret": "OLD_PASSWORD_SECRET"
+          }
+        }
+      }
+    },
+    "notifications": {
+      "status": false,
+      "channels": [
+        {"id": "old_channel_id", "schedule": 12345}
+      ],
+      "basics": [
+        {"id": "old_notification_id", "channel_id": 42}
+      ]
+    }
+  };
+
+  final newData = {
+    "launch_mode": true,
+    "secrets": {
+      "object": {
+        "active": "v1",
+        "versions": {
+          "v1": {
+            "version": "v1",
+            "key": "THIS_IS_DOC_KEY",
+            "iv": "THIS_IS_DOC_IV",
+            "secret": "THIS_IS_DOC_SECRET"
+          }
+        }
+      },
+      "password": {
+        "active": "v1",
+        "versions": {
+          "v1": {
+            "version": "v1",
+            "key": "THIS_IS_PASSWORD_KEY",
+            "iv": "THIS_IS_PASSWORD_IV",
+            "secret": "THIS_IS_PASSWORD_SECRET"
+          }
+        }
+      }
+    },
+    "notifications": {
+      "status": true,
+      "channels": [
+        {
+          "id": "old_channel_id",
+          "schedule": 12345,
+        }
+      ],
+      "basics": [
+        {
+          "id": "notification_id",
+          "channel_id": 95,
+        }
+      ],
+      "randoms": [
+        [
+          {"id": "notification_id", "channel_id": 474}
+        ]
+      ]
+    }
+  };
+
+  // Basic comparison
+  final changes = MapComparison.compare(oldData, newData);
+  print('Basic changes:');
+  print('Added: ${changes['added']}');
+  print('Removed: ${changes['removed']}');
+  print('Modified: ${changes['modified']}');
+
+  // Detailed path comparison
+  final pathChanges = MapComparison.changes(oldData, newData);
+
+  print('\nPath changes: $pathChanges');
+
+  print('\isChanged: ${pathChanges.isChanged("notifications/randoms")}');
+  print('\isChanged: ${pathChanges.isChanged("secrets/object/")}');
+  print(
+      '\isChanged: ${pathChanges.isChanged("secrets/object/versions/v1/iv")}');
+  print('\nDetailed changes:');
+  print('Added paths:');
+  for (final path in pathChanges.added) {
+    print('  $path');
+  }
+  print('Removed paths:');
+  for (final path in pathChanges.removed) {
+    print('  $path');
+  }
+  print('Modified paths:');
+  for (final path in pathChanges.modified) {
+    print('  $path');
+  }
+}
+```
+
 #### TRANSLATOR
 ```dart
 void main() {

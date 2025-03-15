@@ -3,8 +3,10 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../extensions/object.dart';
+import 'map_comparison.dart';
 
 enum PlatformType {
   android,
@@ -79,8 +81,12 @@ abstract class ConfigDelegate {
   Stream<Map?> stream();
 
   /// ```
-  /// Future<void> notify(Configs configs) => Application.i.update(configs);
-  Future<void> notify(Configs configs) async {}
+  /// Future<void> ready(Configs configs) => Application.i.ready(configs);
+  Future<void> ready(Configs configs);
+
+  /// ```
+  /// Future<void> changes(Configs configs, MapChanges changes) => Application.i.changes(configs, changes);
+  Future<void> changes(Configs configs, MapChanges changes);
 
   /// ```
   /// void dispose() => Application.i.dispose();
@@ -88,9 +94,7 @@ abstract class ConfigDelegate {
 }
 
 class Configs extends ChangeNotifier {
-  final Map props = {};
-
-  Configs._();
+  Map _props = {};
 
   bool showLogs = false;
 
@@ -139,18 +143,29 @@ class Configs extends ChangeNotifier {
   StreamSubscription? _connectivity;
   StreamSubscription? _subscription;
 
-  Future<void> _listen() async {
-    if (_delegate == null) return;
-    try {
-      _connectivity?.cancel();
-      _connectivity = _delegate!.connection.listen((connected) {
-        _subscription?.cancel();
-        if (!connected) return;
-        _subscribe();
-      });
-    } catch (msg) {
-      _log(msg);
+  void _log(msg) {
+    if (!i.showLogs) return;
+    log(msg.toString(), name: "$Configs");
+  }
+
+  T _execute<T>(
+    Object? key,
+    PlatformType? platform,
+    EnvironmentType? environment,
+    T Function(Object?) callback,
+  ) {
+    if (!i.initialized) throw "$Configs hasn't initialized yet!";
+    Object? p = i._props[(platform ?? i.platform).name];
+    Object? e;
+    if (p is Map) e = p[key];
+    e ??= i._props[key];
+    Object? config;
+    if (e is Map) {
+      config = e[(environment ?? i.environment).name] ??
+          e[EnvironmentType.live.name];
     }
+    config ??= e;
+    return callback(config);
   }
 
   Future<void> _subscribe() async {
@@ -161,8 +176,24 @@ class Configs extends ChangeNotifier {
         if (remote == null || remote.isEmpty) return;
         final kept = await _delegate!.save(remote);
         if (!kept) return;
-        props.addAll(remote);
+        final changes = MapChanges.changes(_props, remote);
+        _props = remote;
+        _delegate!.changes(this, changes);
         notify();
+      });
+    } catch (msg) {
+      _log(msg);
+    }
+  }
+
+  Future<void> _listen() async {
+    if (_delegate == null) return;
+    try {
+      _connectivity?.cancel();
+      _connectivity = _delegate!.connection.listen((connected) {
+        _subscription?.cancel();
+        if (!connected) return;
+        _subscribe();
       });
     } catch (msg) {
       _log(msg);
@@ -181,87 +212,15 @@ class Configs extends ChangeNotifier {
       value ??= await _delegate!.cache();
       value ??= await _delegate!.local();
       if (value == null || value.isEmpty) return;
-      props.addAll(value);
+      _props = value;
+      _delegate!.ready(this);
       notify();
     } catch (msg) {
       _log(msg);
     }
   }
 
-  void _log(msg) {
-    if (!i.showLogs) return;
-    log(msg.toString(), name: "$Configs");
-  }
-
-  T _execute<T>(
-    Object? key,
-    PlatformType? platform,
-    EnvironmentType? environment,
-    T Function(Object?) callback,
-  ) {
-    if (!i.initialized) throw "$Configs hasn't initialized yet!";
-    Object? p = i.props[(platform ?? i.platform).name];
-    Object? e;
-    if (p is Map) e = p[key];
-    e ??= i.props[key];
-    Object? config;
-    if (e is Map) {
-      config = e[(environment ?? i.environment).name] ??
-          e[EnvironmentType.live.name];
-    }
-    config ??= e;
-    return callback(config);
-  }
-
-  T load<T extends Object?>(
-    Object? key,
-    T defaultValue, {
-    PlatformType? platform,
-    EnvironmentType? environment,
-    ObjectBuilder<T>? builder,
-  }) {
-    T? arguments = getOrNull(
-      key,
-      defaultValue: defaultValue,
-      platform: platform,
-      environment: environment,
-      builder: builder,
-    );
-    if (arguments != null) return arguments;
-    throw UnimplementedError("$T didn't get from this object");
-  }
-
-  T? loadOrNull<T extends Object?>(
-    Object? key, {
-    T? defaultValue,
-    PlatformType? platform,
-    EnvironmentType? environment,
-    ObjectBuilder<T>? builder,
-  }) {
-    try {
-      return _execute(key, platform, environment, (config) {
-        T? value = config.findOrNull(builder: builder);
-        if (value is! T) return defaultValue;
-        return value;
-      });
-    } catch (msg) {
-      _log(msg);
-      return defaultValue;
-    }
-  }
-
-  void notify() {
-    _delegate?.notify(this);
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _connectivity?.cancel();
-    _subscription?.cancel();
-    _delegate?.dispose();
-    super.dispose();
-  }
+  Configs._();
 
   static Configs? _i;
 
@@ -290,35 +249,100 @@ class Configs extends ChangeNotifier {
     i._listen();
   }
 
-  static T get<T extends Object?>(
+  T get<T extends Object?>(
     Object? key,
     T defaultValue, {
     PlatformType? platform,
     EnvironmentType? environment,
     ObjectBuilder<T>? builder,
   }) {
-    return i.load(
-      key,
-      defaultValue,
-      platform: platform,
-      environment: environment,
-      builder: builder,
-    );
-  }
-
-  static T? getOrNull<T extends Object?>(
-    Object? key, {
-    T? defaultValue,
-    PlatformType? platform,
-    EnvironmentType? environment,
-    ObjectBuilder<T>? builder,
-  }) {
-    return i.loadOrNull(
+    T? arguments = getOrNull(
       key,
       defaultValue: defaultValue,
       platform: platform,
       environment: environment,
       builder: builder,
     );
+    if (arguments != null) return arguments;
+    throw UnimplementedError("$T didn't get from this object");
   }
+
+  T? getOrNull<T extends Object?>(
+    Object? key, {
+    T? defaultValue,
+    PlatformType? platform,
+    EnvironmentType? environment,
+    ObjectBuilder<T>? builder,
+  }) {
+    try {
+      return _execute(key, platform, environment, (config) {
+        T? value = config.findOrNull(builder: builder);
+        if (value is! T) return defaultValue;
+        return value;
+      });
+    } catch (msg) {
+      _log(msg);
+      return defaultValue;
+    }
+  }
+
+  void notify() => notifyListeners();
+
+  @override
+  void dispose() {
+    _connectivity?.cancel();
+    _subscription?.cancel();
+    _delegate?.dispose();
+    super.dispose();
+  }
+}
+
+class ConfigBuilder<T extends Object?> extends StatefulWidget {
+  final String id;
+  final PlatformType? platform;
+  final EnvironmentType? environment;
+  final ObjectBuilder<T>? parser;
+  final Widget Function(BuildContext context, T? value) builder;
+
+  const ConfigBuilder({
+    super.key,
+    required this.id,
+    required this.builder,
+    this.platform,
+    this.environment,
+    this.parser,
+  });
+
+  @override
+  State<ConfigBuilder<T>> createState() => _ConfigBuilderState<T>();
+}
+
+class _ConfigBuilderState<T extends Object?> extends State<ConfigBuilder<T>> {
+  T? value;
+
+  void _listen() {
+    T? newValue = Configs.i.getOrNull(
+      widget.id,
+      platform: widget.platform,
+      environment: widget.environment,
+      builder: widget.parser,
+    );
+    if (value == newValue) return;
+    setState(() => value = newValue);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    Configs.i.addListener(_listen);
+  }
+
+  @override
+  void dispose() {
+    Configs.i.removeListener(_listen);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, value);
 }

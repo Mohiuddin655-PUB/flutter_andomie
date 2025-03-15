@@ -1,3 +1,8 @@
+## 0.6.8
+
+* Add MapComparison util to handle map changes, compare between map
+* Add ConfigBuilder to listen config changes
+
 ## 0.6.7
 
 * Add Configs util to handle application remotely
