@@ -95,10 +95,15 @@ abstract class ConfigDelegate {
 
 class Configs extends ChangeNotifier {
   Map _props = {};
-
-  bool showLogs = false;
-
+  MapChanges _changes = MapChanges();
+  bool _showLogs = false;
   EnvironmentType? _environment;
+  PlatformType? _platform;
+  ConfigDelegate? _delegate;
+  bool _initialized = false;
+
+  StreamSubscription? _connectivity;
+  StreamSubscription? _subscription;
 
   EnvironmentType get environment {
     if (i._environment != null && i._environment != EnvironmentType.system) {
@@ -108,13 +113,6 @@ class Configs extends ChangeNotifier {
     if (kReleaseMode) return EnvironmentType.live;
     return EnvironmentType.system;
   }
-
-  set environment(EnvironmentType type) {
-    i._environment = type;
-    i.notify();
-  }
-
-  PlatformType? _platform;
 
   PlatformType get platform {
     if (i._platform != null && i._platform != PlatformType.system) {
@@ -131,20 +129,18 @@ class Configs extends ChangeNotifier {
     return PlatformType.system;
   }
 
+  set environment(EnvironmentType type) {
+    i._environment = type;
+    i.notify();
+  }
+
   set platform(PlatformType type) {
     i._platform = type;
     i.notify();
   }
 
-  ConfigDelegate? _delegate;
-
-  bool initialized = false;
-
-  StreamSubscription? _connectivity;
-  StreamSubscription? _subscription;
-
   void _log(msg) {
-    if (!i.showLogs) return;
+    if (!i._showLogs) return;
     log(msg.toString(), name: "$Configs");
   }
 
@@ -154,7 +150,7 @@ class Configs extends ChangeNotifier {
     EnvironmentType? environment,
     T Function(Object?) callback,
   ) {
-    if (!i.initialized) throw "$Configs hasn't initialized yet!";
+    if (!i._initialized) throw "$Configs hasn't initialized yet!";
     Object? p = i._props[(platform ?? i.platform).name];
     Object? e;
     if (p is Map) e = p[key];
@@ -176,10 +172,11 @@ class Configs extends ChangeNotifier {
         if (remote == null || remote.isEmpty) return;
         final kept = await _delegate!.save(remote);
         if (!kept) return;
-        final changes = MapChanges.changes(_props, remote);
+        _changes = MapChanges.changes(_props, remote);
         _props = remote;
-        _delegate!.changes(this, changes);
-        notify();
+        await _delegate!.changes(this, _changes);
+        await notify();
+        _changes = MapChanges();
       });
     } catch (msg) {
       _log(msg);
@@ -213,8 +210,8 @@ class Configs extends ChangeNotifier {
       value ??= await _delegate!.local();
       if (value == null || value.isEmpty) return;
       _props = value;
-      _delegate!.ready(this);
-      notify();
+      await _delegate!.ready(this);
+      await notify();
     } catch (msg) {
       _log(msg);
     }
@@ -241,12 +238,28 @@ class Configs extends ChangeNotifier {
     Map? initial,
     required ConfigDelegate delegate,
   }) async {
-    i.showLogs = showLogs;
+    i._showLogs = showLogs;
     i.platform = platform;
     i._delegate = delegate;
-    i.initialized = true;
+    i._initialized = true;
     await i._load();
     i._listen();
+  }
+
+  bool isChanged(
+    String key, {
+    PlatformType? platform,
+    EnvironmentType? environment,
+  }) {
+    final p = (platform ?? this.platform).name;
+    final e = (environment ?? this.environment).name;
+    return _changes.modified.any((path) {
+      if (path.startsWith("$p/$key/$e")) return true;
+      if (path.startsWith("$p/$key")) return true;
+      if (path.startsWith("$key/$e")) return true;
+      if (path.startsWith(key)) return true;
+      return false;
+    });
   }
 
   T get<T extends Object?>(
@@ -286,7 +299,7 @@ class Configs extends ChangeNotifier {
     }
   }
 
-  void notify() => notifyListeners();
+  Future<void> notify() async => notifyListeners();
 
   @override
   void dispose() {
@@ -299,6 +312,7 @@ class Configs extends ChangeNotifier {
 
 class ConfigBuilder<T extends Object?> extends StatefulWidget {
   final String id;
+  final bool validation;
   final PlatformType? platform;
   final EnvironmentType? environment;
   final ObjectBuilder<T>? parser;
@@ -308,6 +322,7 @@ class ConfigBuilder<T extends Object?> extends StatefulWidget {
     super.key,
     required this.id,
     required this.builder,
+    this.validation = true,
     this.platform,
     this.environment,
     this.parser,
@@ -321,6 +336,7 @@ class _ConfigBuilderState<T extends Object?> extends State<ConfigBuilder<T>> {
   T? value;
 
   void _listen() {
+    if (widget.validation && !Configs.i.isChanged(widget.id)) return;
     T? newValue = Configs.i.getOrNull(
       widget.id,
       platform: widget.platform,
