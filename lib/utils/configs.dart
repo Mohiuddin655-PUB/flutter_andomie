@@ -190,6 +190,7 @@ class Configs extends ChangeNotifier {
       _connectivity = _delegate!.connection.listen((connected) {
         _subscription?.cancel();
         if (!connected) return;
+        _load();
         _subscribe();
       });
     } catch (msg) {
@@ -239,6 +240,7 @@ class Configs extends ChangeNotifier {
     required ConfigDelegate delegate,
   }) async {
     i._showLogs = showLogs;
+    i.environment = environment;
     i.platform = platform;
     i._delegate = delegate;
     i._initialized = true;

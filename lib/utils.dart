@@ -29,6 +29,7 @@ export 'utils/patterns.dart';
 export 'utils/random_provider.dart';
 export 'utils/rank_generator.dart';
 export 'utils/rapid_click.dart';
+export 'utils/remote.dart';
 export 'utils/replacement.dart';
 export 'utils/route_manager.dart';
 export 'utils/screen_loader.dart';

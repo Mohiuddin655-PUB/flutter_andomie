@@ -1,4 +1,4 @@
-typedef ObjectBuilder<T> = T Function(dynamic value);
+typedef ObjectBuilder<T> = T? Function(dynamic value);
 
 extension ObjectExtension on Object? {
   Object? get verified => isValid ? this : null;
@@ -8,6 +8,13 @@ extension ObjectExtension on Object? {
   bool get isNotValid => !isValid;
 
   bool get isMap => this is Map;
+
+  bool get isListOfMap {
+    Object? x = this;
+    if (x is! Iterable) return false;
+    if (x.every((e) => e is Map)) return true;
+    return false;
+  }
 
   bool get isList => this is List;
 
@@ -44,55 +51,87 @@ extension ObjectExtension on Object? {
       }
     }
     if (source is Iterable) {
-      final type = T.toString();
-      if (type.contains("List<String>")) {
-        return source
+      final type = T
+          .toString()
+          .replaceAll("List<", "")
+          .replaceAll("Iterable<", '')
+          .replaceAll(">", '');
+      if (type == "String") {
+        final data = source
             .map((e) {
               if (e == null) return null;
               return "$e";
             })
             .whereType<String>()
-            .toList() as T;
+            .toList();
+        return data.isEmpty ? null : data as T;
       }
-      if (type.contains("List<int>")) {
-        return source
+      if (type == "int") {
+        final data = source
             .map((e) {
               if (e is num) return e.toInt();
               if (e is String) return num.tryParse(e)?.toInt();
               return null;
             })
             .whereType<int>()
-            .toList() as T;
+            .toList();
+        return data.isEmpty ? null : data as T;
       }
-      if (type.contains("List<double>")) {
-        return source
+      if (type == "double") {
+        final data = source
             .map((e) {
               if (e is num) return e.toDouble();
               if (e is String) return num.tryParse(e)?.toDouble();
               return null;
             })
             .whereType<double>()
-            .toList() as T;
+            .toList();
+        return data.isEmpty ? null : data as T;
       }
-      if (type.contains("List<num>")) {
-        return source
+      if (type == "num") {
+        final data = source
             .map((e) {
               if (e is num) return e;
               if (e is String) return num.tryParse(e);
               return null;
             })
             .whereType<num>()
-            .toList() as T;
+            .toList();
+        return data.isEmpty ? null : data as T;
       }
-      if (type.contains("List<bool>")) {
-        return source
+      if (type == "bool") {
+        final data = source
             .map((e) {
               if (e is bool) return e;
               if (e is String) return bool.tryParse(e);
               return null;
             })
             .whereType<bool>()
-            .toList() as T;
+            .toList();
+
+        return data.isEmpty ? null : data as T;
+      }
+      if (type.startsWith("Map<dynamic, dynamic")) {
+        final data = source
+            .map((e) {
+              if (e is Map) return e;
+              return null;
+            })
+            .whereType<Map>()
+            .toList();
+        if (data.isNotEmpty) return data as T;
+        return null;
+      }
+      if (type.startsWith("Map<String, dynamic")) {
+        final data = source
+            .map((e) {
+              if (e is Map) return e.map((k, v) => MapEntry(k.toString(), v));
+              return null;
+            })
+            .whereType<Map<String, dynamic>>()
+            .toList();
+        if (data.isNotEmpty) return data as T;
+        return null;
       }
     }
     return null;

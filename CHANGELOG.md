@@ -1,3 +1,7 @@
+## 0.6.9
+
+* Add Remote util to control specific remote data
+
 ## 0.6.8
 
 * Add MapComparison util to handle map changes, compare between map
