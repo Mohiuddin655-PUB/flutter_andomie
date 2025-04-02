@@ -3,19 +3,10 @@ import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
 
-abstract class RemoteDelegate<T extends Object?> {
-  final Future<bool> connected;
-  final Stream<bool> connection;
+import 'internet.dart';
 
-  /// ```
-  /// InAppConfigDelegate(
-  ///   connected: ConnectivityProvider.I.isConnected,
-  ///   connection: ConnectivityProvider.I.connection,
-  /// );
-  const RemoteDelegate({
-    required this.connected,
-    required this.connection,
-  });
+abstract class RemoteDelegate<T extends Object?> {
+  const RemoteDelegate();
 
   /// ```
   /// Future<Map?> cache() async {
@@ -107,7 +98,7 @@ class Remote<T extends Object?> extends ChangeNotifier {
   Future<void> _load() async {
     try {
       if (_delegate == null) return;
-      final connected = await _delegate!.connected;
+      final connected = await Internet.connected;
       T? remote;
       if (connected) {
         remote = await _delegate!.remote();
@@ -147,7 +138,7 @@ class Remote<T extends Object?> extends ChangeNotifier {
     if (_delegate == null) return;
     try {
       _connectivity?.cancel();
-      _connectivity = _delegate!.connection.listen((connected) {
+      _connectivity = Internet.connection.listen((connected) {
         _subscription?.cancel();
         if (!connected) return;
         _load();

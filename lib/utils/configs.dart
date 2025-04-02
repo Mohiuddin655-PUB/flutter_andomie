@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../extensions/object.dart';
+import 'internet.dart';
 import 'map_comparison.dart';
 
 enum PlatformType {
@@ -23,18 +24,7 @@ enum PlatformType {
 enum EnvironmentType { live, test, system }
 
 abstract class ConfigDelegate {
-  final Future<bool> connected;
-  final Stream<bool> connection;
-
-  /// ```
-  /// InAppConfigDelegate(
-  ///   connected: ConnectivityProvider.I.isConnected,
-  ///   connection: ConnectivityProvider.I.connection,
-  /// );
-  const ConfigDelegate({
-    required this.connected,
-    required this.connection,
-  });
+  const ConfigDelegate();
 
   /// ```
   /// Future<Map?> cache() async {
@@ -187,7 +177,7 @@ class Configs extends ChangeNotifier {
     if (_delegate == null) return;
     try {
       _connectivity?.cancel();
-      _connectivity = _delegate!.connection.listen((connected) {
+      _connectivity = Internet.connection.listen((connected) {
         _subscription?.cancel();
         if (!connected) return;
         _load();
@@ -201,7 +191,7 @@ class Configs extends ChangeNotifier {
   Future<void> _load() async {
     try {
       if (_delegate == null) return;
-      final connected = await _delegate!.connected;
+      final connected = await Internet.connected;
       if (connected) {
         final remote = await _delegate!.remote();
         await _delegate!.save(remote);
