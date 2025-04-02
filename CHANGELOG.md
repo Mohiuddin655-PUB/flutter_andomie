@@ -1,3 +1,8 @@
+## 0.6.10
+
+* Connectivity globally support
+* Add Internet.dart util
+
 ## 0.6.9
 
 * Add Remote util to control specific remote data
