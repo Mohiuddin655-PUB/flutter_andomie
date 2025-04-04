@@ -46,15 +46,11 @@ class SettingsBackupResponse {
   final Map<String, dynamic>? _data;
   final String? error;
 
-  const SettingsBackupResponse.all(Map<String, dynamic> value)
+  const SettingsBackupResponse.ok(Map<String, dynamic> value)
       : _data = value,
         error = null;
 
   const SettingsBackupResponse.failure(this.error) : _data = null;
-
-  SettingsBackupResponse.value(String key, Object? value)
-      : _data = {key: value},
-        error = null;
 }
 
 class SettingsBackupDelegate {
@@ -92,11 +88,13 @@ class Settings {
 
   bool initialized = false;
 
+  bool get _local => _backup == null && _cached == null;
+
   static Future<void> init({
     bool showLogs = false,
     Map<String, dynamic>? initial,
-    required SettingsBackupDelegate backup,
-    required SettingsCachedDelegate cached,
+    SettingsBackupDelegate? backup,
+    SettingsCachedDelegate? cached,
   }) async {
     _ii._showLogs = showLogs;
     _ii._backup = backup;
@@ -129,6 +127,10 @@ class Settings {
 
   static T get<T>(String key, T defaultValue, {Object? options}) {
     try {
+      if (_ii._local) {
+        final data = _ii._props[key];
+        return data is T ? data : defaultValue;
+      }
       return _execute((i) {
         Object? cached;
         final request = SettingsReadRequest._(
@@ -138,7 +140,7 @@ class Settings {
           options: options,
         );
         if (i._cached != null) {
-          cached = i._cached!.read(request);
+          cached = i._cached?.read(request);
         }
         cached ??= i._props[key];
         if (cached is T) {
@@ -154,20 +156,52 @@ class Settings {
 
   static bool set(String key, Object? value, {Object? options}) {
     try {
+      _ii._props[key] = value;
+      if (_ii._local) return true;
       return _execute((i) {
-        final props = _ii._props;
-        props[key] = value;
         final request = SettingsWriteRequest._(
           path: key,
           value: value,
           type: value.dataType,
-          props: props,
+          props: _ii._props,
           options: options,
         );
-        final feedback = _ii._cached!.write(request);
-        _ii._backup!.write(request);
-        return feedback;
+        final feedback = _ii._cached?.write(request);
+        _ii._backup?.write(request);
+        return feedback ?? _ii._cached == null;
       });
+    } catch (msg) {
+      _log(msg);
+      return false;
+    }
+  }
+
+  static bool increment(String key, num value, {Object? options}) {
+    try {
+      value = value + get(key, 0, options: options);
+      return set(key, value, options: options);
+    } catch (msg) {
+      _log(msg);
+      return false;
+    }
+  }
+
+  static bool arrayUnion(String key, Iterable value, {Object? options}) {
+    try {
+      Set current = Set.of(get(key, [], options: options));
+      current.addAll(value);
+      return set(key, current.toList(), options: options);
+    } catch (msg) {
+      _log(msg);
+      return false;
+    }
+  }
+
+  static bool arrayRemove(String key, Iterable value, {Object? options}) {
+    try {
+      Set current = Set.of(get(key, [], options: options));
+      current.removeAll(value);
+      return set(key, current.toList(), options: options);
     } catch (msg) {
       _log(msg);
       return false;

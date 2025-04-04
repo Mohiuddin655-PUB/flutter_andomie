@@ -1,3 +1,7 @@
+## 0.6.11
+
+* Add increment, arrayUnion, and arrayRemove in Settings util
+
 ## 0.6.10
 
 * Connectivity globally support
