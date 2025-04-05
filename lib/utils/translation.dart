@@ -212,12 +212,12 @@ class Translation extends ChangeNotifier {
     return locales;
   }
 
-  static void changeLocale(Locale? value) {
-    Translation.i.locale = value;
+  static void changeLocale(Object? value) {
+    Translation.i.locale = i._parseLocale(value);
   }
 
-  static void changeDefaultLocale(Locale? value) {
-    Translation.i.defaultLocale = value;
+  static void changeDefaultLocale(Object? value) {
+    Translation.i.defaultLocale = i._parseLocale(value);
   }
 
   static void changeSupportedLocales(Iterable value) {
@@ -344,8 +344,8 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
 }
 
 class TranslationProvider extends StatefulWidget {
-  final Locale? defaultLocale;
-  final List<Locale> supportedLocales;
+  final Object? defaultLocale;
+  final Iterable supportedLocales;
   final Map? initial;
   final bool showLogs;
   final Set<String>? paths;
@@ -398,7 +398,7 @@ class _TranslationProviderState extends State<TranslationProvider>
   @override
   void didChangeLocales(List<Locale>? locales) {
     super.didChangeLocales(locales);
-    final currentLocale = locales?.first ?? widget.defaultLocale;
+    final currentLocale = locales?.firstOrNull;
     Translation.changeLocale(currentLocale);
   }
 

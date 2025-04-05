@@ -1,3 +1,5 @@
+## 0.6.12+1
+
 ## 0.6.12
 
 * Add Translation util to handle localization
