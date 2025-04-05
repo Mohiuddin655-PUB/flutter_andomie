@@ -1,3 +1,8 @@
+## 0.6.12
+
+* Add Translation util to handle localization
+* Add LocalizedString model to manage localized strings
+
 ## 0.6.11
 
 * Add increment, arrayUnion, and arrayRemove in Settings util
