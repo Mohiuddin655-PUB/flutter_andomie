@@ -32,7 +32,7 @@ class Language {
     return Language._(
       code,
       countryCode: countryCode,
-      digits: kLanguageNumericalDigits[code] ?? kLanguageDefaultNumericalDigits,
+      digits: kDigits[code] ?? kLanguageDefaultNumericalDigits,
       name: kLanguageNamesInEnglish[code],
       nameInNative: kLanguageNamesInNative[code],
     );

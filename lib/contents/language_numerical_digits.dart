@@ -1,6 +1,6 @@
 const kLanguageDefaultNumericalDigits = "0123456789";
 
-const kLanguageNumericalDigits = {
+const kDigits = {
   "ar": "٠١٢٣٤٥٦٧٨٩",
   "as": "০১২৩৪৫৬৭৮৯",
   "bn": "০১২৩৪৫৬৭৮৯",

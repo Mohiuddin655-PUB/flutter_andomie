@@ -72,7 +72,7 @@ class Country {
       languageCode: languageCode,
       languageName: kLanguageNamesInEnglish[languageCode],
       languageNameInNative: kLanguageNamesInNative[languageCode],
-      languageNumericalDigits: kLanguageNumericalDigits[languageCode],
+      languageNumericalDigits: kDigits[languageCode],
       name: kCountryNamesInEnglish[code],
       nameInNative: kCountryNamesInNative[code],
       nationality: kCountryNationalitiesInEnglish[code],

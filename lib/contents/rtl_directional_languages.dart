@@ -1,14 +1,16 @@
-final kRtlTextDirectionalLanguages = [
-  "ar", // Arabic
-  "arc", // Aramaic
-  "dv", // Divehi (Dhivehi, Maldivian)
-  "fa", // Persian (Farsi)
-  "ha", // Hausa (with Arabic script)
-  "he", // Hebrew
-  "khw", // Khowar (with Arabic script)
-  "ks", // Kashmiri (with Arabic script)
-  "ku", // Kurdish (Sorani)
-  "ps", // Pashto
-  "ur", // Urdu
-  "yi" // Yiddish
+final kRtlLocales = [
+  "ar",
+  "arc",
+  "dv",
+  "fa",
+  "ha",
+  "he",
+  "khw",
+  "ks",
+  "ku",
+  "ps",
+  "sd",
+  "ug",
+  "ur",
+  "yi"
 ];

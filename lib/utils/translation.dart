@@ -5,6 +5,8 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../contents/language_numerical_digits.dart';
+import '../contents/rtl_directional_languages.dart';
 import 'internet.dart';
 
 abstract class TranslationDelegate {
@@ -88,9 +90,76 @@ class Translation extends ChangeNotifier {
     paths.add("translations/localizations");
     i._showLogs = showLogs;
     i._delegate = delegate;
-    i.defaultLocaleOrNull = i._parseLocale(defaultLocale);
-    i._supportedLocales = i._parseLocales(supportedLocales);
+    i.defaultLocaleOrNull = parseLocale(defaultLocale);
+    i._supportedLocales = parseLocales(supportedLocales);
     await i._loads(paths);
+  }
+
+  // ---------------------------------------------------------------------------
+  // LOCALE PART
+  // ---------------------------------------------------------------------------
+
+  Locale? localeOrNull;
+
+  Locale get locale => localeOrNull ?? defaultLocale;
+
+  set locale(Locale? value) {
+    if (value == null) return;
+    if (value.toString() == localeOrNull.toString()) return;
+    localeOrNull = value;
+    notifyListeners();
+  }
+
+  Locale? defaultLocaleOrNull;
+
+  Locale get defaultLocale {
+    return defaultLocaleOrNull ?? Locale("en", "US");
+  }
+
+  set defaultLocale(Locale? value) {
+    if (value == null) return;
+    if (value.toString() == defaultLocaleOrNull.toString()) return;
+    defaultLocaleOrNull = value;
+    notifyListeners();
+  }
+
+  Iterable<Locale> _supportedLocales = [];
+
+  Iterable<Locale> get supportedLocales {
+    if (_supportedLocales.isEmpty) return [locale];
+    return _supportedLocales;
+  }
+
+  set supportedLocales(Iterable? values) {
+    _supportedLocales = parseLocales(values);
+    notifyListeners();
+  }
+
+  static Locale? parseLocale(Object? locale) {
+    if (locale is Locale) return locale;
+    if (locale is! String || locale.isEmpty) return null;
+    final codes = locale.split("_");
+    if (codes.isEmpty) return null;
+    String? countryCode = codes.length == 2 ? codes.last : null;
+    return Locale(codes.first, countryCode);
+  }
+
+  static Iterable<Locale> parseLocales(Iterable? values) {
+    if (values == null || values.isEmpty) return [];
+    final locales = values.map(parseLocale).whereType<Locale>();
+    return locales;
+  }
+
+  static void changeLocale(Object? value) {
+    Translation.i.locale = parseLocale(value);
+  }
+
+  static void changeDefaultLocale(Object? value) {
+    Translation.i.defaultLocale = parseLocale(value);
+  }
+
+  static void changeSupportedLocales(Iterable value) {
+    Translation.i.supportedLocales = value;
   }
 
   // ---------------------------------------------------------------------------
@@ -158,73 +227,6 @@ class Translation extends ChangeNotifier {
   }
 
   // ---------------------------------------------------------------------------
-  // LOCALE PART
-  // ---------------------------------------------------------------------------
-
-  Locale? localeOrNull;
-
-  Locale get locale => localeOrNull ?? defaultLocale;
-
-  set locale(Locale? value) {
-    if (value == null) return;
-    if (value.toString() == localeOrNull.toString()) return;
-    localeOrNull = value;
-    notifyListeners();
-  }
-
-  Locale? defaultLocaleOrNull;
-
-  Locale get defaultLocale {
-    return defaultLocaleOrNull ?? Locale("en", "US");
-  }
-
-  set defaultLocale(Locale? value) {
-    if (value == null) return;
-    if (value.toString() == defaultLocaleOrNull.toString()) return;
-    defaultLocaleOrNull = value;
-    notifyListeners();
-  }
-
-  Iterable<Locale> _supportedLocales = [];
-
-  Iterable<Locale> get supportedLocales {
-    if (_supportedLocales.isEmpty) return [locale];
-    return _supportedLocales;
-  }
-
-  set supportedLocales(Iterable? values) {
-    _supportedLocales = _parseLocales(values);
-    notifyListeners();
-  }
-
-  Locale? _parseLocale(Object? locale) {
-    if (locale is Locale) return locale;
-    if (locale is! String || locale.isEmpty) return null;
-    final codes = locale.split("_");
-    if (codes.isEmpty) return null;
-    String? countryCode = codes.length == 2 ? codes.last : null;
-    return Locale(codes.first, countryCode);
-  }
-
-  Iterable<Locale> _parseLocales(Iterable? values) {
-    if (values == null || values.isEmpty) return [];
-    final locales = values.map(_parseLocale).whereType<Locale>();
-    return locales;
-  }
-
-  static void changeLocale(Object? value) {
-    Translation.i.locale = i._parseLocale(value);
-  }
-
-  static void changeDefaultLocale(Object? value) {
-    Translation.i.defaultLocale = i._parseLocale(value);
-  }
-
-  static void changeSupportedLocales(Iterable value) {
-    Translation.i.supportedLocales = value;
-  }
-
-  // ---------------------------------------------------------------------------
   // FINAL PART
   // ---------------------------------------------------------------------------
 
@@ -241,7 +243,7 @@ class Translation extends ChangeNotifier {
     return data;
   }
 
-  static String localize(
+  static String string(
     String key, {
     String? name,
     String? defaultValue,
@@ -261,6 +263,78 @@ class Translation extends ChangeNotifier {
     }
     if (data is! String) return defaultValue ?? key;
     return data;
+  }
+
+  static List<String> strings(
+    String key, {
+    String? name,
+    List<String>? defaultValue,
+  }) {
+    Object? data = i._filter();
+    if (data is! Map) return defaultValue ?? [];
+    if (name != null && name.isNotEmpty) {
+      Object? x = data[name];
+      if (x is Map) x = x[key];
+      if (x is Iterable) {
+        data = x;
+      } else {
+        data = data[key];
+      }
+    } else {
+      data = data[key];
+    }
+    if (data is! Iterable) return defaultValue ?? [];
+    return data.map((e) => e.toString()).toList();
+  }
+
+  static String number(
+    String key, {
+    String? name,
+    String? defaultValue,
+    bool applyRtl = false,
+  }) {
+    final raw = string(key, name: name, defaultValue: defaultValue);
+    if (!RegExp(r'\d').hasMatch(raw)) return raw;
+
+    String code = i.locale.languageCode;
+
+    if (code.startsWith("zh")) {
+      String? countryCode = i.locale.countryCode?.toUpperCase();
+      countryCode = ["CN", "TW"].contains(countryCode) ? countryCode : "CN";
+      code = "${code}_$countryCode";
+    }
+
+    String digits = kDigits[code] ?? "0123456789";
+
+    Map<String, String> mDigits = {
+      '0': digits[0],
+      '1': digits[1],
+      '2': digits[2],
+      '3': digits[3],
+      '4': digits[4],
+      '5': digits[5],
+      '6': digits[6],
+      '7': digits[7],
+      '8': digits[8],
+      '9': digits[9],
+    };
+
+    final words = RegExp(r'\d+|\D+').allMatches(raw).map((m) {
+      return m.group(0);
+    }).whereType<String>();
+
+    final output = words.map((e) {
+      if (!RegExp(r'^\d+$').hasMatch(e)) return e;
+      String digits = e.replaceAllMapped(RegExp(r'\d'), (m) {
+        return mDigits[m.group(0)] ?? '';
+      });
+      if (applyRtl && digits.length > 1 && kRtlLocales.contains(code)) {
+        return digits.split('').reversed.join();
+      }
+      return digits;
+    });
+
+    return output.join();
   }
 
   static T? document<T extends Object?>(
@@ -292,7 +366,26 @@ class Translation extends ChangeNotifier {
 }
 
 extension TranslationHelper on String {
-  String get tr => Translation.localize(this);
+  String get tr => trWithOption();
+
+  String get trNumber => trNumberWithOption();
+
+  String trWithOption({String? name, String? defaultValue}) {
+    return Translation.string(this, name: name, defaultValue: defaultValue);
+  }
+
+  String trNumberWithOption({
+    String? name,
+    String? defaultValue,
+    bool applyRtl = false,
+  }) {
+    return Translation.number(
+      this,
+      name: name,
+      defaultValue: defaultValue,
+      applyRtl: applyRtl,
+    );
+  }
 }
 
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
@@ -302,8 +395,25 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
 
   Iterable<Locale> get supportedLocales => Translation.i.supportedLocales;
 
-  String localize(String key, [String? optional]) {
-    return Translation.localize(key, name: name, defaultValue: optional);
+  String number(
+    String key, [
+    String? defaultValue,
+    bool applyRtl = false,
+  ]) {
+    return Translation.number(
+      key,
+      name: name,
+      defaultValue: defaultValue,
+      applyRtl: applyRtl,
+    );
+  }
+
+  String string(String key, [String? defaultValue]) {
+    return Translation.string(key, name: name, defaultValue: defaultValue);
+  }
+
+  List<String> strings(String key, [List<String>? defaultValue]) {
+    return Translation.strings(key, name: name, defaultValue: defaultValue);
   }
 
   E? document<E extends Object?>(
