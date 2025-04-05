@@ -1,4 +1,6 @@
-## 0.6.12+2
+## 0.6.13
+
+* Update Translation util and add number translation, multiple strings etc
 
 ## 0.6.12+1
 
