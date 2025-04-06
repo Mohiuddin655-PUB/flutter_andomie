@@ -366,7 +366,7 @@ class Translation extends ChangeNotifier {
     String value = i._tr(key, name: name, defaultValue: defaultValue);
     if (replace != null) value = replace(value);
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
-    if (args != null) value = value.replace(args: args);
+    if (args != null) value = value.replace(args);
     return value;
   }
 
@@ -386,7 +386,7 @@ class Translation extends ChangeNotifier {
     );
     if (replace != null) value = value.map(replace);
     if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
-    if (args != null) value = value.map((e) => e.replace(args: args));
+    if (args != null) value = value.map((e) => e.replace(args));
     return value.toList();
   }
 

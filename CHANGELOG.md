@@ -1,7 +1,12 @@
+## 0.6.15
+
+* Improve TextReplacer util to replace any mapped of cases like switch operation
+
 ## 0.6.14
 
 * Update Translation util
-* Add TextReplacer util to replace any conditional statement by args [like: "Status: {STATUS == active ? \"activated!\" : \"canceled!\"}"]
+* Add TextReplacer util to replace any conditional statement by
+  args [like: "Status: {STATUS == active ? \"activated!\" : \"canceled!\"}"]
 
 ## 0.6.13
 
