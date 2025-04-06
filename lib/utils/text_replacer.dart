@@ -1,9 +1,18 @@
 class TextReplacer {
   const TextReplacer._();
 
+  static String _v(String input, Map<String, Object?> args, bool replace) {
+    return input.replaceAllMapped(RegExp(r'\b[A-Z_]+\b'), (m) {
+      final key = m.group(0);
+      if (args.containsKey(key)) {
+        return args[key].toString();
+      }
+      return replace ? key ?? '' : '';
+    });
+  }
+
   static bool _e(String expr) {
     final numeric = RegExp(r'^(\d+)\s*(==|!=|>=|<=|>|<)\s*(\d+)$');
-    final string = RegExp(r"^(.+?)\s*(==|!=)\s*(.+?)$");
 
     if (numeric.hasMatch(expr)) {
       final m = numeric.firstMatch(expr)!;
@@ -27,7 +36,30 @@ class TextReplacer {
         default:
           return false;
       }
-    } else if (string.hasMatch(expr)) {
+    }
+
+    final boolean = RegExp(r"^(true|false)\s*(==|!=)\s*(true|false)$",
+        caseSensitive: false);
+
+    if (boolean.hasMatch(expr)) {
+      final m = boolean.firstMatch(expr)!;
+      final l = m.group(1)!.toLowerCase() == 'true';
+      final o = m.group(2)!;
+      final r = m.group(3)!.toLowerCase() == 'true';
+
+      switch (o) {
+        case '==':
+          return l == r;
+        case '!=':
+          return l != r;
+        default:
+          return false;
+      }
+    }
+
+    final string = RegExp(r"^(.+?)\s*(==|!=)\s*(.+?)$");
+
+    if (string.hasMatch(expr)) {
       final m = string.firstMatch(expr)!;
       final l = m.group(1)!.trim().replaceAll("'", '').replaceAll('"', '');
       final o = m.group(2)!;
@@ -43,23 +75,32 @@ class TextReplacer {
       }
     }
 
+    if (expr.trim().toLowerCase() == 'true') return true;
+
     return false;
   }
 
-  static String _v(String input, Map<String, Object?> args, bool replace) {
-    return input.replaceAllMapped(RegExp(r'\b[A-Z_]+\b'), (m) {
-      final key = m.group(0);
-      if (args.containsKey(key)) {
-        return args[key].toString();
-      }
-      return replace ? key ?? '' : '';
-    });
-  }
-
+  /// ```
+  /// final inp1 = "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock";
+  /// TextReplacer.replace(inp1, {'NUMBER': 1}); // There is an item in stock
+  /// TextReplacer.replace(inp1, {'NUMBER': 2}); // There are 2 items in stock
+  /// inp1.replace({'NUMBER': 1}); // There is an item in stock
+  /// inp1.replace({'NUMBER': 2}); // There are 2 items in stock
+  ///
+  /// final inp2 = "Status: {STATUS == active ? \"activated!\" : \"canceled!\"}";
+  /// TextReplacer.replace(inp2, {'STATUS': "active"}); // Status: activated!
+  /// TextReplacer.replace(inp2, {'STATUS': "inactive"}); // Status: canceled!
+  /// inp2.replace({'STATUS': "active"}); // Status: activated!
+  /// inp2.replace({'STATUS': "inactive"}); // Status: canceled!
+  ///
+  /// final inp3 = "Status: {IS_ACTIVATED ? \"activated!\" : \"inactivated!\"}";
+  /// TextReplacer.replace(inp3, {'IS_ACTIVATED': true}); // Status: activated!
+  /// TextReplacer.replace(inp3, {'IS_ACTIVATED': false}); // Status: inactivated!
+  /// inp3.replace({'IS_ACTIVATED': true}); // Status: activated!
+  /// inp3.replace({'IS_ACTIVATED': false}); // Status: inactivated!
+  ///
   static String replace(String input, Map<String, Object?> args) {
-    if (args.isEmpty) return input;
-
-    final p = RegExp(r"{(.*?)\?(.*?):(.*?)}");
+    final p = RegExp(r'\{([^?]+)\?\s*"([^"]+)"\s*:\s*"([^"]+)"}');
 
     return input.replaceAllMapped(p, (m) {
       final condition = m.group(1)!.trim();
@@ -78,33 +119,24 @@ class TextReplacer {
 
 extension TextReplacerHelper on String {
   /// ```
-  /// void main() {
-  ///   print("There {NUMBER > 1 ? are NUMBER items : is an item} in stock".replace(
-  ///     args: {'NUMBER': 13},
-  ///   ));
+  /// final inp1 = "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock";
+  /// TextReplacer.replace(inp1, {'NUMBER': 1}); // There is an item in stock
+  /// TextReplacer.replace(inp1, {'NUMBER': 2}); // There are 2 items in stock
+  /// inp1.replace({'NUMBER': 1}); // There is an item in stock
+  /// inp1.replace({'NUMBER': 2}); // There are 2 items in stock
   ///
-  ///   print("You are {AGE >= 18 ? AGE years old (Adult) : AGE (Minor)}".replace(
-  ///     args: {'AGE': 19},
-  ///   ));
+  /// final inp2 = "Status: {STATUS == active ? \"activated!\" : \"canceled!\"}";
+  /// TextReplacer.replace(inp2, {'STATUS': "active"}); // Status: activated!
+  /// TextReplacer.replace(inp2, {'STATUS': "inactive"}); // Status: canceled!
+  /// inp2.replace({'STATUS': "active"}); // Status: activated!
+  /// inp2.replace({'STATUS': "inactive"}); // Status: canceled!
   ///
-  ///   print('User status: {STATUS == "active" ? "Welcome STATUS" : "Access denied"}'
-  ///       .replace(
-  ///     args: {'STATUS': "active"},
-  ///   ));
+  /// final inp3 = "Status: {IS_ACTIVATED ? \"activated!\" : \"inactivated!\"}";
+  /// TextReplacer.replace(inp3, {'IS_ACTIVATED': true}); // Status: activated!
+  /// TextReplacer.replace(inp3, {'IS_ACTIVATED': false}); // Status: inactivated!
+  /// inp3.replace({'IS_ACTIVATED': true}); // Status: activated!
+  /// inp3.replace({'IS_ACTIVATED': false}); // Status: inactivated!
   ///
-  ///   print("There {COUNT > 1 ? 'are COUNT items' : 'is 1 item'} available".replace(
-  ///     args: {'COUNT': 4},
-  ///   ));
-  ///
-  ///   print(
-  ///       "Role: {ROLE != admin ? 'Guest' : 'Admin Panel'} and User status: {STATUS == active ? Welcome STATUS : Access denied}"
-  ///           .replace(
-  ///     args: {
-  ///       'ROLE': 'admin',
-  ///       'STATUS': 'active',
-  ///     },
-  ///   ));
-  /// }
   String replace({
     Map<String, Object?> args = const {},
   }) {

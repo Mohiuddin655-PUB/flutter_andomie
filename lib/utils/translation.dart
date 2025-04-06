@@ -4,10 +4,10 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_andomie/utils/text_replacer.dart';
 
 import '../contents/language_numerical_digits.dart';
 import '../contents/rtl_directional_languages.dart';
+import '../utils/text_replacer.dart';
 import 'internet.dart';
 
 abstract class TranslationDelegate {
