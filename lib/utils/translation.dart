@@ -135,6 +135,23 @@ class Translation extends ChangeNotifier {
     notifyListeners();
   }
 
+  static String get languageCode {
+    final locale = i.localeOrNull ?? i.defaultLocale;
+    String l = locale.languageCode;
+    if (l == "zh") {
+      String? c = locale.countryCode?.toUpperCase();
+      if (c == null || c.isEmpty) c = "CN";
+      l = "${l}_$c";
+    }
+    return l;
+  }
+
+  static TextDirection get textDirection {
+    final locale = i.localeOrNull ?? i.defaultLocaleOrNull;
+    if (kRtlLocales.contains(locale?.languageCode)) return TextDirection.rtl;
+    return TextDirection.ltr;
+  }
+
   static Locale? parseLocale(Object? locale) {
     if (locale is Locale) return locale;
     if (locale is! String || locale.isEmpty) return null;
@@ -230,25 +247,38 @@ class Translation extends ChangeNotifier {
   // FINAL PART
   // ---------------------------------------------------------------------------
 
-  Object? _filter([String? path]) {
+  Object? _filter(Map data) {
+    String? code = locale.toString();
+    if (data.containsKey(code)) return data[code];
+
+    code = defaultLocale.toString();
+    if (data.containsKey(code)) return data[code];
+
+    code = locale.languageCode;
+    if (data.containsKey(code)) return data[code];
+
+    code = defaultLocale.languageCode;
+    if (data.containsKey(code)) return data[code];
+
+    return null;
+  }
+
+  Object? _t([String? path]) {
     path ??= "translations/localizations";
     final data = _props[path];
     if (data is! Map) return data;
-    final l = locale.languageCode;
-    final dl = defaultLocale.languageCode;
-    if (!(data.containsKey(l) || data.containsKey(dl))) return data;
-    final ld = data[l] ?? data[dl];
+    final ld = _filter(data);
     if (ld is Map && ld.isNotEmpty) return ld;
     if (ld is List && ld.isNotEmpty) return ld;
     return data;
   }
 
-  static String string(
+  String _tr(
     String key, {
     String? name,
     String? defaultValue,
   }) {
-    Object? data = i._filter();
+    Object? data = _t();
     if (data is! Map) return defaultValue ?? key;
     if (name != null && name.isNotEmpty) {
       Object? x = data[name];
@@ -265,46 +295,10 @@ class Translation extends ChangeNotifier {
     return data;
   }
 
-  static List<String> strings(
-    String key, {
-    String? name,
-    List<String>? defaultValue,
-  }) {
-    Object? data = i._filter();
-    if (data is! Map) return defaultValue ?? [];
-    if (name != null && name.isNotEmpty) {
-      Object? x = data[name];
-      if (x is Map) x = x[key];
-      if (x is Iterable) {
-        data = x;
-      } else {
-        data = data[key];
-      }
-    } else {
-      data = data[key];
-    }
-    if (data is! Iterable) return defaultValue ?? [];
-    return data.map((e) => e.toString()).toList();
-  }
+  String _trN(String value, {bool applyRtl = false}) {
+    if (!RegExp(r'\d').hasMatch(value)) return value;
 
-  static String number(
-    String key, {
-    String? name,
-    String? defaultValue,
-    bool applyRtl = false,
-  }) {
-    final raw = string(key, name: name, defaultValue: defaultValue);
-    if (!RegExp(r'\d').hasMatch(raw)) return raw;
-
-    String code = i.locale.languageCode;
-
-    if (code.startsWith("zh")) {
-      String? countryCode = i.locale.countryCode?.toUpperCase();
-      countryCode = ["CN", "TW"].contains(countryCode) ? countryCode : "CN";
-      code = "${code}_$countryCode";
-    }
-
-    String digits = kDigits[code] ?? "0123456789";
+    String digits = kDigits[languageCode] ?? "0123456789";
 
     Map<String, String> mDigits = {
       '0': digits[0],
@@ -319,7 +313,7 @@ class Translation extends ChangeNotifier {
       '9': digits[9],
     };
 
-    final words = RegExp(r'\d+|\D+').allMatches(raw).map((m) {
+    final words = RegExp(r'\d+|\D+').allMatches(value).map((m) {
       return m.group(0);
     }).whereType<String>();
 
@@ -328,7 +322,7 @@ class Translation extends ChangeNotifier {
       String digits = e.replaceAllMapped(RegExp(r'\d'), (m) {
         return mDigits[m.group(0)] ?? '';
       });
-      if (applyRtl && digits.length > 1 && kRtlLocales.contains(code)) {
+      if (applyRtl && digits.length > 1 && textDirection == TextDirection.rtl) {
         return digits.split('').reversed.join();
       }
       return digits;
@@ -337,12 +331,66 @@ class Translation extends ChangeNotifier {
     return output.join();
   }
 
+  Iterable<String> _trs(
+    String key, {
+    String? name,
+    List<String>? defaultValue,
+  }) {
+    Object? data = _t();
+    if (data is! Map) return defaultValue ?? [];
+    if (name != null && name.isNotEmpty) {
+      Object? x = data[name];
+      if (x is Map) x = x[key];
+      if (x is Iterable) {
+        data = x;
+      } else {
+        data = data[key];
+      }
+    } else {
+      data = data[key];
+    }
+    if (data is! Iterable) return defaultValue ?? [];
+    return data.map((e) => e.toString());
+  }
+
+  static String localize(
+    String key, {
+    String? name,
+    String? defaultValue,
+    bool applyNumber = false,
+    bool applyRtl = false,
+    String Function(String)? replace,
+  }) {
+    String value = i._tr(key, name: name, defaultValue: defaultValue);
+    if (replace != null) value = replace(value);
+    if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
+    return value;
+  }
+
+  static List<String> localizes(
+    String key, {
+    String? name,
+    List<String>? defaultValue,
+    bool applyNumber = false,
+    bool applyRtl = false,
+    String Function(String)? replace,
+  }) {
+    Iterable<String> value = i._trs(
+      key,
+      name: name,
+      defaultValue: defaultValue,
+    );
+    if (replace != null) value = value.map(replace);
+    if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
+    return value.toList();
+  }
+
   static T? document<T extends Object?>(
     String path, {
     T? defaultValue,
     T? Function(Object?)? parser,
   }) {
-    Object? localed = i._filter(path);
+    Object? localed = i._t(path);
     if (localed is T) return localed;
     if (parser != null) return parser(localed);
     return null;
@@ -353,7 +401,7 @@ class Translation extends ChangeNotifier {
     List<T>? defaultValue,
     T? Function(Object?)? parser,
   }) {
-    Object? localed = i._filter(path);
+    Object? localed = i._t(path);
     if (localed is! List) return [];
     final parsed = localed.map((e) {
       if (e is T) return e;
@@ -368,21 +416,21 @@ class Translation extends ChangeNotifier {
 extension TranslationHelper on String {
   String get tr => trWithOption();
 
-  String get trNumber => trNumberWithOption();
+  String get trNumber => trWithOption(applyNumber: true);
 
-  String trWithOption({String? name, String? defaultValue}) {
-    return Translation.string(this, name: name, defaultValue: defaultValue);
-  }
-
-  String trNumberWithOption({
+  String trWithOption({
     String? name,
     String? defaultValue,
+    String Function(String)? replace,
+    bool applyNumber = false,
     bool applyRtl = false,
   }) {
-    return Translation.number(
+    return Translation.localize(
       this,
       name: name,
       defaultValue: defaultValue,
+      replace: replace,
+      applyNumber: applyNumber,
       applyRtl: applyRtl,
     );
   }
@@ -393,27 +441,46 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
 
   Locale get locale => Translation.i.locale;
 
-  Iterable<Locale> get supportedLocales => Translation.i.supportedLocales;
+  String get languageCode => Translation.languageCode;
 
-  String number(
-    String key, [
+  TextDirection get textDirection => Translation.textDirection;
+
+  List<Locale> get supportedLocales => List.of(Translation.i.supportedLocales);
+
+  void changeLocale(Locale? value) => Translation.changeLocale(value);
+
+  String localize(
+    String key, {
     String? defaultValue,
+    String Function(String)? replace,
+    bool applyNumber = false,
     bool applyRtl = false,
-  ]) {
-    return Translation.number(
+  }) {
+    return Translation.localize(
       key,
       name: name,
       defaultValue: defaultValue,
+      replace: replace,
+      applyNumber: applyNumber,
       applyRtl: applyRtl,
     );
   }
 
-  String string(String key, [String? defaultValue]) {
-    return Translation.string(key, name: name, defaultValue: defaultValue);
-  }
-
-  List<String> strings(String key, [List<String>? defaultValue]) {
-    return Translation.strings(key, name: name, defaultValue: defaultValue);
+  List<String> localizes(
+    String key, {
+    List<String>? defaultValue,
+    String Function(String)? replace,
+    bool applyNumber = false,
+    bool applyRtl = false,
+  }) {
+    return Translation.localizes(
+      key,
+      name: name,
+      defaultValue: defaultValue,
+      replace: replace,
+      applyNumber: applyNumber,
+      applyRtl: applyRtl,
+    );
   }
 
   E? document<E extends Object?>(

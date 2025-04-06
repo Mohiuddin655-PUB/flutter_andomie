@@ -1,3 +1,7 @@
+## 0.6.14
+
+* Update Translation util
+
 ## 0.6.13
 
 * Update Translation util and add number translation, multiple strings etc
