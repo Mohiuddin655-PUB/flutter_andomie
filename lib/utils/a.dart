@@ -1,4 +1,4 @@
-String parse(String input, Map<String, int> args) {
+String parse(String input, Map<String, Object?> args) {
   final p = RegExp(r"{(.*?)\?(.*?):(.*?)}");
 
   return input.replaceAllMapped(p, (m) {
@@ -21,45 +21,59 @@ String _v(String input, Map<String, Object?> args, [bool replace = false]) {
     if (args.containsKey(key)) {
       return args[key].toString();
     }
-    return replace ? m.group(0) ?? '' : '';
+    return replace ? key ?? '' : '';
   });
 }
 
 bool _e(String expr) {
-  final p = RegExp(r"(\d+)\s*(==|!=|>=|<=|>|<)\s*(\d+)");
-  final m = p.firstMatch(expr);
-  if (m == null) return false;
+  final numeric = RegExp(r'^(\d+)\s*(==|!=|>=|<=|>|<)\s*(\d+)$');
+  final string = RegExp(r'^"?(.*?)"?\s*(==|!=)\s*"?(.+?)"?$');
 
-  final l = num.tryParse(m.group(1) ?? '') ?? -1;
-  final o = m.group(2) ?? '';
-  final r = num.tryParse(m.group(3) ?? '') ?? -1;
+  if (numeric.hasMatch(expr)) {
+    final m = numeric.firstMatch(expr)!;
+    final l = num.tryParse(m.group(1) ?? '') ?? -1;
+    final o = m.group(2) ?? '';
+    final r = num.tryParse(m.group(3) ?? '') ?? -1;
 
-  switch (o) {
-    case '==':
-      return l == r;
-    case '!=':
-      return l != r;
-    case '>':
-      return l > r;
-    case '<':
-      return l < r;
-    case '>=':
-      return l >= r;
-    case '<=':
-      return l <= r;
-    default:
-      return false;
+    switch (o) {
+      case '==': return l == r;
+      case '!=': return l != r;
+      case '>': return l > r;
+      case '<': return l < r;
+      case '>=': return l >= r;
+      case '<=': return l <= r;
+    }
+  } else if (string.hasMatch(expr)) {
+    final m = string.firstMatch(expr)!;
+    final l = m.group(1);
+    final o = m.group(2);
+    final r = m.group(3);
+
+    switch (o) {
+      case '==': return l == r;
+      case '!=': return l != r;
+    }
   }
+
+  return false;
 }
 
 void main() {
   print(parse(
     "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock",
-    {'NUMBER': 15},
+    {'NUMBER': 13},
   ));
 
   print(parse(
     "You are {AGE >= 18 ? 'AGE years old (Adult)' : 'AGE (Minor)'}",
     {'AGE': 19},
   ));
+
+  print(parse("User status: {STATUS == 'active' ? 'Welcome STATUS' : 'Access denied'}", {
+    'STATUS': 'active',
+  }));
+
+  print(parse("There {COUNT > 1 ? 'are COUNT items' : 'is 1 item'} available", {
+    'COUNT': 4,
+  }));
 }
