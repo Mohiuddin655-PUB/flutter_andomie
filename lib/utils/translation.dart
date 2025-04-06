@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_andomie/utils/text_replacer.dart';
 
 import '../contents/language_numerical_digits.dart';
 import '../contents/rtl_directional_languages.dart';
@@ -360,10 +361,12 @@ class Translation extends ChangeNotifier {
     bool applyNumber = false,
     bool applyRtl = false,
     String Function(String)? replace,
+    Map<String, Object?>? args,
   }) {
     String value = i._tr(key, name: name, defaultValue: defaultValue);
     if (replace != null) value = replace(value);
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
+    if (args != null) value = value.replace(args: args);
     return value;
   }
 
@@ -374,6 +377,7 @@ class Translation extends ChangeNotifier {
     bool applyNumber = false,
     bool applyRtl = false,
     String Function(String)? replace,
+    Map<String, Object?>? args,
   }) {
     Iterable<String> value = i._trs(
       key,
@@ -382,6 +386,7 @@ class Translation extends ChangeNotifier {
     );
     if (replace != null) value = value.map(replace);
     if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
+    if (args != null) value = value.map((e) => e.replace(args: args));
     return value.toList();
   }
 
