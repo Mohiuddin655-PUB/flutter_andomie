@@ -1,3 +1,8 @@
+## 0.6.16
+
+* Improve Configs util
+* Delete Remote util
+
 ## 0.6.15
 
 * Improve TextReplacer util to replace any mapped of cases like switch operation
