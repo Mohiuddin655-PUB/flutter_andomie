@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import '../extensions/object.dart';
 
 const kDefaultConfigName = "configs";
-const kDefaultConfigPaths = {
+final kDefaultConfigPaths = {
   "application",
   "random_notifications",
   "secrets",

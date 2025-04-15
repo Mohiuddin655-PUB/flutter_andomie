@@ -1,3 +1,7 @@
+## 0.6.16+1
+
+* Configs custom path adding bug fixed
+
 ## 0.6.16
 
 * Improve Configs util
