@@ -426,7 +426,7 @@ class Translation extends ChangeNotifier {
     } else {
       localed = i._t(path);
     }
-    if (localed is! List) return [];
+    if (localed is! Iterable) return defaultValue ?? [];
     final parsed = localed.map((e) {
       if (e is T) return e;
       if (parser != null) return parser(e);

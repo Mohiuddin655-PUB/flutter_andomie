@@ -1,3 +1,7 @@
+## 0.6.17+1
+
+* Translation gets function bug fixed
+
 ## 0.6.17
 
 * Configs inner docs bug fixed
