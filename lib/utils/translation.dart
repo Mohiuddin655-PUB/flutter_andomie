@@ -350,7 +350,7 @@ class Translation extends ChangeNotifier {
       data = data[key];
     }
     if (data is! Iterable) return defaultValue;
-    return data.map((e) => e.toString());
+    return data;
   }
 
   static String localize(

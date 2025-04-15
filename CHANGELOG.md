@@ -1,3 +1,5 @@
+## 0.6.18
+
 ## 0.6.17+1
 
 * Translation gets function bug fixed
