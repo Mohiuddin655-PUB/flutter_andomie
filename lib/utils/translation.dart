@@ -274,10 +274,10 @@ class Translation extends ChangeNotifier {
     return data;
   }
 
-  String _tr(
+  Object? _tr(
     String key, {
     String? name,
-    String? defaultValue,
+    Object? defaultValue,
   }) {
     Object? data = _t();
     if (data is! Map) return defaultValue ?? key;
@@ -292,7 +292,6 @@ class Translation extends ChangeNotifier {
     } else {
       data = data[key];
     }
-    if (data is! String) return defaultValue ?? key;
     return data;
   }
 
@@ -332,13 +331,13 @@ class Translation extends ChangeNotifier {
     return output.join();
   }
 
-  Iterable<String> _trs(
+  Iterable? _trs(
     String key, {
     String? name,
-    List<String>? defaultValue,
+    List? defaultValue,
   }) {
     Object? data = _t();
-    if (data is! Map) return defaultValue ?? [];
+    if (data is! Map) return defaultValue;
     if (name != null && name.isNotEmpty) {
       Object? x = data[name];
       if (x is Map) x = x[key];
@@ -350,7 +349,7 @@ class Translation extends ChangeNotifier {
     } else {
       data = data[key];
     }
-    if (data is! Iterable) return defaultValue ?? [];
+    if (data is! Iterable) return defaultValue;
     return data.map((e) => e.toString());
   }
 
@@ -363,7 +362,8 @@ class Translation extends ChangeNotifier {
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
-    String value = i._tr(key, name: name, defaultValue: defaultValue);
+    Object? value = i._tr(key, name: name, defaultValue: defaultValue);
+    if (value is! String) return defaultValue ?? key;
     if (replace != null) value = replace(value);
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
     if (args != null) value = value.replace(args);
@@ -379,34 +379,53 @@ class Translation extends ChangeNotifier {
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
-    Iterable<String> value = i._trs(
-      key,
-      name: name,
-      defaultValue: defaultValue,
-    );
+    Iterable<String>? value = i
+        ._trs(
+          key,
+          name: name,
+          defaultValue: defaultValue,
+        )
+        ?.whereType<String>();
+    if (value == null || value.isEmpty) return defaultValue ?? [];
     if (replace != null) value = value.map(replace);
     if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
     if (args != null) value = value.map((e) => e.replace(args));
     return value.toList();
   }
 
-  static T? document<T extends Object?>(
-    String path, {
+  static T? get<T extends Object?>({
+    String? key,
+    String? path,
+    String? name,
     T? defaultValue,
     T? Function(Object?)? parser,
   }) {
-    Object? localed = i._t(path);
+    Object? localed;
+    if ((key ?? '').isNotEmpty) {
+      localed = i._tr(key!, name: name, defaultValue: defaultValue);
+      localed ??= i._t(path);
+    } else {
+      localed = i._t(path);
+    }
     if (localed is T) return localed;
     if (parser != null) return parser(localed);
     return null;
   }
 
-  static List<T> documents<T extends Object?>(
-    String path, {
+  static List<T> gets<T extends Object?>({
+    String? key,
+    String? path,
+    String? name,
     List<T>? defaultValue,
     T? Function(Object?)? parser,
   }) {
-    Object? localed = i._t(path);
+    Object? localed;
+    if ((key ?? '').isNotEmpty) {
+      localed = i._trs(key!, name: name, defaultValue: defaultValue);
+      localed ??= i._t(path);
+    } else {
+      localed = i._t(path);
+    }
     if (localed is! List) return [];
     final parsed = localed.map((e) {
       if (e is T) return e;
@@ -488,25 +507,31 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     );
   }
 
-  E? document<E extends Object?>(
-    String path, {
+  E? get<E extends Object?>({
+    String? key,
+    String? path,
     E? defaultValue,
     E? Function(Object?)? parser,
   }) {
-    return Translation.document(
-      path,
+    return Translation.get(
+      key: key,
+      path: path,
+      name: name,
       defaultValue: defaultValue,
       parser: parser,
     );
   }
 
-  List<E> documents<E extends Object?>(
-    String path, {
+  List<E> gets<E extends Object?>({
+    String? key,
+    String? path,
     List<E>? defaultValue,
     E? Function(Object?)? parser,
   }) {
-    return Translation.documents(
-      path,
+    return Translation.gets(
+      key: key,
+      path: path,
+      name: name,
       defaultValue: defaultValue,
       parser: parser,
     );

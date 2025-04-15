@@ -10,7 +10,7 @@ import 'package:flutter/services.dart';
 import '../extensions/object.dart';
 
 const kDefaultConfigName = "configs";
-final kDefaultConfigPaths = {
+const kDefaultConfigPaths = {
   "application",
   "random_notifications",
   "secrets",
@@ -64,7 +64,7 @@ class Configs extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   final Map _props = {};
-  final Set<String> _paths = kDefaultConfigPaths;
+  Set<String> _paths = {};
 
   bool _connected = false;
   bool _showLogs = false;
@@ -122,9 +122,8 @@ class Configs extends ChangeNotifier {
     PlatformType platform = PlatformType.system,
     EnvironmentType environment = EnvironmentType.system,
   }) async {
-    if (delegate != null && delegate.paths.isNotEmpty) {
-      i._paths.addAll(delegate.paths);
-    }
+    paths ??= {...kDefaultConfigPaths, ...delegate?.paths ?? {}};
+    i._paths = paths;
     i._name = name;
     i._showLogs = showLogs;
     i._environment = environment;

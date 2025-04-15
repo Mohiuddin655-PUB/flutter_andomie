@@ -1,3 +1,8 @@
+## 0.6.17
+
+* Configs inner docs bug fixed
+* Translation bug fixed
+
 ## 0.6.16+1
 
 * Configs custom path adding bug fixed
