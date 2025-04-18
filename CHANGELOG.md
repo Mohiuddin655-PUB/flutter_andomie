@@ -1,3 +1,7 @@
+## 0.6.20
+
+* Improve Configs util
+
 ## 0.6.19
 
 * Improve Configs and Translation utils

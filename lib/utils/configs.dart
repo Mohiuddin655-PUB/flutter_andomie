@@ -251,13 +251,13 @@ class Configs extends ChangeNotifier {
       if (!refresh || reload) await _fetch(path);
       Map data = {};
       final local = _props[path];
-      if (local is Map) data.addAll(local);
+      if (local is Map) data = data.combine(local);
       if (!refresh) {
         Map? asset = await _assets(path);
-        if (asset != null) data.addAll(asset);
+        if (asset != null) data = data.combine(asset);
       }
       Map? cache = await _cached(path);
-      if (cache != null) data.addAll(cache);
+      if (cache != null) data = data.combine(cache);
       if (data.isEmpty) {
         _props.remove(path);
         return;
@@ -352,7 +352,7 @@ class Configs extends ChangeNotifier {
     environment ??= this.environment;
     if (environment == EnvironmentType.system) environment = this.environment;
     final y = data[environment.name];
-    if (y is Map) value.combine(y);
+    if (y is Map) value = value.combine(y);
     return value;
   }
 
