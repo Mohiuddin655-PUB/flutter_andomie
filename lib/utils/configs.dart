@@ -8,13 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../extensions/object.dart';
+import 'map_converter.dart';
 
+const _kApplication = "application";
+const _kRandomNotification = "random_notifications";
+const _kSecrets = "secrets";
 const kDefaultConfigName = "configs";
-const kDefaultConfigPaths = {
-  "application",
-  "random_notifications",
-  "secrets",
-};
+
+const kDefaultConfigPaths = {_kApplication, _kRandomNotification, _kSecrets};
 
 enum PlatformType {
   android,
@@ -64,6 +65,7 @@ class Configs extends ChangeNotifier {
   // ---------------------------------------------------------------------------
 
   final Map _props = {};
+  String _defaultPath = _kApplication;
   Set<String> _paths = {};
 
   bool _connected = false;
@@ -114,6 +116,7 @@ class Configs extends ChangeNotifier {
 
   static Future<void> init({
     Map? initial,
+    String defaultPath = _kApplication,
     Set<String>? paths,
     ConfigDelegate? delegate,
     bool showLogs = false,
@@ -123,6 +126,7 @@ class Configs extends ChangeNotifier {
     EnvironmentType environment = EnvironmentType.system,
   }) async {
     paths ??= {...kDefaultConfigPaths, ...delegate?.paths ?? {}};
+    i._defaultPath = defaultPath;
     i._paths = paths;
     i._name = name;
     i._showLogs = showLogs;
@@ -328,14 +332,14 @@ class Configs extends ChangeNotifier {
   // FINAL PART
   // ---------------------------------------------------------------------------
 
-  MapEntry<String, String> _keys(String path) {
-    List<String> paths = path.split("/");
-    if (paths.length < 2) paths = path.split(":");
-    if (paths.length < 2) throw "$path is incorrect of $_name path!";
-    final k = paths.last;
-    paths.removeLast();
-    final p = paths.join("/");
-    return MapEntry(k, p);
+  (String, String) _keys(String key) {
+    if (!key.contains("/")) return (_defaultPath, key);
+    List<String> keys = key.split("/");
+    if (keys.length < 2) return (_defaultPath, key);
+    final k = keys.last;
+    keys.removeLast();
+    final p = keys.join("/");
+    return (p, k);
   }
 
   Map _env(
@@ -344,11 +348,11 @@ class Configs extends ChangeNotifier {
   ) {
     Map value = {};
     final x = data["default"];
-    if (x is Map) value.addAll(x);
+    if (x is Map) value = value.combine(x);
     environment ??= this.environment;
     if (environment == EnvironmentType.system) environment = this.environment;
     final y = data[environment.name];
-    if (y is Map) value.addAll(y);
+    if (y is Map) value.combine(y);
     return value;
   }
 
@@ -366,27 +370,27 @@ class Configs extends ChangeNotifier {
   }
 
   Object? _select(
-    String path, {
-    String? key,
+    String key, {
+    String? path,
     EnvironmentType? environment,
     PlatformType? platform,
   }) {
-    final keys = key == null ? _keys(path) : MapEntry(key, path);
-    final data = _props[keys.value];
+    final keys = path == null ? _keys(key) : (path, key);
+    final data = _props[keys.$1];
 
     if (data is! Map) return null;
     final env = _env(data, environment);
-    final x = env[keys.key];
+    final x = env[keys.$2];
     if (x is! Map) return x;
     Object? mDefault = data['default'];
-    if (mDefault is Map) mDefault = mDefault[keys.key];
+    if (mDefault is Map) mDefault = mDefault[keys.$2];
     final y = _pla(x, mDefault, platform);
     return y;
   }
 
   static T get<T extends Object?>(
-    String path, {
-    String? key,
+    String key, {
+    String? path,
     T? defaultValue,
     EnvironmentType? environment,
     PlatformType? platform,
@@ -394,8 +398,8 @@ class Configs extends ChangeNotifier {
     T? Function(T)? modifier,
   }) {
     T? value = getOrNull(
-      path,
-      key: key,
+      key,
+      path: path,
       defaultValue: defaultValue,
       environment: environment,
       platform: platform,
@@ -407,8 +411,8 @@ class Configs extends ChangeNotifier {
   }
 
   static T? getOrNull<T extends Object?>(
-    String path, {
-    String? key,
+    String key, {
+    String? path,
     T? defaultValue,
     EnvironmentType? environment,
     PlatformType? platform,
@@ -417,8 +421,8 @@ class Configs extends ChangeNotifier {
   }) {
     try {
       final raw = i._select(
-        path,
-        key: key,
+        key,
+        path: path,
         environment: environment,
         platform: platform,
       );
@@ -433,8 +437,8 @@ class Configs extends ChangeNotifier {
   }
 
   static List<T> gets<T extends Object?>(
-    String path, {
-    String? key,
+    String key, {
+    String? path,
     List<T>? defaultValue,
     EnvironmentType? environment,
     PlatformType? platform,
@@ -442,8 +446,8 @@ class Configs extends ChangeNotifier {
     T? Function(T)? modifier,
   }) {
     List<T>? value = getsOrNull(
-      path,
-      key: key,
+      key,
+      path: path,
       defaultValue: defaultValue,
       environment: environment,
       platform: platform,
@@ -455,8 +459,8 @@ class Configs extends ChangeNotifier {
   }
 
   static List<T>? getsOrNull<T extends Object?>(
-    String path, {
-    String? key,
+    String key, {
+    String? path,
     List<T>? defaultValue,
     EnvironmentType? environment,
     PlatformType? platform,
@@ -465,8 +469,8 @@ class Configs extends ChangeNotifier {
   }) {
     try {
       final raw = i._select(
-        path,
-        key: key,
+        key,
+        path: path,
         environment: environment,
         platform: platform,
       );
@@ -484,7 +488,8 @@ class Configs extends ChangeNotifier {
 }
 
 class ConfigBuilder<T extends Object?> extends StatefulWidget {
-  final String path;
+  final String id;
+  final String? name;
   final T? initial;
   final PlatformType? platform;
   final EnvironmentType? environment;
@@ -492,11 +497,10 @@ class ConfigBuilder<T extends Object?> extends StatefulWidget {
   final T? Function(T)? modifier;
   final Widget Function(BuildContext context, T? value) builder;
 
-  /// path: application/launch_mode
-  ///
   const ConfigBuilder({
     super.key,
-    required this.path,
+    required this.id,
+    this.name,
     required this.builder,
     this.initial,
     this.platform,
@@ -512,14 +516,19 @@ class ConfigBuilder<T extends Object?> extends StatefulWidget {
 class _ConfigBuilderState<T extends Object?> extends State<ConfigBuilder<T>> {
   T? value;
 
-  void _listen() {
-    T? newValue = Configs.getOrNull(
-      widget.path,
+  T? get _fetch {
+    return Configs.getOrNull(
+      widget.id,
+      path: widget.name,
       platform: widget.platform,
       environment: widget.environment,
       parser: widget.parser,
       modifier: widget.modifier,
     );
+  }
+
+  void _listen() {
+    T? newValue = _fetch;
     if (value == newValue) return;
     setState(() => value = newValue);
   }
@@ -527,6 +536,7 @@ class _ConfigBuilderState<T extends Object?> extends State<ConfigBuilder<T>> {
   @override
   void initState() {
     super.initState();
+    value = _fetch;
     Configs.i.addListener(_listen);
   }
 

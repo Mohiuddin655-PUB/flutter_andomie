@@ -21,6 +21,7 @@ export 'utils/lazy_notifier.dart';
 export 'utils/list_generator.dart';
 export 'utils/log_builder.dart';
 export 'utils/map_comparison.dart';
+export 'utils/map_converter.dart';
 export 'utils/number.dart';
 export 'utils/ordered_list_style.dart';
 export 'utils/pagination.dart';

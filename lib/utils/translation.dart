@@ -10,6 +10,9 @@ import '../contents/rtl_directional_languages.dart';
 import '../utils/text_replacer.dart';
 import 'internet.dart';
 
+const kDefaultTranslationName = "translations";
+const kDefaultTranslationPath = "localizations";
+
 abstract class TranslationDelegate {
   const TranslationDelegate();
 
@@ -39,6 +42,8 @@ class Translation extends ChangeNotifier {
 
   final Map _props = {};
   bool _showLogs = false;
+  String _name = kDefaultTranslationName;
+  String _defaultPath = kDefaultTranslationPath;
   TranslationDelegate? _delegate;
 
   void _log(msg) {
@@ -79,6 +84,8 @@ class Translation extends ChangeNotifier {
   static Future<void> init({
     bool showLogs = false,
     Map? initial,
+    String name = kDefaultTranslationName,
+    String defaultPath = kDefaultTranslationPath,
     Set<String>? paths,
     Object? defaultLocale,
     Iterable? supportedLocales,
@@ -88,8 +95,10 @@ class Translation extends ChangeNotifier {
     if (delegate != null && delegate.paths.isNotEmpty) {
       paths.addAll(delegate.paths);
     }
-    paths.add("translations/localizations");
+    paths.add("$name/$defaultPath");
     i._showLogs = showLogs;
+    i._name = name;
+    i._defaultPath = defaultPath;
     i._delegate = delegate;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
     i._supportedLocales = parseLocales(supportedLocales);
@@ -265,7 +274,7 @@ class Translation extends ChangeNotifier {
   }
 
   Object? _t([String? path]) {
-    path ??= "translations/localizations";
+    path ??= "$_name/$_defaultPath";
     final data = _props[path];
     if (data is! Map) return data;
     final ld = _filter(data);

@@ -1,3 +1,8 @@
+## 0.6.19
+
+* Improve Configs and Translation utils
+* Add MapConverter util
+
 ## 0.6.18
 
 ## 0.6.17+1
