@@ -362,6 +362,10 @@ class Translation extends ChangeNotifier {
     return data;
   }
 
+  static String trNum(String value, {bool applyRtl = false}) {
+    return i._trN(value, applyRtl: applyRtl);
+  }
+
   static String localize(
     String key, {
     String? name,
@@ -449,7 +453,7 @@ class Translation extends ChangeNotifier {
 extension TranslationHelper on String {
   String get tr => trWithOption();
 
-  String get trNumber => trWithOption(applyNumber: true);
+  String get trNumber => trNumWithOption();
 
   String trWithOption({
     String? name,
@@ -467,6 +471,10 @@ extension TranslationHelper on String {
       applyRtl: applyRtl,
     );
   }
+
+  String trNumWithOption({bool applyRtl = false}) {
+    return Translation.trNum(this, applyRtl: applyRtl);
+  }
 }
 
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
@@ -481,6 +489,10 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   List<Locale> get supportedLocales => List.of(Translation.i.supportedLocales);
 
   void changeLocale(Locale? value) => Translation.changeLocale(value);
+
+  String trNum(String value, {bool applyRtl = false}) {
+    return Translation.trNum(value, applyRtl: applyRtl);
+  }
 
   String localize(
     String key, {

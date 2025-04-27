@@ -1,3 +1,8 @@
+## 0.6.21
+
+* Improve Configs util and any config manual selection support
+* Improve trNumber translation
+
 ## 0.6.20
 
 * Improve Configs util

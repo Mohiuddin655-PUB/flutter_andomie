@@ -12,10 +12,16 @@ import 'map_converter.dart';
 
 const _kApplication = "application";
 const _kRandomNotification = "random_notifications";
+const _kThemes = "themes";
 const _kSecrets = "secrets";
 const kDefaultConfigName = "configs";
 
-const kDefaultConfigPaths = {_kApplication, _kRandomNotification, _kSecrets};
+const kDefaultConfigPaths = {
+  _kApplication,
+  _kRandomNotification,
+  _kSecrets,
+  _kThemes,
+};
 
 enum PlatformType {
   android,
@@ -120,7 +126,7 @@ class Configs extends ChangeNotifier {
     Set<String>? paths,
     ConfigDelegate? delegate,
     bool showLogs = false,
-    bool connected = false,
+    required bool connected,
     String name = kDefaultConfigName,
     PlatformType platform = PlatformType.system,
     EnvironmentType environment = EnvironmentType.system,
@@ -163,6 +169,7 @@ class Configs extends ChangeNotifier {
   }
 
   static Future<void> changeConnection(bool value) async {
+    if (i._connected == value) return;
     i._connected = value;
     if (!value) {
       i._subscriptionsCancel();
@@ -231,6 +238,10 @@ class Configs extends ChangeNotifier {
       if (!_connected) return;
       final data = await _delegate!.fetch(path);
       await _save(path, data);
+    } on TimeoutException catch (_) {
+      _log(
+        "Timeout while connecting to $path. Please check your connection.",
+      );
     } catch (msg) {
       _log(msg);
     }
@@ -303,6 +314,10 @@ class Configs extends ChangeNotifier {
         if (!kept) return;
         _load(path, refresh: true);
       });
+    } on TimeoutException catch (_) {
+      _log(
+        "Timeout while connecting to $path. Please check your connection.",
+      );
     } catch (msg) {
       _log(msg);
     }
@@ -377,7 +392,6 @@ class Configs extends ChangeNotifier {
   }) {
     final keys = path == null ? _keys(key) : (path, key);
     final data = _props[keys.$1];
-
     if (data is! Map) return null;
     final env = _env(data, environment);
     final x = env[keys.$2];
@@ -386,6 +400,41 @@ class Configs extends ChangeNotifier {
     if (mDefault is Map) mDefault = mDefault[keys.$2];
     final y = _pla(x, mDefault, platform);
     return y;
+  }
+
+  Object? _find(
+    String name, {
+    EnvironmentType? environment,
+    PlatformType? platform,
+  }) {
+    final data = _props[name];
+    if (data is! Map) return null;
+    final env = _env(data, environment);
+    return env;
+  }
+
+  static T? load<T extends Object?>({
+    String? name,
+    T? defaultValue,
+    EnvironmentType? environment,
+    PlatformType? platform,
+    T? Function(Object?)? parser,
+    T? Function(T)? modifier,
+  }) {
+    try {
+      final raw = i._find(
+        name ?? _kThemes,
+        environment: environment,
+        platform: platform,
+      );
+      T? value = raw?.findOrNull(builder: parser);
+      if (value is! T) return defaultValue;
+      if (modifier != null) value = modifier(value);
+      return value;
+    } catch (msg) {
+      i._log(msg);
+      return defaultValue;
+    }
   }
 
   static T get<T extends Object?>(
