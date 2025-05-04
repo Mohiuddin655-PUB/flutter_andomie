@@ -11,14 +11,16 @@ import '../extensions/object.dart';
 import 'map_converter.dart';
 
 const _kApplication = "application";
-const _kRandomNotification = "random_notifications";
+const _kDailyNotifications = "daily_notifications";
+const _kWeeklyNotifications = "weekly_notifications";
 const _kThemes = "themes";
 const _kSecrets = "secrets";
 const kDefaultConfigName = "configs";
 
 const kDefaultConfigPaths = {
   _kApplication,
-  _kRandomNotification,
+  _kDailyNotifications,
+  _kWeeklyNotifications,
   _kSecrets,
   _kThemes,
 };

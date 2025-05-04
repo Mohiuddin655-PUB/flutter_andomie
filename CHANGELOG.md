@@ -1,3 +1,7 @@
+## 0.6.22
+
+* Improve Configs and Translation
+
 ## 0.6.21
 
 * Improve Configs util and any config manual selection support

@@ -29,6 +29,23 @@ abstract class TranslationDelegate {
   Future<Map?> fetch(String path);
 }
 
+class _Delegate extends LocalizationsDelegate<Translation> {
+  @override
+  bool isSupported(Locale locale) {
+    return Translation.i.supportedLocales.contains(locale);
+  }
+
+  @override
+  Future<Translation> load(Locale locale) async {
+    Translation.i.locale = locale;
+    Translation.i._loads(fetch: false);
+    return Translation.i;
+  }
+
+  @override
+  bool shouldReload(covariant LocalizationsDelegate<Translation> old) => false;
+}
+
 class Translation extends ChangeNotifier {
   Translation._();
 
@@ -36,11 +53,14 @@ class Translation extends ChangeNotifier {
 
   static Translation get i => _i ??= Translation._();
 
+  static LocalizationsDelegate<Translation> get delegate => _Delegate();
+
   // ---------------------------------------------------------------------------
   // INITIAL PART
   // ---------------------------------------------------------------------------
 
   final Map _props = {};
+  Iterable<String> _paths = {};
   bool _showLogs = false;
   String _name = kDefaultTranslationName;
   String _defaultPath = kDefaultTranslationPath;
@@ -51,9 +71,13 @@ class Translation extends ChangeNotifier {
     log(msg.toString(), name: "$Translation".toUpperCase());
   }
 
-  Future<void> _load(String path, {bool refresh = false}) async {
+  Future<void> _load(
+    String path, {
+    bool refresh = false,
+    bool fetch = true,
+  }) async {
     try {
-      if (!refresh) await _fetch(path);
+      if (!refresh && fetch) await _fetch(path);
       Map data = {};
       final local = _props[path];
       if (local is Map) data.addAll(local);
@@ -73,9 +97,9 @@ class Translation extends ChangeNotifier {
     }
   }
 
-  Future<void> _loads(Iterable<String> paths) async {
+  Future<void> _loads({bool fetch = true}) async {
     try {
-      await Future.wait(paths.map(_load));
+      await Future.wait(_paths.map((e) => _load(e, fetch: fetch)));
     } catch (msg) {
       _log(msg);
     }
@@ -96,13 +120,14 @@ class Translation extends ChangeNotifier {
       paths.addAll(delegate.paths);
     }
     paths.add("$name/$defaultPath");
+    i._paths = paths;
     i._showLogs = showLogs;
     i._name = name;
     i._defaultPath = defaultPath;
     i._delegate = delegate;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
     i._supportedLocales = parseLocales(supportedLocales);
-    await i._loads(paths);
+    await i._loads();
   }
 
   // ---------------------------------------------------------------------------
@@ -453,7 +478,7 @@ class Translation extends ChangeNotifier {
 extension TranslationHelper on String {
   String get tr => trWithOption();
 
-  String get trNumber => trNumWithOption();
+  String get trNumber => trNumberWithOption();
 
   String trWithOption({
     String? name,
@@ -472,7 +497,7 @@ extension TranslationHelper on String {
     );
   }
 
-  String trNumWithOption({bool applyRtl = false}) {
+  String trNumberWithOption({bool applyRtl = false}) {
     return Translation.trNum(this, applyRtl: applyRtl);
   }
 }
@@ -558,15 +583,20 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     );
   }
 
+  void translationChanged() {
+    if (!mounted) return;
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
-    Translation.i.addListener(() => setState(() {}));
+    Translation.i.addListener(translationChanged);
   }
 
   @override
   void dispose() {
-    Translation.i.removeListener(() => setState(() {}));
+    Translation.i.removeListener(translationChanged);
     super.dispose();
   }
 }
@@ -575,20 +605,22 @@ class TranslationProvider extends StatefulWidget {
   final Object? defaultLocale;
   final Iterable supportedLocales;
   final Map? initial;
+  final bool notifiable;
   final bool showLogs;
   final Set<String>? paths;
   final TranslationDelegate? delegate;
-  final Widget? child;
+  final Widget child;
 
   const TranslationProvider({
     super.key,
     this.initial,
     this.delegate,
     this.defaultLocale,
+    this.notifiable = false,
     this.showLogs = false,
     this.supportedLocales = const [],
     this.paths,
-    this.child,
+    required this.child,
   });
 
   @override
@@ -597,7 +629,10 @@ class TranslationProvider extends StatefulWidget {
 
 class _TranslationProviderState extends State<TranslationProvider>
     with WidgetsBindingObserver {
-  void _notify() => setState(() {});
+  void _notify() {
+    if (!mounted) return;
+    setState(() {});
+  }
 
   @override
   void initState() {
@@ -612,13 +647,13 @@ class _TranslationProviderState extends State<TranslationProvider>
           WidgetsBinding.instance.platformDispatcher.locales.firstOrNull,
       supportedLocales: widget.supportedLocales,
     );
-    Translation.i.addListener(_notify);
+    if (widget.notifiable) Translation.i.addListener(_notify);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    Translation.i.removeListener(_notify);
+    if (widget.notifiable) Translation.i.removeListener(_notify);
     Translation.i.dispose();
     super.dispose();
   }
@@ -632,6 +667,6 @@ class _TranslationProviderState extends State<TranslationProvider>
 
   @override
   Widget build(BuildContext context) {
-    return widget.child ?? const SizedBox.shrink();
+    return widget.child;
   }
 }
