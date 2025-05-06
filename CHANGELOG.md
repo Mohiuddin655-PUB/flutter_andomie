@@ -1,3 +1,4 @@
+## 0.6.22+1
 ## 0.6.22
 
 * Improve Configs and Translation
