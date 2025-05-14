@@ -475,32 +475,32 @@ class Translation extends ChangeNotifier {
   }
 }
 
-// extension TranslationHelper on String {
-//   String get tr => trWithOption();
-//
-//   String get trNumber => trNumberWithOption();
-//
-//   String trWithOption({
-//     String? name,
-//     String? defaultValue,
-//     String Function(String)? replace,
-//     bool applyNumber = false,
-//     bool applyRtl = false,
-//   }) {
-//     return Translation.localize(
-//       this,
-//       name: name,
-//       defaultValue: defaultValue,
-//       replace: replace,
-//       applyNumber: applyNumber,
-//       applyRtl: applyRtl,
-//     );
-//   }
-//
-//   String trNumberWithOption({bool applyRtl = false}) {
-//     return Translation.trNum(this, applyRtl: applyRtl);
-//   }
-// }
+extension TranslationHelper on String {
+  String get tr => trWithOption();
+
+  String get trNumber => trNumWithOption();
+
+  String trWithOption({
+    String? name,
+    String? defaultValue,
+    String Function(String)? replace,
+    bool applyNumber = false,
+    bool applyRtl = false,
+  }) {
+    return Translation.localize(
+      this,
+      name: name,
+      defaultValue: defaultValue,
+      replace: replace,
+      applyNumber: applyNumber,
+      applyRtl: applyRtl,
+    );
+  }
+
+  String trNumWithOption({bool applyRtl = false}) {
+    return Translation.trNum(this, applyRtl: applyRtl);
+  }
+}
 
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   String get name;
