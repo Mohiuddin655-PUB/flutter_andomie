@@ -11,3 +11,18 @@ extension EnumHelper on Enum {
     return false;
   }
 }
+
+extension EnumsHelper<T extends Enum> on Iterable<T> {
+  T? _lookup(Object? source, int index) {
+    if (index >= length) return null;
+    final x = elementAtOrNull(index);
+    if (x != null && x.isSameAs(source)) {
+      return x;
+    }
+    return _lookup(source, index + 1);
+  }
+
+  T find(Object? source) => findOrNull(source) ?? first;
+
+  T? findOrNull(Object? source) => _lookup(source, 0);
+}

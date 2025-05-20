@@ -1,8 +1,12 @@
+## 0.6.25
+
+* Add EnumsHelper extension to parse enum values
+
 ## 0.6.24
 
 * Improve Translation util
-* Add Measurement extension
-* Add EnumHelper extension
+* Add Measurement extension to convert measurement
+* Add EnumHelper extension to parse enum value
 
 ## 0.6.23
 
