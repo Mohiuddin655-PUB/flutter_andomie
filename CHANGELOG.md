@@ -1,3 +1,7 @@
+## 0.6.26
+
+* Pointer bug fixed in TranslationBuilder
+
 ## 0.6.25
 
 * Add EnumsHelper extension to parse enum values

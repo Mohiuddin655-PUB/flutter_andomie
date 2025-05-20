@@ -770,7 +770,7 @@ class TranslationButton extends StatefulWidget {
   const TranslationButton({
     super.key,
     this.reason = "bottom_sheet",
-    this.ignorePointer = true,
+    this.ignorePointer = false,
     this.decoration,
     this.padding,
     this.mode = TranslationButtonType.flagAndCode,
@@ -807,12 +807,10 @@ class _TranslationButtonState extends State<TranslationButton>
     if (widget.builder != null) {
       child = widget.builder!(context, child);
     }
-    if (widget.ignorePointer) {
+    if (!widget.ignorePointer) {
       return GestureDetector(
-        onTap: () {
-          Translation.selectLocale(context);
-        },
-        child: IgnorePointer(child: child),
+        onTap: () => Translation.selectLocale(context),
+        child: child,
       );
     }
     return child;
