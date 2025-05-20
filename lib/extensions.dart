@@ -3,6 +3,7 @@ library;
 export 'extensions/boolean.dart';
 export 'extensions/double.dart';
 export 'extensions/encoder_decoder.dart';
+export 'extensions/enum.dart';
 export 'extensions/int.dart';
 export 'extensions/iterator.dart';
 export 'extensions/list.dart';

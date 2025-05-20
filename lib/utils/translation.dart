@@ -5,8 +5,10 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../contents/country_flags.dart';
 import '../contents/language_numerical_digits.dart';
 import '../contents/rtl_directional_languages.dart';
+import '../models/language.dart';
 import '../utils/text_replacer.dart';
 import 'internet.dart';
 
@@ -27,6 +29,8 @@ abstract class TranslationDelegate {
   Future<bool> save(String path, Map? data);
 
   Future<Map?> fetch(String path);
+
+  Future<Locale?> select(BuildContext context, String? reason);
 }
 
 class _Delegate extends LocalizationsDelegate<Translation> {
@@ -212,6 +216,30 @@ class Translation extends ChangeNotifier {
 
   static void changeSupportedLocales(Iterable value) {
     Translation.i.supportedLocales = value;
+  }
+
+  static void selectLocale(BuildContext context, [String? reason]) async {
+    try {
+      if (i._delegate == null) return null;
+      final locale = await i._delegate!.select(context, reason);
+      if (locale == null) return null;
+      changeLocale(locale);
+    } catch (msg) {
+      i._log(msg);
+    }
+  }
+
+  static Future<Locale?> showLocales(
+    BuildContext context, [
+    String? reason,
+  ]) async {
+    try {
+      if (i._delegate == null) return null;
+      return i._delegate!.select(context, reason);
+    } catch (msg) {
+      i._log(msg);
+      return null;
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -475,7 +503,7 @@ class Translation extends ChangeNotifier {
   }
 }
 
-extension TranslationHelper on String {
+extension TranslationStringHelper on String {
   String get tr => trWithOption();
 
   String get trNumber => trNumWithOption();
@@ -502,6 +530,33 @@ extension TranslationHelper on String {
   }
 }
 
+extension TranslationNumberHelper on num {
+  String get tr => trWithOption();
+
+  String get trNumber => trNumWithOption();
+
+  String trWithOption({
+    String? name,
+    String? defaultValue,
+    String Function(String)? replace,
+    bool applyNumber = false,
+    bool applyRtl = false,
+  }) {
+    return Translation.localize(
+      toString(),
+      name: name,
+      defaultValue: defaultValue,
+      replace: replace,
+      applyNumber: applyNumber,
+      applyRtl: applyRtl,
+    );
+  }
+
+  String trNumWithOption({bool applyRtl = false}) {
+    return Translation.trNum(toString(), applyRtl: applyRtl);
+  }
+}
+
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   String get name;
 
@@ -514,6 +569,10 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   List<Locale> get supportedLocales => List.of(Translation.i.supportedLocales);
 
   void changeLocale(Locale? value) => Translation.changeLocale(value);
+
+  void selectLocale(BuildContext context, [String? reason]) {
+    Translation.selectLocale(context, reason);
+  }
 
   String trNum(String value, {bool applyRtl = false}) {
     return Translation.trNum(value, applyRtl: applyRtl);
@@ -583,6 +642,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     );
   }
 
+  @mustCallSuper
   void translationChanged() {
     if (!mounted) return;
     setState(() {});
@@ -669,4 +729,95 @@ class _TranslationProviderState extends State<TranslationProvider>
   Widget build(BuildContext context) {
     return widget.child;
   }
+}
+
+enum TranslationButtonType {
+  flagOnly,
+  nameOnly,
+  nameInEnOnly,
+  codeOnly,
+  flagAndName,
+  flagAndNameInEn,
+  flagAndCode;
+
+  String _(Language language) {
+    final code = language.code.toUpperCase();
+    final name = language.nameInNative ?? language.name ?? code;
+    final nameInEn = language.name ?? language.nameInNative ?? code;
+    final flag = kCountryFlags[language.countryCode] ?? kCountryFlags["US"]!;
+    return switch (this) {
+      TranslationButtonType.nameOnly => name,
+      TranslationButtonType.nameInEnOnly => nameInEn,
+      TranslationButtonType.codeOnly => code,
+      TranslationButtonType.flagOnly => flag,
+      TranslationButtonType.flagAndName => "$flag  $name",
+      TranslationButtonType.flagAndNameInEn => "$flag  $nameInEn",
+      TranslationButtonType.flagAndCode => "$flag  $code",
+    };
+  }
+}
+
+class TranslationButton extends StatefulWidget {
+  final String reason;
+  final bool ignorePointer;
+  final EdgeInsets? padding;
+  final BoxDecoration? decoration;
+  final TranslationButtonType mode;
+  final TextStyle? textStyle;
+  final Widget Function(BuildContext context, Widget child)? builder;
+  final ValueChanged<Locale>? onChanged;
+
+  const TranslationButton({
+    super.key,
+    this.reason = "bottom_sheet",
+    this.ignorePointer = true,
+    this.decoration,
+    this.padding,
+    this.mode = TranslationButtonType.flagAndCode,
+    this.textStyle,
+    this.builder,
+    this.onChanged,
+  });
+
+  @override
+  State<TranslationButton> createState() => _TranslationButtonState();
+}
+
+class _TranslationButtonState extends State<TranslationButton>
+    with TranslationMixin {
+  @override
+  void translationChanged() {
+    super.translationChanged();
+    if (widget.onChanged != null) widget.onChanged!(locale);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = Container(
+      decoration: widget.decoration ?? BoxDecoration(color: Colors.transparent),
+      padding: widget.padding,
+      child: Text(
+        widget.mode._(Language.fromCode(
+          locale.languageCode,
+          locale.countryCode,
+        )),
+        style: widget.textStyle,
+      ),
+    );
+    if (widget.builder != null) {
+      child = widget.builder!(context, child);
+    }
+    if (widget.ignorePointer) {
+      return GestureDetector(
+        onTap: () {
+          Translation.selectLocale(context);
+        },
+        child: IgnorePointer(child: child),
+      );
+    }
+    return child;
+  }
+
+  @override
+  String get name => "translation:button";
 }

@@ -1,5 +1,13 @@
+## 0.6.24
+
+* Improve Translation util
+* Add Measurement extension
+* Add EnumHelper extension
+
 ## 0.6.23
+
 ## 0.6.22+1
+
 ## 0.6.22
 
 * Improve Configs and Translation
