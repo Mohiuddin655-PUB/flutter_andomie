@@ -26,6 +26,8 @@ abstract class TranslationDelegate {
 
   Future<Map?> cache(String path);
 
+  Future<void> changed(Locale locale);
+
   Future<bool> save(String path, Map? data);
 
   Future<Map?> fetch(String path);
@@ -147,6 +149,8 @@ class Translation extends ChangeNotifier {
     if (value.toString() == localeOrNull.toString()) return;
     localeOrNull = value;
     notifyListeners();
+    if (_delegate == null) return;
+    _delegate!.changed(value);
   }
 
   Locale? defaultLocaleOrNull;
@@ -419,6 +423,23 @@ class Translation extends ChangeNotifier {
     return i._trN(value, applyRtl: applyRtl);
   }
 
+  /// ```
+  /// final inp1 = "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock";
+  /// Translation.localize("key", defaultValue: inp1, args: {'NUMBER': 1}); // There is an item in stock
+  /// Translation.localize("key", defaultValue: inp1, args: {'NUMBER': 2}); // There are 2 items in stock
+  ///
+  /// final inp2 = "Status: {STATUS == active ? \"activated!\" : \"canceled!\"}";
+  /// Translation.localize("key", defaultValue: inp2, args: {'STATUS': "active"}); // Status: activated!
+  /// Translation.localize("key", defaultValue: inp2, args: {'STATUS': "inactive"}); // Status: canceled!
+  ///
+  /// final inp3 = "Status: {IS_ACTIVATED ? \"activated!\" : \"inactivated!\"}";
+  /// Translation.localize("key", defaultValue: inp3, args: {'IS_ACTIVATED': true}); // Status: activated!
+  /// Translation.localize("key", defaultValue: inp3, args: {'IS_ACTIVATED': false}); // Status: inactivated!
+  ///
+  /// final inp4 = "Last seen: {TIME: {a:now, b:3 min ago}}";
+  /// Translation.localize("key", defaultValue: inp4, args: {"TIME": "a"}); // Last seen: now
+  /// Translation.localize("key", defaultValue: inp4, args: {"TIME": "b"}); // Last seen: 3 min ago
+  ///```
   static String localize(
     String key, {
     String? name,
@@ -741,7 +762,7 @@ enum TranslationButtonType {
   flagAndCode;
 
   String _(Language language) {
-    final code = language.code.toUpperCase();
+    final code = language.code.split("_").first.toUpperCase();
     final name = language.nameInNative ?? language.name ?? code;
     final nameInEn = language.name ?? language.nameInNative ?? code;
     final flag = kCountryFlags[language.countryCode] ?? kCountryFlags["US"]!;
@@ -801,6 +822,7 @@ class _TranslationButtonState extends State<TranslationButton>
           locale.languageCode,
           locale.countryCode,
         )),
+        textDirection: textDirection,
         style: widget.textStyle,
       ),
     );

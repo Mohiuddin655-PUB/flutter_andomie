@@ -3,30 +3,15 @@ class BMICalculator {
 
   const BMICalculator(this.person);
 
-  double calculateMaleBMR() {
-    return 10 * person.initialWeight +
-        6.25 * person.height -
-        5 * person.age +
-        5;
-  }
+  double get male =>
+      10 * person.initialWeight + 6.25 * person.height - 5 * person.age + 5;
 
-  double calculateFemaleBMR() {
-    return 10 * person.initialWeight +
-        6.25 * person.height -
-        5 * person.age -
-        161;
-  }
+  double get female =>
+      10 * person.initialWeight + 6.25 * person.height - 5 * person.age - 161;
 
-  double getBMR() {
-    if (person.sex == Sex.male) {
-      return calculateMaleBMR();
-    } else {
-      return calculateFemaleBMR();
-    }
-  }
+  double get bmr => person.sex == Sex.male ? male : female;
 
-  double getTdee() {
-    double bmr = getBMR();
+  double get tdee {
     switch (person.activityLevel) {
       case ActivityLevel.sedentary:
         return bmr * 1.2;
@@ -43,30 +28,22 @@ class BMICalculator {
     }
   }
 
-  double getCalorieNeedPerDay() {
-    return getTdee();
-  }
+  double get calorieNeedPerDay => tdee;
 
-  double suggestCaloriesPerMeal() {
-    return getCalorieNeedPerDay() / 3;
-  }
+  double get suggestCaloriesPerMeal => calorieNeedPerDay / 3;
 
-  double getProteinNeedPerDay() {
-    return person.initialWeight * 1.8;
-  }
+  double get proteinNeedPerDay => person.initialWeight * 1.8;
 
-  double getFatNeedPerDay() {
-    return (getCalorieNeedPerDay() * 0.25) / 9;
-  }
+  double get fatNeedPerDay => (calorieNeedPerDay * 0.25) / 9;
 
-  double getCarbNeedPerDay() {
-    double totalCalories = getCalorieNeedPerDay();
-    double proteinCalories = getProteinNeedPerDay() * 4;
-    double fatCalories = getFatNeedPerDay() * 9;
+  double get carbNeedPerDay {
+    double totalCalories = calorieNeedPerDay;
+    double proteinCalories = proteinNeedPerDay * 4;
+    double fatCalories = fatNeedPerDay * 9;
     return (totalCalories - proteinCalories - fatCalories) / 4;
   }
 
-  double getAdditionalCalorieNeedPerDay() {
+  double get additionalCalorieNeedPerDay {
     if (person.initialWeight < person.expectedWeight) {
       return person.expectedWeightPerDay * 7700 / 7;
     } else {
@@ -74,69 +51,67 @@ class BMICalculator {
     }
   }
 
-  double getAdditionalCarbNeedPerDay() {
-    return getAdditionalCalorieNeedPerDay() / 4;
+  double get additionalCarbNeedPerDay {
+    return additionalCalorieNeedPerDay / 4;
   }
 
-  double getAdditionalProteinNeedPerDay() {
-    return getAdditionalCalorieNeedPerDay() * 0.3 / 4;
+  double get additionalProteinNeedPerDay {
+    return additionalCalorieNeedPerDay * 0.3 / 4;
   }
 
-  double getAdditionalFatNeedPerDay() {
-    return getAdditionalCalorieNeedPerDay() * 0.2 / 9;
+  double get additionalFatNeedPerDay {
+    return additionalCalorieNeedPerDay * 0.2 / 9;
   }
 
-  double getTotalCalorieNeedPerDay() {
-    return getCalorieNeedPerDay() + getAdditionalCalorieNeedPerDay();
+  double get totalCalorieNeedPerDay {
+    return calorieNeedPerDay + additionalCalorieNeedPerDay;
   }
 
-  double getTotalCarbNeedPerDay() {
-    return getCarbNeedPerDay() + getAdditionalCarbNeedPerDay();
+  double get totalCarbNeedPerDay {
+    return carbNeedPerDay + additionalCarbNeedPerDay;
   }
 
-  double getTotalProteinNeedPerDay() {
-    return getProteinNeedPerDay() + getAdditionalProteinNeedPerDay();
+  double get totalProteinNeedPerDay {
+    return proteinNeedPerDay + additionalProteinNeedPerDay;
   }
 
-  double getTotalFatNeedPerDay() {
-    return getFatNeedPerDay() + getAdditionalFatNeedPerDay();
-  }
+  double get totalFatNeedPerDay => fatNeedPerDay + additionalFatNeedPerDay;
 
   double remainingCalorieNeedPerDay(double completedCaloriesPerDay) {
-    return getTotalCalorieNeedPerDay() - completedCaloriesPerDay;
+    return totalCalorieNeedPerDay - completedCaloriesPerDay;
   }
 
   double remainingCarbNeedPerDay(double completedCarbPerDay) {
-    return getTotalCarbNeedPerDay() - completedCarbPerDay;
+    return totalCarbNeedPerDay - completedCarbPerDay;
   }
 
   double remainingFatNeedPerDay(double completedFatPerDay) {
-    return getTotalFatNeedPerDay() - completedFatPerDay;
+    return totalFatNeedPerDay - completedFatPerDay;
   }
 
   double remainingProteinNeedPerDay(double completedProteinPerDay) {
-    return getTotalProteinNeedPerDay() - completedProteinPerDay;
+    return totalProteinNeedPerDay - completedProteinPerDay;
   }
 
   double remainingCaloriePercentage(double completedCaloriesPerDay) {
-    return completedCaloriesPerDay / getTotalCalorieNeedPerDay();
+    return completedCaloriesPerDay / totalCalorieNeedPerDay;
   }
 
   double remainingCarbPercentage(double completedCarbPerDay) {
-    return completedCarbPerDay / getTotalCarbNeedPerDay();
+    return completedCarbPerDay / totalCarbNeedPerDay;
   }
 
   double remainingFatPercentage(double completedFatPerDay) {
-    return completedFatPerDay / getTotalFatNeedPerDay();
+    return completedFatPerDay / totalFatNeedPerDay;
   }
 
   double remainingProteinPercentage(double completedProteinPerDay) {
-    return completedProteinPerDay / getTotalProteinNeedPerDay();
+    return completedProteinPerDay / totalProteinNeedPerDay;
   }
 
   double getWeightChange(double caloricIntake, int days) {
-    double dailyCaloricSurplus = caloricIntake - getCalorieNeedPerDay();
-    return dailyCaloricSurplus * days / 7700; // 1 kg of fat = 7700 kcal
+    double dailyCaloricSurplus = caloricIntake - calorieNeedPerDay;
+    return dailyCaloricSurplus * days / 7700;
   }
 }
 

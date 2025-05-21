@@ -1,3 +1,8 @@
+## 0.6.27
+
+* Improve Translation util
+* Remove unnecessary codes from BMICalculator
+
 ## 0.6.26
 
 * Pointer bug fixed in TranslationBuilder
