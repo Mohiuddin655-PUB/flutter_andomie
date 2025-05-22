@@ -1,3 +1,8 @@
+## 0.6.28
+
+* Improve Translation util for conditional expression from raw text
+* Changed trNum(applyRtl = false) to trNum(applyRtl = true) as default rtl support
+
 ## 0.6.27
 
 * Improve Translation util

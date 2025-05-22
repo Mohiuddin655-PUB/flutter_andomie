@@ -361,7 +361,7 @@ class Translation extends ChangeNotifier {
     return data;
   }
 
-  String _trN(String value, {bool applyRtl = false}) {
+  String _trN(String value, {bool applyRtl = true}) {
     if (!RegExp(r'\d').hasMatch(value)) return value;
 
     String digits = kDigits[languageCode] ?? "0123456789";
@@ -450,7 +450,7 @@ class Translation extends ChangeNotifier {
     Map<String, Object?>? args,
   }) {
     Object? value = i._tr(key, name: name, defaultValue: defaultValue);
-    if (value is! String) return defaultValue ?? key;
+    if (value is! String) value = defaultValue ?? key;
     if (replace != null) value = replace(value);
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
     if (args != null) value = value.replace(args);
@@ -473,7 +473,7 @@ class Translation extends ChangeNotifier {
           defaultValue: defaultValue,
         )
         ?.whereType<String>();
-    if (value == null || value.isEmpty) return defaultValue ?? [];
+    if (value == null || value.isEmpty) value = defaultValue ?? [];
     if (replace != null) value = value.map(replace);
     if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
     if (args != null) value = value.map((e) => e.replace(args));
@@ -546,7 +546,7 @@ extension TranslationStringHelper on String {
     );
   }
 
-  String trNumWithOption({bool applyRtl = false}) {
+  String trNumWithOption({bool applyRtl = true}) {
     return Translation.trNum(this, applyRtl: applyRtl);
   }
 }
@@ -573,13 +573,15 @@ extension TranslationNumberHelper on num {
     );
   }
 
-  String trNumWithOption({bool applyRtl = false}) {
+  String trNumWithOption({bool applyRtl = true}) {
     return Translation.trNum(toString(), applyRtl: applyRtl);
   }
 }
 
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   String get name;
+
+  bool get translationChangedMode => true;
 
   Locale get locale => Translation.i.locale;
 
@@ -595,7 +597,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     Translation.selectLocale(context, reason);
   }
 
-  String trNum(String value, {bool applyRtl = false}) {
+  String trNum(String value, {bool applyRtl = true}) {
     return Translation.trNum(value, applyRtl: applyRtl);
   }
 
@@ -605,6 +607,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String Function(String)? replace,
     bool applyNumber = false,
     bool applyRtl = false,
+    Map<String, Object?>? args,
   }) {
     return Translation.localize(
       key,
@@ -613,6 +616,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
       replace: replace,
       applyNumber: applyNumber,
       applyRtl: applyRtl,
+      args: args,
     );
   }
 
@@ -622,6 +626,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String Function(String)? replace,
     bool applyNumber = false,
     bool applyRtl = false,
+    Map<String, Object?>? args,
   }) {
     return Translation.localizes(
       key,
@@ -630,6 +635,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
       replace: replace,
       applyNumber: applyNumber,
       applyRtl: applyRtl,
+      args: args,
     );
   }
 
@@ -663,7 +669,6 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     );
   }
 
-  @mustCallSuper
   void translationChanged() {
     if (!mounted) return;
     setState(() {});
@@ -672,12 +677,16 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   @override
   void initState() {
     super.initState();
-    Translation.i.addListener(translationChanged);
+    if (translationChangedMode) {
+      Translation.i.addListener(translationChanged);
+    }
   }
 
   @override
   void dispose() {
-    Translation.i.removeListener(translationChanged);
+    if (translationChangedMode) {
+      Translation.i.removeListener(translationChanged);
+    }
     super.dispose();
   }
 }
@@ -710,7 +719,7 @@ class TranslationProvider extends StatefulWidget {
 
 class _TranslationProviderState extends State<TranslationProvider>
     with WidgetsBindingObserver {
-  void _notify() {
+  void changed() {
     if (!mounted) return;
     setState(() {});
   }
@@ -728,13 +737,13 @@ class _TranslationProviderState extends State<TranslationProvider>
           WidgetsBinding.instance.platformDispatcher.locales.firstOrNull,
       supportedLocales: widget.supportedLocales,
     );
-    if (widget.notifiable) Translation.i.addListener(_notify);
+    if (widget.notifiable) Translation.i.addListener(changed);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (widget.notifiable) Translation.i.removeListener(_notify);
+    if (widget.notifiable) Translation.i.removeListener(changed);
     Translation.i.dispose();
     super.dispose();
   }
