@@ -1,3 +1,7 @@
+## 0.6.29
+
+* Improve Settings util to clear user preferences
+
 ## 0.6.28
 
 * Improve Translation util for conditional expression from raw text

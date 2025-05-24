@@ -56,10 +56,12 @@ class SettingsBackupResponse {
 class SettingsBackupDelegate {
   final Future<SettingsBackupResponse> Function() read;
   final Future<void> Function(SettingsWriteRequest request) write;
+  final Future<void> Function() clean;
 
   const SettingsBackupDelegate({
     required this.read,
     required this.write,
+    required this.clean,
   });
 }
 
@@ -101,7 +103,7 @@ class Settings {
     _ii._cached = cached;
     if (initial != null) _ii._props = initial;
     _ii.initialized = true;
-    await _ii._load();
+    await _ii.load();
   }
 
   static T _execute<T>(T Function(Settings) callback) {
@@ -114,7 +116,7 @@ class Settings {
     log(msg.toString(), name: "$Settings");
   }
 
-  Future<void> _load() async {
+  Future<void> load() async {
     try {
       if (_backup == null) return;
       final response = await _backup!.read();
@@ -122,6 +124,18 @@ class Settings {
       _props.addAll(response._data!);
     } catch (msg) {
       _log(msg);
+    }
+  }
+
+  Future<bool> clear() async {
+    try {
+      if (_backup == null) return false;
+      await _backup!.clean();
+      _props.clear();
+      return true;
+    } catch (msg) {
+      _log(msg);
+      return false;
     }
   }
 

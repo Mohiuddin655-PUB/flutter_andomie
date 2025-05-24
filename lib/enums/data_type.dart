@@ -1,16 +1,28 @@
 enum DataType {
   INT,
+  INT_OR_NULL,
   DOUBLE,
+  DOUBLE_OR_NULL,
   STRING,
+  STRING_OR_NULL,
   BOOL,
+  BOOL_OR_NULL,
   JSON,
+  JSON_OR_NULL,
   OBJECT,
+  OBJECT_OR_NULL,
   INTS,
+  INTS_OR_NULL,
   DOUBLES,
+  DOUBLES_OR_NULL,
   STRINGS,
+  STRINGS_OR_NULL,
   BOOLS,
+  BOOLS_OR_NULL,
   JSONS,
+  JSONS_OR_NULL,
   OBJECTS,
+  OBJECTS_OR_NULL,
   NULL,
   OTHER;
 
@@ -31,23 +43,35 @@ enum DataType {
   factory DataType.detect(Object? value, {bool parseable = false}) {
     if (value == null) return DataType.NULL;
     if (value is int) return DataType.INT;
+    if (value is int?) return DataType.INT_OR_NULL;
     if (value is double) return DataType.DOUBLE;
+    if (value is double?) return DataType.DOUBLE_OR_NULL;
     if (value is String) {
       if (parseable) return DataType._parseStr(value);
       return DataType.STRING;
     }
+    if (value is String?) return DataType.STRING_OR_NULL;
     if (value is bool) return DataType.BOOL;
+    if (value is bool?) return DataType.BOOL_OR_NULL;
     if (value is Iterable<int>) return DataType.INTS;
+    if (value is Iterable<int>?) return DataType.INTS_OR_NULL;
     if (value is Iterable<double>) return DataType.DOUBLES;
+    if (value is Iterable<double>?) return DataType.DOUBLES_OR_NULL;
     if (value is Iterable<String>) {
       if (parseable) return DataType._parseStrings(value);
       return DataType.STRINGS;
     }
+    if (value is Iterable<String>?) return DataType.STRINGS_OR_NULL;
     if (value is Iterable<bool>) return DataType.BOOLS;
+    if (value is Iterable<bool>?) return DataType.BOOLS_OR_NULL;
     if (value is Map<String, dynamic>) return DataType.JSON;
+    if (value is Map<String, dynamic>?) return DataType.JSON_OR_NULL;
     if (value is Iterable<Map<String, dynamic>>) return DataType.JSONS;
+    if (value is Iterable<Map<String, dynamic>>?) return DataType.JSONS_OR_NULL;
     if (value is Iterable) return DataType.OBJECTS;
+    if (value is Iterable?) return DataType.OBJECTS_OR_NULL;
     if (value is Map) return DataType.OBJECT;
+    if (value is Map?) return DataType.OBJECT_OR_NULL;
     return DataType.OTHER;
   }
 }
