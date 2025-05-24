@@ -1,3 +1,5 @@
+## 0.6.29+1
+
 ## 0.6.29
 
 * Improve Settings util to clear user preferences

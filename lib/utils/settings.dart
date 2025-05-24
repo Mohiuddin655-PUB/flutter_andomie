@@ -127,11 +127,11 @@ class Settings {
     }
   }
 
-  Future<bool> clear() async {
+  static Future<bool> clear() async {
     try {
-      if (_backup == null) return false;
-      await _backup!.clean();
-      _props.clear();
+      if (_ii._backup == null) return false;
+      await _ii._backup!.clean();
+      _ii._props.clear();
       return true;
     } catch (msg) {
       _log(msg);
