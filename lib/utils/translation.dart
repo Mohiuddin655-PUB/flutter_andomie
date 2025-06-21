@@ -451,9 +451,9 @@ class Translation extends ChangeNotifier {
   }) {
     Object? value = i._tr(key, name: name, defaultValue: defaultValue);
     if (value is! String) value = defaultValue ?? key;
-    if (replace != null) value = replace(value);
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
     if (args != null) value = value.replace(args);
+    if (replace != null) value = replace(value);
     return value;
   }
 
@@ -474,9 +474,9 @@ class Translation extends ChangeNotifier {
         )
         ?.whereType<String>();
     if (value == null || value.isEmpty) value = defaultValue ?? [];
-    if (replace != null) value = value.map(replace);
     if (applyNumber) value = value.map((e) => i._trN(e, applyRtl: applyRtl));
     if (args != null) value = value.map((e) => e.replace(args));
+    if (replace != null) value = value.map(replace);
     return value.toList();
   }
 

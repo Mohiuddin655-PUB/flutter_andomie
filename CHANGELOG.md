@@ -1,3 +1,8 @@
+## 0.6.30
+
+* Improve Translation for text replacer
+* Improve TextReplacer utils to support multiple conditional statements
+
 ## 0.6.29+1
 
 ## 0.6.29

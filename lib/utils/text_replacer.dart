@@ -94,7 +94,7 @@ class TextReplacer {
         final result = _e(resolvedCondition);
 
         final chosen = result ? a : b;
-        final output = _v(chosen, args, true);
+        final output = replace(chosen, args);
         return output;
       });
     } catch (_) {
@@ -117,7 +117,7 @@ class TextReplacer {
         if (args.containsKey(name)) {
           final key = args[name];
           final value = map[key];
-          return value ?? '';
+          return value != null ? replace(value, args) : '';
         }
 
         return m.group(0)!;
@@ -127,7 +127,19 @@ class TextReplacer {
     }
   }
 
+  static bool _replaceable(String input) {
+    if (RegExp(_kConditional).hasMatch(input)) return true;
+    if (RegExp(_kMapped).hasMatch(input)) return true;
+    return false;
+  }
+
   /// ```
+  /// final inp = '{IS_LOADING ? "Loading..." : "{COUNT > 1 ? "COUNT items" : "{COUNT == 1 ? "One item" : "No items"}"}"}';
+  /// TextReplacer.replace(inp, {'COUNT': 1, 'IS_LOADING': true});  // Loading...
+  /// TextReplacer.replace(inp, {'COUNT': 0, 'IS_LOADING': false}); // No items
+  /// TextReplacer.replace(inp, {'COUNT': 1, 'IS_LOADING': false}); // One item
+  /// TextReplacer.replace(inp, {'COUNT': 2, 'IS_LOADING': false}); // 2 items
+  ///
   /// final inp1 = "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock";
   /// TextReplacer.replace(inp1, {'NUMBER': 1}); // There is an item in stock
   /// TextReplacer.replace(inp1, {'NUMBER': 2}); // There are 2 items in stock
@@ -144,14 +156,25 @@ class TextReplacer {
   /// TextReplacer.replace(inp4, {"TIME": "a"}); // Last seen: now
   /// TextReplacer.replace(inp4, {"TIME": "b"}); // Last seen: 3 min ago
   static String replace(String input, Map<String, Object?> args) {
-    if (RegExp(_kConditional).hasMatch(input)) input = _con(input, args);
-    if (RegExp(_kMapped).hasMatch(input)) input = _map(input, args);
-    return input;
+    if (!_replaceable(input)) return _v(input, args, true);
+    if (RegExp(_kConditional).hasMatch(input)) {
+      input = _con(input, args);
+    }
+    if (RegExp(_kMapped).hasMatch(input)) {
+      input = _map(input, args);
+    }
+    return replace(input, args);
   }
 }
 
 extension TextReplacerHelper on String {
   /// ```
+  /// final inp = '{IS_LOADING ? "Loading..." : "{COUNT > 1 ? "COUNT items" : "{COUNT == 1 ? "One item" : "No items"}"}"}';
+  /// TextReplacer.replace(inp, {'COUNT': 1, 'IS_LOADING': true});  // Loading...
+  /// TextReplacer.replace(inp, {'COUNT': 0, 'IS_LOADING': false}); // No items
+  /// TextReplacer.replace(inp, {'COUNT': 1, 'IS_LOADING': false}); // One item
+  /// TextReplacer.replace(inp, {'COUNT': 2, 'IS_LOADING': false}); // 2 items
+  ///
   /// final inp1 = "There {NUMBER > 1 ? \"are NUMBER items\" : \"is an item\"} in stock";
   /// inp1.replace({'NUMBER': 1}); // There is an item in stock
   /// inp1.replace({'NUMBER': 2}); // There are 2 items in stock
