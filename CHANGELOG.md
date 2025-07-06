@@ -1,3 +1,7 @@
+## 0.6.31
+
+* Initial Locale support in Translation Util
+
 ## 0.6.30
 
 * Improve Translation for text replacer

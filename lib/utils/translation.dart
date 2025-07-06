@@ -118,6 +118,7 @@ class Translation extends ChangeNotifier {
     String defaultPath = kDefaultTranslationPath,
     Set<String>? paths,
     Object? defaultLocale,
+    Object? initialLocale,
     Iterable? supportedLocales,
     TranslationDelegate? delegate,
   }) async {
@@ -132,6 +133,7 @@ class Translation extends ChangeNotifier {
     i._defaultPath = defaultPath;
     i._delegate = delegate;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
+    i.localeOrNull = parseLocale(initialLocale);
     i._supportedLocales = parseLocales(supportedLocales);
     await i._loads();
   }
