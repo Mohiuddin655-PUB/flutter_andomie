@@ -1,3 +1,7 @@
+## 0.6.32
+
+* Improve Configs and Translation utils using Remote Util
+
 ## 0.6.31
 
 * Initial Locale support in Translation Util

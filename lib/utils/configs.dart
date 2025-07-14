@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../extensions/object.dart';
 import 'map_converter.dart';
+import 'remote.dart';
 
 const _kApplication = "application";
 const _kDailyNotifications = "daily_notifications";
@@ -39,29 +37,9 @@ enum PlatformType {
 
 enum EnvironmentType { live, test, system }
 
-abstract class ConfigDelegate {
-  const ConfigDelegate();
+abstract class ConfigsDelegate extends RemoteDelegate {}
 
-  Set<String> get paths => {};
-
-  Future<String> asset(String path) => rootBundle.loadString(path);
-
-  Future<Map?> cache(String path);
-
-  Future<bool> save(String path, Map? data);
-
-  Future<Map?> fetch(String path);
-
-  Stream<Map?> listen(String path) {
-    return Stream.error("Stream not implemented for $path");
-  }
-
-  Future<void> ready(String path) async {}
-
-  Future<void> changes(String path) async {}
-}
-
-class Configs extends ChangeNotifier {
+class Configs extends Remote<ConfigsDelegate> {
   Configs._();
 
   static Configs? _i;
@@ -72,16 +50,9 @@ class Configs extends ChangeNotifier {
   // INITIAL PART
   // ---------------------------------------------------------------------------
 
-  final Map _props = {};
   String _defaultPath = _kApplication;
-  Set<String> _paths = {};
-
-  bool _connected = false;
-  bool _showLogs = false;
-  String _name = kDefaultConfigName;
   EnvironmentType? _environment;
   PlatformType? _platform;
-  ConfigDelegate? _delegate;
 
   EnvironmentType get environment {
     if (i._environment != null && i._environment != EnvironmentType.system) {
@@ -117,232 +88,31 @@ class Configs extends ChangeNotifier {
     i.notifyListeners();
   }
 
-  void _log(msg) {
-    if (!i._showLogs) return;
-    log(msg.toString(), name: _name.toUpperCase());
-  }
-
   static Future<void> init({
-    Map? initial,
-    String defaultPath = _kApplication,
-    Set<String>? paths,
-    ConfigDelegate? delegate,
-    bool showLogs = false,
+    String? name,
     required bool connected,
-    String name = kDefaultConfigName,
+    ConfigsDelegate? delegate,
+    Set<String>? paths,
+    bool listening = true,
+    bool showLogs = false,
+    VoidCallback? onReady,
+    String defaultPath = _kApplication,
     PlatformType platform = PlatformType.system,
     EnvironmentType environment = EnvironmentType.system,
   }) async {
     paths ??= {...kDefaultConfigPaths, ...delegate?.paths ?? {}};
     i._defaultPath = defaultPath;
-    i._paths = paths;
-    i._name = name;
-    i._showLogs = showLogs;
     i._environment = environment;
     i._platform = platform;
-    i._delegate = delegate;
-    i._connected = connected;
-    await i._loads();
-    i._subscribes();
-  }
-
-  // ---------------------------------------------------------------------------
-  // CONNECTION PART
-  // ---------------------------------------------------------------------------
-
-  static Future<void> reload() async {
-    try {
-      await Future.wait(i._paths.map((e) => i._load(e, reload: true)));
-    } catch (msg) {
-      i._log(msg);
-    }
-  }
-
-  static void resubscribes() async {
-    try {
-      i._subscribes();
-    } catch (msg) {
-      i._log(msg);
-    }
-  }
-
-  static void cancelSubscriptions() {
-    i._subscriptionsCancel();
-  }
-
-  static Future<void> changeConnection(bool value) async {
-    if (i._connected == value) return;
-    i._connected = value;
-    if (!value) {
-      i._subscriptionsCancel();
-      return;
-    }
-    await reload();
-    resubscribes();
-  }
-
-  // ---------------------------------------------------------------------------
-  // ASSET PART
-  // ---------------------------------------------------------------------------
-
-  Future<Map?> _assets(String path) async {
-    try {
-      path = "assets/$_name/$path.json";
-      String data;
-      if (_delegate != null) {
-        data = await _delegate!.asset(path);
-      } else {
-        data = await rootBundle.loadString(path);
-      }
-      if (data.isEmpty) return null;
-      final decoded = jsonDecode(data);
-      if (decoded is! Map) return null;
-      return decoded;
-    } catch (msg) {
-      _log(msg);
-      return null;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // CACHE PART
-  // ---------------------------------------------------------------------------
-
-  Future<Map?> _cached(String path) async {
-    if (_delegate == null) return null;
-    try {
-      Map? cache = await _delegate!.cache("--$_name-$path");
-      return cache;
-    } catch (msg) {
-      _log(msg);
-      return null;
-    }
-  }
-
-  Future<bool> _save(String path, Map? data) async {
-    if (_delegate == null) return false;
-    try {
-      final feedback = await _delegate!.save("--$_name-$path", data);
-      return feedback;
-    } catch (msg) {
-      _log(msg);
-      return false;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // REMOTE PART
-  // ---------------------------------------------------------------------------
-
-  Future<void> _fetch(String path) async {
-    if (_delegate == null) return;
-    try {
-      if (!_connected) return;
-      final data = await _delegate!.fetch(path);
-      await _save(path, data);
-    } on TimeoutException catch (_) {
-      _log(
-        "Timeout while connecting to $path. Please check your connection.",
-      );
-    } catch (msg) {
-      _log(msg);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // LOADING PART
-  // ---------------------------------------------------------------------------
-
-  bool loading = false;
-
-  Future<void> _load(
-    String path, {
-    bool refresh = false,
-    bool reload = false,
-  }) async {
-    try {
-      if (!refresh || reload) await _fetch(path);
-      Map data = {};
-      final local = _props[path];
-      if (local is Map) data = data.combine(local);
-      if (!refresh) {
-        Map? asset = await _assets(path);
-        if (asset != null) data = data.combine(asset);
-      }
-      Map? cache = await _cached(path);
-      if (cache != null) data = data.combine(cache);
-      if (data.isEmpty) {
-        _props.remove(path);
-        return;
-      }
-      _props[path] = data;
-      if (refresh) notifyListeners();
-      if (_delegate != null) {
-        refresh || reload ? _delegate!.changes(path) : _delegate!.ready(path);
-      }
-    } catch (msg) {
-      _log(msg);
-    }
-  }
-
-  Future<void> _loads() async {
-    try {
-      loading = true;
-      notifyListeners();
-      await Future.wait(_paths.map(_load));
-      loading = false;
-      notifyListeners();
-    } catch (msg) {
-      _log(msg);
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // SUBSCRIPTIONS PART
-  // ---------------------------------------------------------------------------
-
-  final Map<String, StreamSubscription?> _subscriptions = {};
-
-  void _subscribe(String path) async {
-    if (_delegate == null) return;
-    try {
-      _subscriptions[path]?.cancel();
-      _subscriptions.remove(path);
-      if (!_connected) return;
-      _subscriptions[path] = _delegate!.listen(path).listen((data) async {
-        if (data == null || data.isEmpty) return;
-        if (data == _props[path]) return;
-        final kept = await _save(path, data);
-        if (!kept) return;
-        _load(path, refresh: true);
-      });
-    } on TimeoutException catch (_) {
-      _log(
-        "Timeout while connecting to $path. Please check your connection.",
-      );
-    } catch (msg) {
-      _log(msg);
-    }
-  }
-
-  void _subscribes([Set<String>? paths]) {
-    if (paths == null || paths.isEmpty) _subscriptionsCancel();
-    for (var path in (paths ?? _paths)) {
-      _subscribe(path);
-    }
-  }
-
-  void _subscriptionsCancel() {
-    _subscriptions.forEach((key, value) {
-      value?.cancel();
-      _subscriptions.remove(key);
-    });
-  }
-
-  @override
-  void dispose() {
-    _subscriptionsCancel();
-    super.dispose();
+    await i.initialize(
+      name: name ?? kDefaultConfigName,
+      connected: connected,
+      delegate: delegate,
+      paths: paths,
+      listening: listening,
+      showLogs: showLogs,
+      onReady: onReady,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -393,7 +163,7 @@ class Configs extends ChangeNotifier {
     PlatformType? platform,
   }) {
     final keys = path == null ? _keys(key) : (path, key);
-    final data = _props[keys.$1];
+    final data = props[keys.$1];
     if (data is! Map) return null;
     final env = _env(data, environment);
     final x = env[keys.$2];
@@ -409,7 +179,7 @@ class Configs extends ChangeNotifier {
     EnvironmentType? environment,
     PlatformType? platform,
   }) {
-    final data = _props[name];
+    final data = props[name];
     if (data is! Map) return null;
     final env = _env(data, environment);
     return env;
@@ -434,7 +204,7 @@ class Configs extends ChangeNotifier {
       if (modifier != null) value = modifier(value);
       return value;
     } catch (msg) {
-      i._log(msg);
+      i.log(msg);
       return defaultValue;
     }
   }
@@ -458,7 +228,7 @@ class Configs extends ChangeNotifier {
       modifier: modifier,
     );
     if (value != null) return value;
-    throw UnimplementedError("$T didn't get from this ${i._name}");
+    throw UnimplementedError("$T didn't get from this ${i.name}");
   }
 
   static T? getOrNull<T extends Object?>(
@@ -482,7 +252,7 @@ class Configs extends ChangeNotifier {
       if (modifier != null) value = modifier(value);
       return value;
     } catch (msg) {
-      i._log(msg);
+      i.log(msg);
       return defaultValue;
     }
   }
@@ -506,7 +276,7 @@ class Configs extends ChangeNotifier {
       modifier: modifier,
     );
     if (value != null) return value;
-    throw UnimplementedError("${List<T>} didn't get from this ${i._name}");
+    throw UnimplementedError("${List<T>} didn't get from this ${i.name}");
   }
 
   static List<T>? getsOrNull<T extends Object?>(
@@ -532,7 +302,7 @@ class Configs extends ChangeNotifier {
       }
       return value;
     } catch (msg) {
-      i._log(msg);
+      i.log(msg);
       return defaultValue;
     }
   }

@@ -1,141 +1,69 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../contents/country_flags.dart';
 import '../contents/language_numerical_digits.dart';
 import '../contents/rtl_directional_languages.dart';
 import '../models/language.dart';
 import '../utils/text_replacer.dart';
-import 'internet.dart';
+import 'remote.dart';
 
 const kDefaultTranslationName = "translations";
 const kDefaultTranslationPath = "localizations";
 
-abstract class TranslationDelegate {
+abstract class TranslationDelegate extends RemoteDelegate {
   const TranslationDelegate();
 
-  Set<String> get paths => {};
-
-  Future<String> asset(String path) async {
-    return rootBundle.loadString("assets/$path.json");
-  }
-
-  Future<Map?> cache(String path);
-
   Future<void> changed(Locale locale);
-
-  Future<bool> save(String path, Map? data);
-
-  Future<Map?> fetch(String path);
 
   Future<Locale?> select(BuildContext context, String? reason);
 }
 
-class _Delegate extends LocalizationsDelegate<Translation> {
-  @override
-  bool isSupported(Locale locale) {
-    return Translation.i.supportedLocales.contains(locale);
-  }
-
-  @override
-  Future<Translation> load(Locale locale) async {
-    Translation.i.locale = locale;
-    Translation.i._loads(fetch: false);
-    return Translation.i;
-  }
-
-  @override
-  bool shouldReload(covariant LocalizationsDelegate<Translation> old) => false;
-}
-
-class Translation extends ChangeNotifier {
+class Translation extends Remote<TranslationDelegate> {
   Translation._();
 
   static Translation? _i;
 
   static Translation get i => _i ??= Translation._();
 
-  static LocalizationsDelegate<Translation> get delegate => _Delegate();
-
   // ---------------------------------------------------------------------------
   // INITIAL PART
   // ---------------------------------------------------------------------------
 
-  final Map _props = {};
-  Iterable<String> _paths = {};
-  bool _showLogs = false;
-  String _name = kDefaultTranslationName;
   String _defaultPath = kDefaultTranslationPath;
-  TranslationDelegate? _delegate;
-
-  void _log(msg) {
-    if (!i._showLogs) return;
-    log(msg.toString(), name: "$Translation".toUpperCase());
-  }
-
-  Future<void> _load(
-    String path, {
-    bool refresh = false,
-    bool fetch = true,
-  }) async {
-    try {
-      if (!refresh && fetch) await _fetch(path);
-      Map data = {};
-      final local = _props[path];
-      if (local is Map) data.addAll(local);
-      if (!refresh) {
-        Map? asset = await _assets(path);
-        if (asset != null) data.addAll(asset);
-      }
-      Map? cache = await _cached(path);
-      if (cache != null) data.addAll(cache);
-      if (data.isEmpty) {
-        _props.remove(path);
-        return;
-      }
-      _props[path] = data;
-    } catch (msg) {
-      _log(msg);
-    }
-  }
-
-  Future<void> _loads({bool fetch = true}) async {
-    try {
-      await Future.wait(_paths.map((e) => _load(e, fetch: fetch)));
-    } catch (msg) {
-      _log(msg);
-    }
-  }
 
   static Future<void> init({
-    bool showLogs = false,
-    Map? initial,
-    String name = kDefaultTranslationName,
-    String defaultPath = kDefaultTranslationPath,
+    String? name,
+    required bool connected,
+    TranslationDelegate? delegate,
     Set<String>? paths,
+    bool listening = true,
+    bool showLogs = false,
+    VoidCallback? onReady,
+    String defaultPath = kDefaultTranslationPath,
     Object? defaultLocale,
     Object? initialLocale,
     Iterable? supportedLocales,
-    TranslationDelegate? delegate,
   }) async {
     paths ??= {};
     if (delegate != null && delegate.paths.isNotEmpty) {
       paths.addAll(delegate.paths);
     }
     paths.add("$name/$defaultPath");
-    i._paths = paths;
-    i._showLogs = showLogs;
-    i._name = name;
     i._defaultPath = defaultPath;
-    i._delegate = delegate;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
     i.localeOrNull = parseLocale(initialLocale);
     i._supportedLocales = parseLocales(supportedLocales);
-    await i._loads();
+    await i.initialize(
+      name: name ?? kDefaultTranslationName,
+      connected: connected,
+      delegate: delegate,
+      paths: paths,
+      listening: listening,
+      showLogs: showLogs,
+      onReady: onReady,
+    );
   }
 
   // ---------------------------------------------------------------------------
@@ -151,8 +79,8 @@ class Translation extends ChangeNotifier {
     if (value.toString() == localeOrNull.toString()) return;
     localeOrNull = value;
     notifyListeners();
-    if (_delegate == null) return;
-    _delegate!.changed(value);
+    if (delegate == null) return;
+    delegate!.changed(value);
   }
 
   Locale? defaultLocaleOrNull;
@@ -226,12 +154,12 @@ class Translation extends ChangeNotifier {
 
   static void selectLocale(BuildContext context, [String? reason]) async {
     try {
-      if (i._delegate == null) return null;
-      final locale = await i._delegate!.select(context, reason);
+      if (i.delegate == null) return null;
+      final locale = await i.delegate!.select(context, reason);
       if (locale == null) return null;
       changeLocale(locale);
     } catch (msg) {
-      i._log(msg);
+      i.log(msg);
     }
   }
 
@@ -240,75 +168,11 @@ class Translation extends ChangeNotifier {
     String? reason,
   ]) async {
     try {
-      if (i._delegate == null) return null;
-      return i._delegate!.select(context, reason);
+      if (i.delegate == null) return null;
+      return i.delegate!.select(context, reason);
     } catch (msg) {
-      i._log(msg);
+      i.log(msg);
       return null;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // ASSET PART
-  // ---------------------------------------------------------------------------
-
-  Future<Map?> _assets(String path) async {
-    try {
-      String data;
-      if (_delegate != null) {
-        data = await _delegate!.asset(path);
-      } else {
-        data = await rootBundle.loadString("assets/$path.json");
-      }
-      if (data.isEmpty) return null;
-      final decoded = jsonDecode(data);
-      if (decoded is! Map) return null;
-      return decoded;
-    } catch (msg) {
-      _log(msg);
-      return null;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // CACHE PART
-  // ---------------------------------------------------------------------------
-
-  Future<Map?> _cached(String path) async {
-    if (_delegate == null) return null;
-    try {
-      Map? cache = await _delegate!.cache("--tr905849-$path");
-      return cache;
-    } catch (msg) {
-      _log(msg);
-      return null;
-    }
-  }
-
-  Future<bool> _save(String path, Map? data) async {
-    if (_delegate == null) return false;
-    try {
-      final feedback = await _delegate!.save("--tr905849-$path", data);
-      return feedback;
-    } catch (msg) {
-      _log(msg);
-      return false;
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // REMOTE PART
-  // ---------------------------------------------------------------------------
-
-  Future<void> _fetch(String path) async {
-    if (_delegate == null) return;
-    try {
-      final connected = await Internet.connected;
-      if (!connected) return;
-      final data = await _delegate!.fetch(path);
-      await _save(path, data);
-    } catch (msg) {
-      _log(msg);
     }
   }
 
@@ -333,8 +197,8 @@ class Translation extends ChangeNotifier {
   }
 
   Object? _t([String? path]) {
-    path ??= "$_name/$_defaultPath";
-    final data = _props[path];
+    path ??= "$name/$_defaultPath";
+    final data = props[path];
     if (data is! Map) return data;
     final ld = _filter(data);
     if (ld is Map && ld.isNotEmpty) return ld;
@@ -696,22 +560,26 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
 class TranslationProvider extends StatefulWidget {
   final Object? defaultLocale;
   final Iterable supportedLocales;
-  final Map? initial;
+  final bool connection;
+  final bool listening;
   final bool notifiable;
   final bool showLogs;
   final Set<String>? paths;
   final TranslationDelegate? delegate;
   final Widget child;
+  final VoidCallback? onReady;
 
   const TranslationProvider({
     super.key,
-    this.initial,
     this.delegate,
     this.defaultLocale,
+    this.connection = false,
+    this.listening = false,
     this.notifiable = false,
     this.showLogs = false,
     this.supportedLocales = const [],
     this.paths,
+    this.onReady,
     required this.child,
   });
 
@@ -731,13 +599,15 @@ class _TranslationProviderState extends State<TranslationProvider>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     Translation.init(
+      connected: widget.connection,
       showLogs: widget.showLogs,
-      initial: widget.initial,
+      listening: widget.listening,
       paths: widget.paths,
       delegate: widget.delegate,
       defaultLocale: widget.defaultLocale ??
           WidgetsBinding.instance.platformDispatcher.locales.firstOrNull,
       supportedLocales: widget.supportedLocales,
+      onReady: widget.onReady,
     );
     if (widget.notifiable) Translation.i.addListener(changed);
   }
