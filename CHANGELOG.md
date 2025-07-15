@@ -1,3 +1,7 @@
+## 0.6.33
+
+* Configs and Translation utils bug fixed
+
 ## 0.6.32
 
 * Improve Configs and Translation utils using Remote Util

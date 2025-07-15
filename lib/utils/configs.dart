@@ -100,7 +100,7 @@ class Configs extends Remote<ConfigsDelegate> {
     PlatformType platform = PlatformType.system,
     EnvironmentType environment = EnvironmentType.system,
   }) async {
-    paths ??= {...kDefaultConfigPaths, ...delegate?.paths ?? {}};
+    paths ??= {...kDefaultConfigPaths};
     i._defaultPath = defaultPath;
     i._environment = environment;
     i._platform = platform;

@@ -47,10 +47,7 @@ class Translation extends Remote<TranslationDelegate> {
     Iterable? supportedLocales,
   }) async {
     paths ??= {};
-    if (delegate != null && delegate.paths.isNotEmpty) {
-      paths.addAll(delegate.paths);
-    }
-    paths.add("$name/$defaultPath");
+    paths.add(defaultPath);
     i._defaultPath = defaultPath;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
     i.localeOrNull = parseLocale(initialLocale);

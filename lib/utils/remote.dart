@@ -4,28 +4,29 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_andomie/utils/map_converter.dart';
+
+import 'map_converter.dart';
 
 abstract class RemoteDelegate {
   const RemoteDelegate();
 
-  Set<String> get paths => {};
+  Future<String> asset(String name, String path) {
+    return rootBundle.loadString("assets/$name/$path");
+  }
 
-  Future<String> asset(String path) => rootBundle.loadString(path);
+  Future<Map?> cache(String name, String path);
 
-  Future<Map?> cache(String path);
+  Future<bool> save(String name, String path, Map? data);
 
-  Future<bool> save(String path, Map? data);
+  Future<Map?> fetch(String name, String path);
 
-  Future<Map?> fetch(String path);
-
-  Stream<Map?> listen(String path) {
+  Stream<Map?> listen(String name, String path) {
     return Stream.error("Stream not implemented for $path");
   }
 
-  Future<void> ready(String path) async {}
+  Future<void> ready(String name, String path) async {}
 
-  Future<void> changes(String path) async {}
+  Future<void> changes(String name, String path) async {}
 }
 
 class Remote<T extends RemoteDelegate> extends ChangeNotifier {
@@ -57,7 +58,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
 
   T? get delegate => _delegate;
 
-  void log(msg) {
+  void log(Object? msg) {
     if (!_showLogs) return;
     dev.log(msg.toString(), name: name.toUpperCase());
   }
@@ -71,7 +72,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     bool showLogs = false,
     VoidCallback? onReady,
   }) async {
-    paths ??= {...delegate?.paths ?? {}};
+    paths ??= {};
     _name = name;
     _paths = paths;
     _showLogs = showLogs;
@@ -124,10 +125,10 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
 
   Future<Map?> _assets(String path) async {
     try {
-      path = "assets/$name/$path.json";
+      path = "$path.json";
       String data;
       if (_delegate != null) {
-        data = await _delegate!.asset(path);
+        data = await _delegate!.asset(name, path);
       } else {
         data = await rootBundle.loadString(path);
       }
@@ -148,7 +149,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
   Future<Map?> _cached(String path) async {
     if (_delegate == null) return null;
     try {
-      Map? cache = await _delegate!.cache("--$name-$path");
+      Map? cache = await _delegate!.cache(name, path);
       return cache;
     } catch (msg) {
       log(msg);
@@ -159,7 +160,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
   Future<bool> _save(String path, Map? data) async {
     if (_delegate == null) return false;
     try {
-      final feedback = await _delegate!.save("--$name-$path", data);
+      final feedback = await _delegate!.save(name, path, data);
       return feedback;
     } catch (msg) {
       log(msg);
@@ -175,7 +176,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     if (_delegate == null) return;
     try {
       if (!_connected) return;
-      final data = await _delegate!.fetch(path);
+      final data = await _delegate!.fetch(name, path);
       await _save(path, data);
     } on TimeoutException catch (_) {
       log(
@@ -217,7 +218,9 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
       _props[path] = data;
       if (refresh) notifyListeners();
       if (_delegate != null) {
-        refresh || reload ? _delegate!.changes(path) : _delegate!.ready(path);
+        refresh || reload
+            ? _delegate!.changes(name, path)
+            : _delegate!.ready(name, path);
       }
     } catch (msg) {
       log(msg);
@@ -252,7 +255,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
       await _subscriptions[path]?.cancel();
       _subscriptions.remove(path);
       if (!_connected) return;
-      _subscriptions[path] = _delegate!.listen(path).listen((data) async {
+      _subscriptions[path] = _delegate!.listen(name, path).listen((data) async {
         if (data == null || data.isEmpty) return;
         if (data == _props[path]) return;
         final kept = await _save(path, data);
