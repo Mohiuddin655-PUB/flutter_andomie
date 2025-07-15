@@ -1,3 +1,7 @@
+## 0.6.34
+
+* Translation localize bug fixed
+
 ## 0.6.33
 
 * Configs and Translation utils bug fixed

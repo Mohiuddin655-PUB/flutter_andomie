@@ -194,7 +194,7 @@ class Translation extends Remote<TranslationDelegate> {
   }
 
   Object? _t([String? path]) {
-    path ??= "$name/$_defaultPath";
+    path ??= _defaultPath;
     final data = props[path];
     if (data is! Map) return data;
     final ld = _filter(data);
