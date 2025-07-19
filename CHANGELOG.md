@@ -1,3 +1,7 @@
+## 0.6.37
+
+* Improve Translation and Settings
+
 ## 0.6.36+1
 
 * Improve auto translator system in Translation util

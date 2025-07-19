@@ -80,7 +80,7 @@ class Settings {
 
   static Settings? _i;
 
-  static Settings get _ii => _i ??= Settings._();
+  static Settings get i => _i ??= Settings._();
 
   bool _showLogs = false;
   Map<String, dynamic> _props = {};
@@ -98,30 +98,30 @@ class Settings {
     SettingsBackupDelegate? backup,
     SettingsCachedDelegate? cached,
   }) async {
-    _ii._showLogs = showLogs;
-    _ii._backup = backup;
-    _ii._cached = cached;
-    if (initial != null) _ii._props = initial;
-    _ii.initialized = true;
-    await _ii.load();
+    i._showLogs = showLogs;
+    i._backup = backup;
+    i._cached = cached;
+    if (initial != null) i._props = initial;
+    i.initialized = true;
+    await load();
   }
 
   static T _execute<T>(T Function(Settings) callback) {
-    if (_ii.initialized) return callback(_ii);
+    if (i.initialized) return callback(i);
     throw "$Settings hasn't initialized yet!";
   }
 
-  static void _log(msg) {
-    if (!_ii._showLogs) return;
+  static void _log(Object? msg) {
+    if (!i._showLogs) return;
     log(msg.toString(), name: "$Settings");
   }
 
-  Future<void> load() async {
+  static Future<void> load() async {
     try {
-      if (_backup == null) return;
-      final response = await _backup!.read();
+      if (i._backup == null) return;
+      final response = await i._backup!.read();
       if (response._data == null) return _log(response.error);
-      _props.addAll(response._data!);
+      i._props.addAll(response._data!);
     } catch (msg) {
       _log(msg);
     }
@@ -129,9 +129,9 @@ class Settings {
 
   static Future<bool> clear() async {
     try {
-      if (_ii._backup == null) return false;
-      await _ii._backup!.clean();
-      _ii._props.clear();
+      if (i._backup == null) return false;
+      await i._backup!.clean();
+      i._props.clear();
       return true;
     } catch (msg) {
       _log(msg);
@@ -141,8 +141,8 @@ class Settings {
 
   static T get<T>(String key, T defaultValue, {Object? options}) {
     try {
-      if (_ii._local) {
-        final data = _ii._props[key];
+      if (i._local) {
+        final data = i._props[key];
         return data is T ? data : defaultValue;
       }
       return _execute((i) {
@@ -170,19 +170,19 @@ class Settings {
 
   static bool set(String key, Object? value, {Object? options}) {
     try {
-      _ii._props[key] = value;
-      if (_ii._local) return true;
+      i._props[key] = value;
+      if (i._local) return true;
       return _execute((i) {
         final request = SettingsWriteRequest._(
           path: key,
           value: value,
           type: value.dataType,
-          props: _ii._props,
+          props: i._props,
           options: options,
         );
-        final feedback = _ii._cached?.write(request);
-        _ii._backup?.write(request);
-        return feedback ?? _ii._cached == null;
+        final feedback = i._cached?.write(request);
+        i._backup?.write(request);
+        return feedback ?? i._cached == null;
       });
     } catch (msg) {
       _log(msg);

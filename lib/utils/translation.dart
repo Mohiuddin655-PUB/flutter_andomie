@@ -420,7 +420,7 @@ class Translation extends Remote<TranslationDelegate> {
     String? key,
     String? path,
     String? name,
-    Object? defaultValue,
+    T? defaultValue,
     bool applyTranslator = false,
     T? Function(Object?)? parser,
   }) {
@@ -437,18 +437,15 @@ class Translation extends Remote<TranslationDelegate> {
       localed = i._t(path: path, translate: applyTranslator);
     }
     if (localed is T) return localed;
-    if (parser != null && localed != null) return parser(localed);
-    localed = i._trx(defaultValue, applyTranslator);
-    if (localed is T) return localed;
-    if (parser != null && localed != null) return parser(localed);
-    return null;
+    if (parser != null) return parser(localed);
+    return defaultValue;
   }
 
   static List<T> gets<T extends Object?>({
     String? key,
     String? path,
     String? name,
-    List<Object>? defaultValue,
+    List<T>? defaultValue,
     bool applyTranslator = false,
     T? Function(Object?)? parser,
   }) {
@@ -464,8 +461,7 @@ class Translation extends Remote<TranslationDelegate> {
     } else {
       localed = i._t(path: path, translate: applyTranslator);
     }
-    if (localed is! Iterable) localed = i._trx(defaultValue, applyTranslator);
-    if (localed is! Iterable) return [];
+    if (localed is! Iterable) return defaultValue ?? [];
     final parsed = localed.map((e) {
       if (e is T) return e;
       if (parser != null) return parser(e);
@@ -603,7 +599,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   E? get<E extends Object?>({
     String? key,
     String? path,
-    Object? defaultValue,
+    E? defaultValue,
     E? Function(Object?)? parser,
   }) {
     return Translation.get(
@@ -618,7 +614,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   List<E> gets<E extends Object?>({
     String? key,
     String? path,
-    List<Object>? defaultValue,
+    List<E>? defaultValue,
     E? Function(Object?)? parser,
   }) {
     return Translation.gets(
