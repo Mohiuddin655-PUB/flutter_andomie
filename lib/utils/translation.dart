@@ -63,7 +63,7 @@ class Translation extends Remote<TranslationDelegate> {
     i.fallbackLocaleOrNull = parseLocale(fallbackLocale);
     i.localeOrNull = parseLocale(locale);
     i._supportedLocales = parseLocales(supportedLocales);
-    if (autoTranslateMode && i.delegate != null) {
+    if (autoTranslateMode && delegate != null) {
       i._translator = Translator(
         defaultLanguage: languageCode,
         handler: i.delegate!.translate,
@@ -215,25 +215,40 @@ class Translation extends Remote<TranslationDelegate> {
     return null;
   }
 
-  Object? _t([String? path]) {
+  Object? _t({String? path, bool translate = false}) {
     path ??= _defaultPath;
     final data = props[path];
-    if (data is! Map) return data;
+    if (data is! Map) return _trx(data, translate);
     final ld = _filter(data);
     if (ld is Map && ld.isNotEmpty) return ld;
     if (ld is List && ld.isNotEmpty) return ld;
-    return data;
+    return _trx(data, translate);
+  }
+
+  Object? _trx(Object? value, bool enabled) {
+    if (!autoTranslateEnable || !enabled || _translator == null) return value;
+    if (value == null) return null;
+    if (value is String) return _translator!.tr(value);
+    if (value is Iterable) {
+      final x = value.map((e) => _trx(e, enabled));
+      if (value is Set) return x.toSet();
+      return value.toList();
+    }
+    if (value is Map) {
+      return value.map((k, v) => MapEntry(k, _trx(v, enabled)));
+    }
+    return value;
   }
 
   Object? _tr(
     String key, {
     String? name,
     Object? defaultValue,
+    bool? applyTranslator,
   }) {
     Object? data = _t();
     if (data is! Map) {
-      if (!autoTranslateEnable) return defaultValue ?? key;
-      return _translator!.tr(defaultValue?.toString() ?? key);
+      return _trx(defaultValue?.toString(), applyTranslator ?? true) ?? key;
     }
     if (name != null && name.isNotEmpty) {
       Object? x = data[name];
@@ -289,6 +304,7 @@ class Translation extends Remote<TranslationDelegate> {
     String key, {
     String? name,
     List? defaultValue,
+    bool? applyTranslator,
   }) {
     Object? data = _t();
     if (data is! Map) return defaultValue;
@@ -304,12 +320,8 @@ class Translation extends Remote<TranslationDelegate> {
       data = data[key];
     }
     if (data is! Iterable) {
-      if (!autoTranslateEnable) return defaultValue;
       if (defaultValue == null || defaultValue.isEmpty) return null;
-      return defaultValue.map((e) {
-        if (e is! String) return e;
-        return _translator!.tr(e);
-      });
+      return defaultValue.map((e) => _trx(e, applyTranslator ?? true));
     }
     return data;
   }
@@ -341,10 +353,16 @@ class Translation extends Remote<TranslationDelegate> {
     String? defaultValue,
     bool applyNumber = false,
     bool applyRtl = false,
+    bool? applyTranslator,
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
-    Object? value = i._tr(key, name: name, defaultValue: defaultValue);
+    Object? value = i._tr(
+      key,
+      name: name,
+      defaultValue: defaultValue,
+      applyTranslator: applyTranslator,
+    );
     if (value is! String) value = defaultValue ?? key;
     if (applyNumber) value = i._trN(value, applyRtl: applyRtl);
     if (args != null) value = value.replace(args);
@@ -352,7 +370,7 @@ class Translation extends Remote<TranslationDelegate> {
     return value;
   }
 
-  static String translate(
+  static Object? translate(
     String key, {
     String? name,
     String? defaultValue,
@@ -366,6 +384,7 @@ class Translation extends Remote<TranslationDelegate> {
       name: name,
       defaultValue: defaultValue,
       applyNumber: applyNumber,
+      applyTranslator: true,
       applyRtl: applyRtl,
       replace: replace,
       args: args,
@@ -378,6 +397,7 @@ class Translation extends Remote<TranslationDelegate> {
     List<String>? defaultValue,
     bool applyNumber = false,
     bool applyRtl = false,
+    bool? applyTranslator,
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
@@ -386,6 +406,7 @@ class Translation extends Remote<TranslationDelegate> {
           key,
           name: name,
           defaultValue: defaultValue,
+          applyTranslator: applyTranslator,
         )
         ?.whereType<String>();
     if (value == null || value.isEmpty) value = defaultValue ?? [];
@@ -399,18 +420,27 @@ class Translation extends Remote<TranslationDelegate> {
     String? key,
     String? path,
     String? name,
-    T? defaultValue,
+    Object? defaultValue,
+    bool applyTranslator = false,
     T? Function(Object?)? parser,
   }) {
     Object? localed;
     if ((key ?? '').isNotEmpty) {
-      localed = i._tr(key!, name: name, defaultValue: defaultValue);
-      localed ??= i._t(path);
+      localed = i._tr(
+        key!,
+        name: name,
+        defaultValue: defaultValue,
+        applyTranslator: applyTranslator,
+      );
+      localed ??= i._t(path: path, translate: applyTranslator);
     } else {
-      localed = i._t(path);
+      localed = i._t(path: path, translate: applyTranslator);
     }
     if (localed is T) return localed;
-    if (parser != null) return parser(localed);
+    if (parser != null && localed != null) return parser(localed);
+    localed = i._trx(defaultValue, applyTranslator);
+    if (localed is T) return localed;
+    if (parser != null && localed != null) return parser(localed);
     return null;
   }
 
@@ -418,17 +448,24 @@ class Translation extends Remote<TranslationDelegate> {
     String? key,
     String? path,
     String? name,
-    List<T>? defaultValue,
+    List<Object>? defaultValue,
+    bool applyTranslator = false,
     T? Function(Object?)? parser,
   }) {
     Object? localed;
     if ((key ?? '').isNotEmpty) {
-      localed = i._trs(key!, name: name, defaultValue: defaultValue);
-      localed ??= i._t(path);
+      localed = i._trs(
+        key!,
+        name: name,
+        defaultValue: defaultValue,
+        applyTranslator: applyTranslator,
+      );
+      localed ??= i._t(path: path, translate: applyTranslator);
     } else {
-      localed = i._t(path);
+      localed = i._t(path: path, translate: applyTranslator);
     }
-    if (localed is! Iterable) return defaultValue ?? [];
+    if (localed is! Iterable) localed = i._trx(defaultValue, applyTranslator);
+    if (localed is! Iterable) return [];
     final parsed = localed.map((e) {
       if (e is T) return e;
       if (parser != null) return parser(e);
@@ -436,6 +473,12 @@ class Translation extends Remote<TranslationDelegate> {
     });
     final filtered = parsed.whereType<T>().toList();
     return filtered;
+  }
+
+  @override
+  void dispose() {
+    _translator?.dispose();
+    super.dispose();
   }
 }
 
@@ -496,6 +539,8 @@ extension TranslationNumberHelper on num {
 mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   String get name;
 
+  bool get translationAutoMode => true;
+
   bool get translationChangedMode => true;
 
   Locale get locale => Translation.i.locale;
@@ -521,6 +566,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String? defaultValue,
     String Function(String)? replace,
     bool applyNumber = false,
+    bool? applyTranslator,
     bool applyRtl = false,
     Map<String, Object?>? args,
   }) {
@@ -557,7 +603,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   E? get<E extends Object?>({
     String? key,
     String? path,
-    E? defaultValue,
+    Object? defaultValue,
     E? Function(Object?)? parser,
   }) {
     return Translation.get(
@@ -572,7 +618,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   List<E> gets<E extends Object?>({
     String? key,
     String? path,
-    List<E>? defaultValue,
+    List<Object>? defaultValue,
     E? Function(Object?)? parser,
   }) {
     return Translation.gets(
@@ -592,6 +638,9 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
   @override
   void initState() {
     super.initState();
+    if (translationAutoMode) {
+      Translation.i._translator?.addListener(translationChanged);
+    }
     if (translationChangedMode) {
       Translation.i.addListener(translationChanged);
     }
@@ -599,6 +648,9 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
 
   @override
   void dispose() {
+    if (translationAutoMode) {
+      Translation.i._translator?.removeListener(translationChanged);
+    }
     if (translationChangedMode) {
       Translation.i.removeListener(translationChanged);
     }
@@ -658,13 +710,19 @@ class _TranslationProviderState extends State<TranslationProvider>
       supportedLocales: widget.supportedLocales,
       onReady: widget.onReady,
     );
-    if (widget.notifiable) Translation.i.addListener(changed);
+    if (widget.notifiable) {
+      Translation.i.addListener(changed);
+      Translation.i._translator?.addListener(changed);
+    }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    if (widget.notifiable) Translation.i.removeListener(changed);
+    if (widget.notifiable) {
+      Translation.i.removeListener(changed);
+      Translation.i._translator?.removeListener(changed);
+    }
     Translation.i.dispose();
     super.dispose();
   }
