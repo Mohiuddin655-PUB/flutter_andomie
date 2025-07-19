@@ -1,3 +1,7 @@
+## 0.6.35+1
+
+* Improve translation delegate
+
 ## 0.6.35
 
 * Translation fallback locale and auto translate by google supported
