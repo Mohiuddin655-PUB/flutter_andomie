@@ -1,3 +1,7 @@
+## 0.6.36+1
+
+* Improve auto translator system in Translation util
+
 ## 0.6.36
 
 * Improve auto translator system in Translation util

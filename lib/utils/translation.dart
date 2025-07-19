@@ -66,7 +66,7 @@ class Translation extends Remote<TranslationDelegate> {
     if (autoTranslateMode && delegate != null) {
       i._translator = Translator(
         defaultLanguage: languageCode,
-        handler: i.delegate!.translate,
+        handler: delegate.translate,
       );
     }
     await i.initialize(
