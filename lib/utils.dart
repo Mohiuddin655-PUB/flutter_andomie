@@ -46,6 +46,7 @@ export 'utils/text_format.dart';
 export 'utils/text_parser.dart';
 export 'utils/text_replacer.dart';
 export 'utils/translation.dart';
+export 'utils/translator.dart';
 export 'utils/undo_manager.dart';
 export 'utils/utils.dart';
 export 'utils/validator.dart';

@@ -1,5 +1,3 @@
-import 'package:flutter_andomie/utils/internet.dart';
-
 typedef OnAndomieDateFormatter = String Function(
   String format,
   String? locale,
@@ -29,10 +27,6 @@ class Andomie {
 
   /// ```dart
   /// Andomie.init(
-  ///   // CONNECTIVITY
-  ///   connected: ConnectivityProvider.I.isConnected,
-  ///   connection: ConnectivityProvider.I.connection,
-  ///
   ///   // DATE FORMATTER
   ///   dateFormatter: (format, locale, date) {
   ///      return DateFormat(format, locale).format(date);
@@ -50,8 +44,6 @@ class Andomie {
   /// );
   /// ```
   static void init({
-    Future<bool>? connected,
-    Stream<bool>? connection,
     OnAndomieDateFormatter? dateFormatter,
     OnAndomieDecimalFormatter? decimalFormatter,
     OnAndomieDecimalParser? decimalParser,
@@ -59,13 +51,6 @@ class Andomie {
     if (dateFormatter != null) i._dateFormatter = dateFormatter;
     if (decimalFormatter != null) i._decimalFormatter = decimalFormatter;
     if (decimalParser != null) i._decimalParser = decimalParser;
-    if (connected != null && connection != null) {
-      Internet.init(connected: connected, connection: connection);
-    }
-  }
-
-  static void dispose() {
-    Internet.i.dispose();
   }
 
   /// ```dart

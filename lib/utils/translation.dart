@@ -8,6 +8,7 @@ import '../contents/rtl_directional_languages.dart';
 import '../models/language.dart';
 import '../utils/text_replacer.dart';
 import 'remote.dart';
+import 'translator.dart';
 
 const kDefaultTranslationName = "translations";
 const kDefaultTranslationPath = "localizations";
@@ -32,6 +33,9 @@ class Translation extends Remote<TranslationDelegate> {
   // ---------------------------------------------------------------------------
 
   String _defaultPath = kDefaultTranslationPath;
+  Translator? _translator;
+
+  bool get autoTranslateEnable => _translator != null;
 
   static Future<void> init({
     String? name,
@@ -42,16 +46,25 @@ class Translation extends Remote<TranslationDelegate> {
     bool showLogs = false,
     VoidCallback? onReady,
     String defaultPath = kDefaultTranslationPath,
+    Object? locale,
     Object? defaultLocale,
-    Object? initialLocale,
+    Object? fallbackLocale,
     Iterable? supportedLocales,
+    TranslatorHandler? translator,
   }) async {
     paths ??= {};
     paths.add(defaultPath);
     i._defaultPath = defaultPath;
     i.defaultLocaleOrNull = parseLocale(defaultLocale);
-    i.localeOrNull = parseLocale(initialLocale);
+    i.fallbackLocaleOrNull = parseLocale(fallbackLocale);
+    i.localeOrNull = parseLocale(locale);
     i._supportedLocales = parseLocales(supportedLocales);
+    if (translator != null) {
+      i._translator = Translator(
+        defaultLanguage: languageCode,
+        handler: translator,
+      );
+    }
     await i.initialize(
       name: name ?? kDefaultTranslationName,
       connected: connected,
@@ -67,6 +80,23 @@ class Translation extends Remote<TranslationDelegate> {
   // LOCALE PART
   // ---------------------------------------------------------------------------
 
+  Locale? defaultLocaleOrNull;
+
+  Locale get defaultLocale => defaultLocaleOrNull ?? fallbackLocale;
+
+  set defaultLocale(Locale? value) {
+    if (value == null) return;
+    if (value.toString() == defaultLocaleOrNull.toString()) return;
+    defaultLocaleOrNull = value;
+    notifyListeners();
+  }
+
+  Locale? fallbackLocaleOrNull;
+
+  Locale get fallbackLocale {
+    return fallbackLocaleOrNull ?? Locale("en", "US");
+  }
+
   Locale? localeOrNull;
 
   Locale get locale => localeOrNull ?? defaultLocale;
@@ -78,19 +108,6 @@ class Translation extends Remote<TranslationDelegate> {
     notifyListeners();
     if (delegate == null) return;
     delegate!.changed(value);
-  }
-
-  Locale? defaultLocaleOrNull;
-
-  Locale get defaultLocale {
-    return defaultLocaleOrNull ?? Locale("en", "US");
-  }
-
-  set defaultLocale(Locale? value) {
-    if (value == null) return;
-    if (value.toString() == defaultLocaleOrNull.toString()) return;
-    defaultLocaleOrNull = value;
-    notifyListeners();
   }
 
   Iterable<Locale> _supportedLocales = [];
@@ -209,7 +226,10 @@ class Translation extends Remote<TranslationDelegate> {
     Object? defaultValue,
   }) {
     Object? data = _t();
-    if (data is! Map) return defaultValue ?? key;
+    if (data is! Map) {
+      if (!autoTranslateEnable) return defaultValue ?? key;
+      return _translator!.tr(defaultValue?.toString() ?? key);
+    }
     if (name != null && name.isNotEmpty) {
       Object? x = data[name];
       if (x is Map) x = x[key];
@@ -278,7 +298,14 @@ class Translation extends Remote<TranslationDelegate> {
     } else {
       data = data[key];
     }
-    if (data is! Iterable) return defaultValue;
+    if (data is! Iterable) {
+      if (!autoTranslateEnable) return defaultValue;
+      if (defaultValue == null || defaultValue.isEmpty) return null;
+      return defaultValue.map((e) {
+        if (e is! String) return e;
+        return _translator!.tr(e);
+      });
+    }
     return data;
   }
 
@@ -318,6 +345,26 @@ class Translation extends Remote<TranslationDelegate> {
     if (args != null) value = value.replace(args);
     if (replace != null) value = replace(value);
     return value;
+  }
+
+  static String translate(
+    String key, {
+    String? name,
+    String? defaultValue,
+    bool applyNumber = false,
+    bool applyRtl = false,
+    String Function(String)? replace,
+    Map<String, Object?>? args,
+  }) {
+    return localize(
+      key,
+      name: name,
+      defaultValue: defaultValue,
+      applyNumber: applyNumber,
+      applyRtl: applyRtl,
+      replace: replace,
+      args: args,
+    );
   }
 
   static List<String> localizes(

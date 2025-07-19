@@ -1,3 +1,8 @@
+## 0.6.35
+
+* Translation fallback locale and auto translate by google supported
+* Add Translator Util to auto translate any string by delegate system
+
 ## 0.6.34
 
 * Translation localize bug fixed
