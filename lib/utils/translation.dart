@@ -330,7 +330,7 @@ class Translation extends Remote<TranslationDelegate> {
     String key, {
     String? name,
     Object? defaultValue,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
   }) {
     Object? data = _find(key, name: name, applyTranslator: applyTranslator);
@@ -378,7 +378,7 @@ class Translation extends Remote<TranslationDelegate> {
     String? defaultValue,
     bool applyNumber = false,
     bool applyRtl = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
@@ -399,7 +399,7 @@ class Translation extends Remote<TranslationDelegate> {
     String key, {
     String? name,
     List? defaultValue,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
   }) {
     Object? data = _trx(
@@ -440,7 +440,7 @@ class Translation extends Remote<TranslationDelegate> {
     String? defaultValue,
     bool applyNumber = false,
     bool applyRtl = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
@@ -462,7 +462,7 @@ class Translation extends Remote<TranslationDelegate> {
     List<String>? defaultValue,
     bool applyNumber = false,
     bool applyRtl = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
@@ -485,8 +485,8 @@ class Translation extends Remote<TranslationDelegate> {
     String? key,
     String? path,
     String? name,
-    Object? defaultValue,
-    bool applyTranslator = false,
+    T? defaultValue,
+    bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
     T? Function(Object?)? parser,
   }) {
@@ -526,7 +526,7 @@ class Translation extends Remote<TranslationDelegate> {
     String? path,
     String? name,
     List<T>? defaultValue,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
     T? Function(Object?)? parser,
   }) {
@@ -581,13 +581,15 @@ class Translation extends Remote<TranslationDelegate> {
 extension TranslationStringHelper on String {
   String get tr => trWithOption();
 
+  String get trNumber => trWithOption(applyNumber: true, applyRtl: true);
+
   String trWithOption({
     String? name,
     String? defaultValue,
     String Function(String)? replace,
     bool applyNumber = false,
     bool applyRtl = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
   }) {
     return Translation.localize(
       this,
@@ -660,7 +662,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String? defaultValue,
     String Function(String)? replace,
     bool applyNumber = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     bool applyRtl = false,
     Map<String, Object?>? args,
   }) {
@@ -682,7 +684,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String Function(String)? replace,
     bool applyNumber = false,
     bool applyRtl = false,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     Map<String, Object?>? args,
   }) {
     return Translation.localizes(
@@ -702,7 +704,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String? path,
     E? defaultValue,
     E? Function(Object?)? parser,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
   }) {
     return Translation.get(
@@ -720,7 +722,7 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     String? key,
     String? path,
     List<E>? defaultValue,
-    bool applyTranslator = false,
+    bool applyTranslator = true,
     E? Function(Object?)? parser,
     List<String> autoTranslatorFields = const [],
   }) {

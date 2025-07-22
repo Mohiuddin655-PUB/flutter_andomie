@@ -1,3 +1,7 @@
+## 0.6.39
+
+* Improve auto translation from callbacks
+
 ## 0.6.38
 
 * Improve auto translation
