@@ -31,7 +31,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  Countdown sleeper = Countdown(const Duration(seconds: 30, minutes: 1, hours: 25));
+  Countdown sleeper =
+      Countdown(const Duration(seconds: 30, minutes: 1, hours: 25));
   Duration remainingDuration = Duration.zero;
 
   @override

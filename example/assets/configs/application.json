@@ -1,0 +1,32 @@
+{
+  "default": {
+    "firebase_app": true,
+    "launch_mode": true,
+    "authorization_mode": "normal",
+    "connectivity_checking": true,
+    "connectivity_timeout": 0,
+    "connectivity_url": "example_url",
+    "onboard_appbar_type": {
+      "android": "steps",
+      "ios": "progress"
+    },
+    "onboard_quiz_center": {
+      "android": true,
+      "ios": false
+    },
+    "supported_locales": [
+      "en_US",
+      "zh_CN"
+    ],
+    "navigation_main": [
+      "home",
+      "ai",
+      "nutrition",
+      "settings"
+    ]
+  },
+  "live": {
+  },
+  "test": {
+  }
+}

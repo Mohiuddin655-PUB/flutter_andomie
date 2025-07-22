@@ -1,0 +1,84 @@
+{
+  "en": {
+    "dialog:language": {
+      "title": "Choose your language"
+    },
+    "dialog:button:negative": "Cancel",
+    "main": {
+      "title": "Counter Game",
+      "goals_status": "{IS_LOADING ? \"Preparing...\" : \"{COUNT > 0 ? \"You have pushed COUNT times\" : \"Game Finished!\"}\"}",
+      "goals_button": "{COUNT < TOTAL ? \"Continue\" : \"Finish\"}",
+      "goals": [
+        "1st Round",
+        "2nd Round",
+        "3rd Round"
+      ],
+      "animations": {
+        "basic_hold": {
+          "name": "Basic Hold2"
+        },
+        "front_clamp": {
+          "name": "Front Clamp2"
+        }
+      },
+      "navigation": [
+        {
+          "icon": "home",
+          "id": "home",
+          "label": "Home"
+        },
+        {
+          "icon": "history",
+          "id": "history",
+          "label": "History"
+        },
+        {
+          "icon": "settings",
+          "id": "settings",
+          "label": "Settings"
+        }
+      ]
+    }
+  },
+  "zh": {
+    "dialog:language": {
+      "title": "选择你的语言"
+    },
+    "dialog:button:negative": "取消",
+    "main": {
+      "title": "计数游戏",
+      "goals_status": "{IS_LOADING ? \"准备中...\" : \"{COUNT > 0 ? \"你已经点击了 COUNT 次\" : \"游戏结束！\"}\"}",
+      "goals_button": "{COUNT < TOTAL ? \"继续\" : \"完成\"}",
+      "goals": [
+        "第1轮",
+        "第2轮",
+        "第3轮"
+      ],
+      "animations": {
+        "basic_hold": {
+          "name": "Basic Hold2"
+        },
+        "front_clamp": {
+          "name": "Front Clamp2"
+        }
+      },
+      "navigation": [
+        {
+          "icon": "home",
+          "id": "home",
+          "label": "主页"
+        },
+        {
+          "icon": "history",
+          "id": "history",
+          "label": "历史记录"
+        },
+        {
+          "icon": "settings",
+          "id": "settings",
+          "label": "设置"
+        }
+      ]
+    }
+  }
+}

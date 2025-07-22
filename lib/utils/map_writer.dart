@@ -1,5 +1,5 @@
-class MapConverter {
-  const MapConverter._();
+class MapWriter {
+  const MapWriter._();
 
   static Map _combine(Map a, Map b) {
     final result = {};
@@ -24,6 +24,6 @@ class MapConverter {
   }
 }
 
-extension MapConverterHelper on Map {
-  Map combine(Map? other) => MapConverter.combine(this, other);
+extension MapWriterHelper on Map {
+  Map combine(Map? other) => MapWriter.combine(this, other);
 }

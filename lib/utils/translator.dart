@@ -1,18 +1,56 @@
+import 'dart:convert';
+import 'dart:ui';
+
 import 'package:flutter/foundation.dart';
 
-typedef TranslatorHandler = Future<String?>? Function(
-  String text,
-  String locale,
-);
+typedef TranslationCache = Map<String, Map<String, String>>;
+
+abstract class TranslatorDelegate {
+  Future<String> translate(String source, Locale locale);
+
+  Future<String?> cache() async => null;
+
+  void translated(TranslationCache value) {}
+
+  void save(String value) {}
+}
 
 class Translator extends ChangeNotifier {
   Translator({
-    TranslatorHandler? handler,
-    required String defaultLanguage,
-  });
+    TranslatorDelegate? delegate,
+    required Locale defaultLocale,
+    required Locale fallbackLocale,
+  })  : _delegate = delegate,
+        _currentLocale = defaultLocale,
+        _fallbackLanguage = fallbackLocale {
+    if (delegate != null) {
+      delegate.cache().then((source) {
+        if (source == null || source.isEmpty) return {};
+        final x = jsonDecode(source);
+        if (x is! Map) return {};
+        final entries = x.entries.map((e) {
+          final key = e.key;
+          final value = e.value;
+          if (value is! Map || key is! String) return null;
+          final entries = value.entries.map((e) {
+            final key = e.key;
+            final value = e.value;
+            if (value is! String || key is! String) return null;
+            return MapEntry(key, value);
+          }).whereType<MapEntry<String, String>>();
+          return MapEntry<String, Map<String, String>>(
+              key, Map.fromEntries(entries));
+        }).whereType<MapEntry<String, Map<String, String>>>();
+        final cache = Map.fromEntries(entries);
+        _cache.addAll(cache);
+        notifyListeners();
+      });
+    }
+  }
 
-  TranslatorHandler? _translator;
-  String _currentLanguage = '';
+  final TranslatorDelegate? _delegate;
+  final Locale _fallbackLanguage;
+  Locale _currentLocale = Locale("en", "US");
 
   final Map<String, Map<String, String>> _cache = {};
 
@@ -21,31 +59,45 @@ class Translator extends ChangeNotifier {
   static Translator get i => _i!;
 
   static void init({
-    required String defaultLanguage,
-    required TranslatorHandler translator,
+    required Locale defaultLocale,
+    required Locale fallbackLocale,
+    required TranslatorDelegate translator,
   }) {
-    _i = Translator(defaultLanguage: defaultLanguage, handler: translator);
+    _i = Translator(
+      defaultLocale: defaultLocale,
+      fallbackLocale: fallbackLocale,
+      delegate: translator,
+    );
   }
 
-  void setLanguage(String locale) => _currentLanguage = locale;
+  set locale(Locale locale) => _currentLocale = locale;
 
-  void _translateInBackground(String key, String locale) {
-    if (key.isEmpty || locale.isEmpty || _translator == null) return;
+  void _translateInBackground(String key, Locale locale) {
+    if (key.isEmpty || _delegate == null) return;
     try {
-      _translator!(key, locale)?.then((translated) {
-        if (translated == null || translated.isEmpty) return;
-        final localeCache = _cache[locale] ?? {};
-        _cache[locale] = {...localeCache, key: translated};
+      _delegate!.translate(key, locale).then((translated) {
+        if (translated.isEmpty) return;
+        if (translated == key) return;
+        final localeCache = _cache[locale.toString()] ?? {};
+        _cache[locale.toString()] = {...localeCache, key: translated};
         notifyListeners();
+        _delegate!.translated(_cache);
       });
     } catch (_) {}
   }
 
-  String tr(String key) {
-    final localeCache = _cache[_currentLanguage] ?? {};
+  String tr(String key, [Locale? locale]) {
+    locale ??= _currentLocale;
+    final localeCache = _cache[locale.toString()] ?? {};
     if (localeCache.containsKey(key)) return localeCache[key] ?? key;
-    _cache[_currentLanguage] = {...localeCache, key: key};
-    _translateInBackground(key, _currentLanguage);
+    if (_fallbackLanguage != locale) _cache[locale.toString()] = localeCache;
+    _translateInBackground(key, locale);
     return key;
+  }
+
+  @override
+  void dispose() {
+    if (_delegate != null) _delegate!.save(jsonEncode(_cache));
+    super.dispose();
   }
 }

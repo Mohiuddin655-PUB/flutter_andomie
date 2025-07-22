@@ -5,7 +5,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
-import 'map_converter.dart';
+import 'map_writer.dart';
 
 abstract class RemoteDelegate {
   const RemoteDelegate();
@@ -23,6 +23,10 @@ abstract class RemoteDelegate {
   Stream<Map?> listen(String name, String path) {
     return Stream.error("Stream not implemented for $path");
   }
+
+  Future<void> initializing() async {}
+
+  Future<void> initialized() async {}
 
   Future<void> ready(String name, String path) async {}
 
@@ -87,14 +91,6 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
   // ---------------------------------------------------------------------------
   // CONNECTION PART
   // ---------------------------------------------------------------------------
-
-  Future<void> reload() async {
-    try {
-      await Future.wait(_paths.map((e) => _load(e, reload: true)));
-    } catch (msg) {
-      log(msg);
-    }
-  }
 
   Future<void> resubscribes() async {
     _listening = true;
@@ -231,14 +227,25 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     try {
       _loading = true;
       notifyListeners();
+      if (_delegate != null) await _delegate!.initializing();
       await Future.wait(_paths.map(_load));
       _loading = false;
       notifyListeners();
       log("all properties loaded!");
+      if (_delegate != null) await _delegate!.initialized();
       if (_callback != null) _callback!();
     } catch (msg) {
       _loading = false;
       notifyListeners();
+      log(msg);
+    }
+  }
+
+  Future<void> reload() async {
+    try {
+      await Future.wait(_paths.map((e) => _load(e, reload: true)));
+      if (_delegate != null) await _delegate!.initialized();
+    } catch (msg) {
       log(msg);
     }
   }

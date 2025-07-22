@@ -1,0 +1,18 @@
+{
+  "en": {
+    "basic_hold": {
+      "name": "Basic Hold"
+    },
+    "front_clamp": {
+      "name": "Front Clamp"
+    }
+  },
+  "zh": {
+    "basic_hold": {
+      "name": "基础握持"
+    },
+    "front_clamp": {
+      "name": "前夹"
+    }
+  }
+}

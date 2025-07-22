@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import '../extensions/object.dart';
-import 'map_converter.dart';
+import 'map_writer.dart';
 import 'remote.dart';
 
 const _kApplication = "application";

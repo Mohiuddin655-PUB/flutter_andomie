@@ -1,0 +1,16 @@
+{
+  "navigation_main": [
+    {
+      "icon": "assets/icons/ic_home_solid.svg",
+      "label": "Home"
+    },
+    {
+      "icon": "assets/icons/ic_nutrition_solid.svg",
+      "label": "Nutrition"
+    },
+    {
+      "icon": "assets/icons/ic_settings_solid.svg",
+      "label": "Settings"
+    }
+  ]
+}

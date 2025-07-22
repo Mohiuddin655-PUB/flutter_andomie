@@ -1,0 +1,22 @@
+{
+  "en": [
+    {
+      "body": "You’ve done enough. Now hydrate and recharge.",
+      "title": "Time to Refill Yourself"
+    },
+    {
+      "body": "Pause what you're doing and drink some water.",
+      "title": "SIP Happens!"
+    }
+  ],
+  "zh": [
+    {
+      "body": "你已经做得够多了。现在该补充水分和能量了。",
+      "title": "是时候补充自己了"
+    },
+    {
+      "body": "暂停一下，喝点水吧。",
+      "title": "喝水时间到！"
+    }
+  ]
+}
