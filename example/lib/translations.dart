@@ -218,53 +218,29 @@ class _MainPageState extends State<MainPage> with TranslationMixin {
 
   @override
   Widget build(BuildContext context) {
-    String title = translate("title", defaultValue: "Counter Game");
+    String title = localize("title");
     String status = localize(
       "goals_status",
       applyNumber: true,
-      applyTranslator: true,
-      args: {
-        "IS_LOADING": isLoading,
-        "COUNT": count,
-      },
-      defaultValue:
-          "{IS_LOADING ? \"Preparing...\" : \"{COUNT > 0 ? \"You have pushed this times\" : \"Game Finished!\"}\"}",
+      args: {"IS_LOADING": isLoading, "COUNT": count},
     );
 
-    String button = translate(
+    String button = localize(
       "goals_button",
-      args: {
-        "COUNT": count,
-        "TOTAL": total,
-      },
-      defaultValue: "{COUNT < TOTAL ? \"Continue\" : \"Finish\"}",
+      applyNumber: true,
+      args: {"COUNT": count, "TOTAL": total},
     );
 
-    List<String> goals = localizes(
-      "goals",
-      applyTranslator: true,
-      defaultValue: ["1st Round", "2nd Round", "3rd Round"],
-    );
+    List<String> goals = localizes("goals");
 
     Map? nav = get(
-      key: "animations",
-      defaultValue: {
-        "basic_hold": {"name": "Basic Hold"},
-        "front_clamp": {"name": "Front Clamp"}
-      },
+      path: "animations",
       autoTranslatorFields: ["name"],
-      applyTranslator: true,
     );
 
     List<Map> navigation = gets(
       key: "navigation",
-      applyTranslator: true,
       autoTranslatorFields: ["label"],
-      defaultValue: [
-        {"icon": "home", "id": "home", "label": "Home"},
-        {"icon": "history", "id": "history", "label": "History"},
-        {"icon": "settings", "id": "settings", "label": "Settings"}
-      ],
     );
 
     return DefaultTabController(

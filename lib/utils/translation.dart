@@ -199,14 +199,14 @@ class Translation extends Remote<TranslationDelegate> {
   // FINAL PART
   // ---------------------------------------------------------------------------
 
-  Object? _f(Map data, bool translate) {
+  Object? _f(Map data, bool fallback) {
     String? code = locale.toString();
     if (data.containsKey(code)) return data[code];
 
     code = locale.languageCode;
     if (data.containsKey(code)) return data[code];
 
-    if (translate) return null;
+    if (!fallback) return null;
 
     code = fallbackLocale.toString();
     if (data.containsKey(code)) return data[code];
@@ -217,11 +217,11 @@ class Translation extends Remote<TranslationDelegate> {
     return null;
   }
 
-  Object? _l({String? path, bool? translate}) {
+  Object? _l({String? path, bool fallback = true}) {
     path ??= _defaultPath;
     final data = props[path];
     if (data is! Map) return data;
-    final ld = _f(data, translate ?? false);
+    final ld = _f(data, fallback);
     if (ld is Map && ld.isNotEmpty) return ld;
     if (ld is List && ld.isNotEmpty) return ld;
     return null;
@@ -233,10 +233,10 @@ class Translation extends Remote<TranslationDelegate> {
     String key, {
     String? name,
     String? path,
-    bool? applyTranslator,
+    bool fallback = true,
   }) {
     key = name == null || name.isEmpty ? key : "$name$separator$key";
-    Object? data = _l(path: path, translate: applyTranslator);
+    Object? data = _l(path: path, fallback: fallback);
     if (data is! Map) return null;
     if (data.containsKey(key)) return data[key];
     return data.read(key, separator: separator);
@@ -294,9 +294,7 @@ class Translation extends Remote<TranslationDelegate> {
     if (!isAutoTranslatedMode || !enabled) return value;
     if (value is String) {
       if (value.isEmpty) return value;
-      if (key != null &&
-          autoTranslatorFields.isNotEmpty &&
-          !autoTranslatorFields.contains(key)) {
+      if (key != null && !autoTranslatorFields.contains(key)) {
         return value;
       }
       return _translator!.tr(value);
@@ -333,8 +331,9 @@ class Translation extends Remote<TranslationDelegate> {
     bool applyTranslator = true,
     List<String> autoTranslatorFields = const [],
   }) {
-    Object? data = _find(key, name: name, applyTranslator: applyTranslator);
+    Object? data = _find(key, name: name, fallback: !applyTranslator);
     if (data != null) return data;
+    data = _find(key, name: name);
     data ??= defaultValue;
     if (!isAutoTranslatedMode) return data;
     if (data is String) {
@@ -382,14 +381,16 @@ class Translation extends Remote<TranslationDelegate> {
     String Function(String)? replace,
     Map<String, Object?>? args,
   }) {
-    Object? value = _find(key, name: name, applyTranslator: applyTranslator);
-    applyTranslator = applyTranslator && value == null && defaultValue != null;
-    if (value is! String) value = defaultValue ?? key;
+    Object? value = _find(key, name: name, fallback: false);
+    applyTranslator = applyTranslator && value == null;
+    value ??= _find(key, name: name);
+    value ??= defaultValue;
+    if (value is! String) return key;
     if (args != null) value = value.replace(args);
     if (replace != null) value = replace(value);
     if (applyTranslator) {
       final x = _tr(value, true);
-      if (x is String) value = x;
+      if (x is String && x.isNotEmpty) value = x;
     }
     if (applyNumber) value = _ln(value, applyRtl: applyRtl);
     return value;
@@ -411,6 +412,11 @@ class Translation extends Remote<TranslationDelegate> {
     );
     if (data is! Iterable) return defaultValue ?? [];
     return data;
+  }
+
+  static String tr(String value) {
+    final x = i._tr(value, true);
+    return x is String && x.isNotEmpty ? x : value;
   }
 
   static String trNum(String value, {bool applyRtl = false}) {
@@ -500,9 +506,9 @@ class Translation extends Remote<TranslationDelegate> {
         autoTranslatorFields: autoTranslatorFields,
       );
       applyTranslator = applyTranslator && localed == null;
-      localed ??= i._l(path: path, translate: applyTranslator);
+      localed ??= i._l(path: path);
     } else {
-      localed = i._l(path: path, translate: applyTranslator);
+      localed = i._l(path: path);
     }
     if (localed is! Map && localed is! Iterable && localed is T) return localed;
     if (localed == null) {
@@ -540,16 +546,11 @@ class Translation extends Remote<TranslationDelegate> {
         autoTranslatorFields: autoTranslatorFields,
       );
       applyTranslator = applyTranslator && localed == null;
-      localed ??= i._l(path: path, translate: applyTranslator);
+      localed ??= i._l(path: path);
     } else {
-      localed = i._l(path: path, translate: applyTranslator);
+      localed = i._l(path: path);
     }
-    if (localed is Iterable &&
-        localed.every((e) {
-          return e is T && e is! Map && e is! List<Map>;
-        })) {
-      return localed.whereType<T>().toList();
-    }
+    if (localed is Iterable<T>) return localed.toList();
     if (localed == null) {
       if (defaultValue != null) return defaultValue;
       localed = defaultValue;
@@ -579,7 +580,9 @@ class Translation extends Remote<TranslationDelegate> {
 }
 
 extension TranslationStringHelper on String {
-  String get tr => trWithOption();
+  String get lt => trWithOption();
+
+  String get tr => Translation.tr(this);
 
   String get trNumber => trWithOption(applyNumber: true, applyRtl: true);
 
@@ -632,30 +635,13 @@ mixin TranslationMixin<S extends StatefulWidget> on State<S> {
     Translation.selectLocale(context, reason);
   }
 
+  String tr(String value) => Translation.tr(value);
+
   String trNum(String value, {bool applyRtl = true}) {
     return Translation.trNum(value, applyRtl: applyRtl);
   }
 
-  String translate(
-    String key, {
-    String? defaultValue,
-    String Function(String)? replace,
-    bool applyNumber = false,
-    bool applyTranslator = true,
-    bool applyRtl = false,
-    Map<String, Object?>? args,
-  }) {
-    return Translation.localize(
-      key,
-      name: name,
-      defaultValue: defaultValue,
-      replace: replace,
-      applyNumber: applyNumber,
-      applyRtl: applyRtl,
-      applyTranslator: applyTranslator,
-      args: args,
-    );
-  }
+  String translate(String value) => Translation.tr(value);
 
   String localize(
     String key, {

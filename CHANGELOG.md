@@ -1,3 +1,7 @@
+## 0.6.40
+
+* Translation fallback locale supported
+
 ## 0.6.39
 
 * Improve auto translation from callbacks
