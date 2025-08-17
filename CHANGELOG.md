@@ -1,3 +1,7 @@
+## 0.6.41
+
+* Improve PathParser util to support any valid segments
+
 ## 0.6.40
 
 * Translation fallback locale supported

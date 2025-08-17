@@ -1,6 +1,6 @@
 /// Utility class for working with paths.
 class PathParser {
-  static const String _pathRegs = r"^[a-zA-Z_]\w*(/[a-zA-Z_]\w*)*$";
+  static const String _pathRegs = r"^([a-zA-Z_]\w*|\d+)(/([a-zA-Z_]\w*|\d+))*$";
 
   /// Splits a path into segments.
   static List<String> segments(String path) {
@@ -9,9 +9,10 @@ class PathParser {
   }
 
   /// Retrieves path information, including pairs of segments and an ending.
-  static PathInfo parse(String source) {
+  static PathInfo parse(String source, {bool validator = true}) {
     final path = source.startsWith("/") ? source.substring(1) : source;
-    final isValid = path.isNotEmpty && RegExp(_pathRegs).hasMatch(path);
+    final isValid =
+        validator ? path.isNotEmpty && RegExp(_pathRegs).hasMatch(path) : true;
     if (isValid) {
       var segments = path.split("/");
       int length = segments.length;
