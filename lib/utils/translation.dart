@@ -18,6 +18,8 @@ const kDefaultTranslationPath = "localizations";
 abstract class TranslationDelegate extends RemoteDelegate {
   const TranslationDelegate();
 
+  Future<Object?> get defaultLocale;
+
   Future<void> changed(Locale locale);
 
   Future<Locale?> select(BuildContext context, String? reason);
@@ -62,7 +64,9 @@ class Translation extends Remote<TranslationDelegate> {
     paths ??= {};
     paths.add(defaultPath);
     i._defaultPath = defaultPath;
-    i.defaultLocaleOrNull = parseLocale(defaultLocale);
+    i.defaultLocaleOrNull = parseLocale(
+      defaultLocale ?? await delegate?.defaultLocale,
+    );
     i.fallbackLocaleOrNull = parseLocale(fallbackLocale);
     i.localeOrNull = parseLocale(locale);
     i._supportedLocales = parseLocales(supportedLocales);
@@ -146,7 +150,9 @@ class Translation extends Remote<TranslationDelegate> {
   static Locale? parseLocale(Object? locale) {
     if (locale is Locale) return locale;
     if (locale is! String || locale.isEmpty) return null;
-    final codes = locale.split("_");
+    List<String> codes = locale.split("_");
+    if (codes.isEmpty) return null;
+    codes = locale.split("-");
     if (codes.isEmpty) return null;
     String? countryCode = codes.length == 2 ? codes.last : null;
     return Locale(codes.first, countryCode);

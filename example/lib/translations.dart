@@ -6,6 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:translator/translator.dart' hide Translation;
 
 class ITranslationDelegate extends TranslationDelegate {
+  @override
+  Future<Object?> get defaultLocale {
+    return SharedPreferences.getInstance().then((instance) {
+      return instance.getString("locale");
+    });
+  }
+
   /// Retrieves cached translation data for the given [name] and [path].
   /// Returns a `Map` if found, otherwise `null`.
   @override
@@ -19,7 +26,11 @@ class ITranslationDelegate extends TranslationDelegate {
   /// Called when the locale is changed.
   /// Can be used to perform any logic needed after locale update (e.g. logging or reloading).
   @override
-  Future<void> changed(Locale locale) async {}
+  Future<void> changed(Locale locale) async {
+    SharedPreferences.getInstance().then((instance) {
+      instance.setString("locale", locale.toString());
+    });
+  }
 
   /// Fetches translation data from the source specified by [name] and [path].
   /// Typically used to load new translations from assets or remote APIs.

@@ -1,3 +1,7 @@
+## 0.6.42
+
+* Improved Translation to fetch saved locale from delegate
+
 ## 0.6.41
 
 * Improve PathParser util to support any valid segments
