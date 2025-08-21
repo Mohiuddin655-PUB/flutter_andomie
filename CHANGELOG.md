@@ -1,3 +1,4 @@
+## 0.6.43
 ## 0.6.42
 
 * Improved Translation to fetch saved locale from delegate
