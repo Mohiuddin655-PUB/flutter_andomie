@@ -1,8 +1,6 @@
 import 'dart:math';
-import 'dart:typed_data';
 
 import '../extensions/int.dart';
-import 'random_provider.dart';
 import 'replacement.dart';
 
 enum KeyFormats {
@@ -12,30 +10,30 @@ enum KeyFormats {
   smallChars("qwertyuiopasdfghjklzxcvbn"),
   specialChars("!@%^&*()_+~`-={}|';:?.,<>"),
   alphabets(
-    "QWERTYUIOPASDFGHJKLZXCVBNM"
-    "qwertyuiopasdfghjklzxcvbn",
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz",
   ),
   alphabetsAndNumbers(
-    "QWERTYUIOPASDFGHJKLZXCVBNM"
-    "qwertyuiopasdfghjklzxcvbn"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
     "0123456789",
   ),
-  chars(
-    "QWERTYUIOPASDFGHJKLZXCVBNM"
-    "qwertyuiopasdfghjklzxcvbn"
+  alphabetsAndSpecialChars(
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
     "!@%^&*()_+~`-={}|';:?.,<>",
   ),
   capitalCharsAndNumbers(
-    "QWERTYUIOPASDFGHJKLZXCVBNM"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     "0123456789",
   ),
   smallCharsAndNumbers(
-    "qwertyuiopasdfghjklzxcvbn"
+    "abcdefghijklmnopqrstuvwxyz"
     "0123456789",
   ),
   all(
-    "QWERTYUIOPASDFGHJKLZXCVBNM"
-    "qwertyuiopasdfghjklzxcvbn"
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    "abcdefghijklmnopqrstuvwxyz"
     "!@%^&*()_+~`-={}|';:?.,<>"
     "0123456789",
   );
@@ -48,7 +46,7 @@ enum KeyFormats {
 class KeyGenerator {
   const KeyGenerator._();
 
-  static String get uniqueKey => generateKey();
+  static String get uniqueKey => randomKey();
 
   /// Generates a unique image key based on the current date and time.
   ///
@@ -60,15 +58,6 @@ class KeyGenerator {
   static String get dateKey {
     final a = DateTime.now();
     return "${a.year.x4D}${a.month.x2D}${a.day.x2D}${a.hour.x2D}${a.minute.x2D}${a.second.x2D}";
-  }
-
-  static List<int> _bytes(KeyByteType type) {
-    final secure = Random.secure();
-    final bytes = Uint8List(type.value);
-    for (var i = 0; i < bytes.length; i++) {
-      bytes[i] = secure.nextInt(256);
-    }
-    return bytes;
   }
 
   /// Generates a key based on the provided name or the current timestamp.
@@ -96,35 +85,34 @@ class KeyGenerator {
       return Replacement.auto(name).toLowerCase();
     } else {
       final ms = timeMills ?? DateTime.timestamp().millisecondsSinceEpoch;
-      final extra = RandomProvider.string(format.value, max: extraKeySize);
+      final extra = randomKey(length: extraKeySize, chars: format.value);
       final key = "$ms$extra";
       return key;
     }
   }
 
-  static String haxKey(List<int> bytes) {
-    var buffer = StringBuffer();
-    var hexChars = "0123456789ABCDEF";
-    for (var byte in bytes) {
-      buffer.write(hexChars[(byte & 0xF0) >> 4]);
-      buffer.write(hexChars[byte & 0x0F]);
+  static String randomKey({
+    int length = 6,
+    String? chars,
+    List<String> ignores = const [],
+    KeyFormats format = KeyFormats.alphabetsAndNumbers,
+  }) {
+    String c = chars ?? format.value;
+    Random r = Random.secure();
+    String code = List.generate(length, (i) => c[r.nextInt(c.length)]).join();
+    if (ignores.isNotEmpty && ignores.contains(code)) {
+      return randomKey(length: length, ignores: ignores);
     }
-    return "$buffer";
+    return code;
   }
 
-  static String secretKey(KeyByteType type) => haxKey(_bytes(type));
-}
-
-enum KeyByteType {
-  x2(2),
-  x4(4),
-  x8(8),
-  x16(16),
-  x32(32),
-  x64(64),
-  x128(128);
-
-  final int value;
-
-  const KeyByteType(this.value);
+  static BigInt countPossibleWords(int length, String chars) {
+    int charsetSize = chars.length;
+    int maxLength = length;
+    BigInt base = BigInt.from(charsetSize);
+    BigInt numerator = base.pow(maxLength + 1) - base;
+    BigInt denominator = BigInt.from(charsetSize - 1);
+    BigInt total = numerator ~/ denominator;
+    return total;
+  }
 }
