@@ -70,16 +70,29 @@ class Translator extends ChangeNotifier {
 
   set locale(Locale locale) => _currentLocale = locale;
 
+  /// Sequential task chain
+  Future<void> _taskQueue = Future.value();
+
+  /// Prevent duplicate requests
   final Map<String, Future<String>> _pendingTranslations = {};
 
   void _translateInBackground(String key, Locale locale) {
     if (key.isEmpty || _delegate == null) return;
 
     final cacheKey = '${locale.toString()}::$key';
+
+    // Already queued/requested → skip
     if (_pendingTranslations.containsKey(cacheKey)) return;
 
-    final translationFuture =
-        _delegate!.translate(key, locale).then((translated) {
+    // Create task and chain it in sequence
+    final translationFuture = _taskQueue = _taskQueue.then((_) async {
+      // Check again in case it got cached while waiting
+      if (_cache[locale.toString()]?.containsKey(key) ?? false) {
+        return _cache[locale.toString()]![key]!;
+      }
+
+      final translated = await _delegate!.translate(key, locale);
+
       if (translated.isEmpty || translated == key) return key;
 
       final localeCache = _cache[locale.toString()] ?? {};
