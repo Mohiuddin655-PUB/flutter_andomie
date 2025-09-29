@@ -1,3 +1,8 @@
+## 0.6.45
+
+* Add realtime util to manage date and time
+* Improve remote, configs, translations, translator, date helper utils
+
 ## 0.6.44
 
 * Improve KeyGenerator util

@@ -90,17 +90,17 @@ class Configs extends Remote<ConfigsDelegate> {
 
   static Future<void> init({
     String? name,
-    required bool connected,
     ConfigsDelegate? delegate,
     Set<String>? paths,
+    Set<String>? symmetricPaths,
+    bool connected = false,
     bool listening = true,
-    bool showLogs = false,
+    bool showLogs = true,
     VoidCallback? onReady,
     String defaultPath = _kApplication,
     PlatformType platform = PlatformType.system,
     EnvironmentType environment = EnvironmentType.system,
   }) async {
-    paths ??= {...kDefaultConfigPaths};
     i._defaultPath = defaultPath;
     i._environment = environment;
     i._platform = platform;
@@ -108,7 +108,11 @@ class Configs extends Remote<ConfigsDelegate> {
       name: name ?? kDefaultConfigName,
       connected: connected,
       delegate: delegate,
-      paths: paths,
+      paths: {...kDefaultConfigPaths, if (paths != null) ...paths},
+      symmetricPaths: {
+        _kApplication,
+        if (symmetricPaths != null) ...symmetricPaths,
+      },
       listening: listening,
       showLogs: showLogs,
       onReady: onReady,

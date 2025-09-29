@@ -141,7 +141,7 @@ class IAutoTranslateDelegate extends TranslatorDelegate {
   }
 
   @override
-  void translated(TranslationCache value) async {
+  void translated(String key, String value) async {
     final shared = await SharedPreferences.getInstance();
     await shared.setString("auto_translations_cache", jsonEncode(value));
   }

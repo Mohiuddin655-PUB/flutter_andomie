@@ -24,9 +24,9 @@ abstract class RemoteDelegate {
     return Stream.error("Stream not implemented for $path");
   }
 
-  Future<void> initializing() async {}
+  Future<void> loading() async {}
 
-  Future<void> initialized() async {}
+  Future<void> loaded() async {}
 
   Future<void> ready(String name, String path) async {}
 
@@ -42,6 +42,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
 
   final Map _props = {};
   Set<String> _paths = {};
+  Set<String> _symmetricPaths = {};
 
   String _name = 'remote';
   bool _connected = false;
@@ -69,16 +70,17 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
 
   Future<void> initialize({
     required String name,
-    required bool connected,
     T? delegate,
     Set<String>? paths,
+    Set<String>? symmetricPaths,
+    bool connected = false,
     bool listening = true,
-    bool showLogs = false,
+    bool showLogs = true,
     VoidCallback? onReady,
   }) async {
-    paths ??= {};
     _name = name;
-    _paths = paths;
+    _paths = paths ?? {};
+    _symmetricPaths = symmetricPaths ?? {};
     _showLogs = showLogs;
     _delegate = delegate;
     _connected = connected;
@@ -111,7 +113,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     if (!value) {
       return _unsubscribes();
     }
-    await reload();
+    await reload(notifiable: true);
     if (_listening) await resubscribes();
   }
 
@@ -193,15 +195,15 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
 
   Future<void> _load(
     String path, {
-    bool refresh = false,
+    bool changed = false,
     bool reload = false,
   }) async {
     try {
-      if (!refresh || reload) await _fetch(path);
+      if (!changed || reload) await _fetch(path);
       Map data = {};
       final local = _props[path];
       if (local is Map) data = data.combine(local);
-      if (!refresh) {
+      if (!changed) {
         Map? asset = await _assets(path);
         if (asset != null) data = data.combine(asset);
       }
@@ -212,11 +214,16 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
         return;
       }
       _props[path] = data;
-      if (refresh) notifyListeners();
+      if (changed) {
+        notifyListeners();
+        log("$path properties changed!");
+      } else if (reload) {
+        log("$path properties reloaded!");
+      } else {
+        log("$path properties loaded!");
+      }
       if (_delegate != null) {
-        refresh || reload
-            ? _delegate!.changes(name, path)
-            : _delegate!.ready(name, path);
+        changed ? _delegate!.changes(name, path) : _delegate!.ready(name, path);
       }
     } catch (msg) {
       log(msg);
@@ -227,12 +234,18 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     try {
       _loading = true;
       notifyListeners();
-      if (_delegate != null) await _delegate!.initializing();
-      await Future.wait(_paths.map(_load));
+      if (_delegate != null) await _delegate!.loading();
+      for (final path in paths) {
+        if (_symmetricPaths.contains(path)) {
+          await _load(path);
+        } else {
+          _load(path);
+        }
+      }
       _loading = false;
       notifyListeners();
-      log("all properties loaded!");
-      if (_delegate != null) await _delegate!.initialized();
+      log("all symmetric properties loaded!");
+      if (_delegate != null) await _delegate!.loaded();
       if (_callback != null) _callback!();
     } catch (msg) {
       _loading = false;
@@ -241,10 +254,27 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
     }
   }
 
-  Future<void> reload() async {
+  Future<void> reload({
+    bool showLoading = false,
+    bool notifiable = true,
+  }) async {
+    if (showLoading) {
+      _loading = true;
+      notifyListeners();
+    }
     try {
-      await Future.wait(_paths.map((e) => _load(e, reload: true)));
-      if (_delegate != null) await _delegate!.initialized();
+      for (final path in paths) {
+        if (_symmetricPaths.contains(path)) {
+          await _load(path, reload: true);
+        } else {
+          _load(path, reload: true);
+        }
+      }
+      if (showLoading) _loading = false;
+      if (notifiable || showLoading) notifyListeners();
+      log("all symmetric properties reloaded!");
+      if (_delegate != null) await _delegate!.loaded();
+      if (_callback != null) _callback!();
     } catch (msg) {
       log(msg);
     }
@@ -263,11 +293,10 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
       _subscriptions.remove(path);
       if (!_connected) return;
       _subscriptions[path] = _delegate!.listen(name, path).listen((data) async {
-        if (data == null || data.isEmpty) return;
         if (data == _props[path]) return;
         final kept = await _save(path, data);
         if (!kept) return;
-        await _load(path, refresh: true);
+        await _load(path, changed: true);
       });
     } on TimeoutException catch (_) {
       log(
@@ -281,8 +310,12 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
   Future<void> _subscribes([Set<String>? paths]) async {
     if (paths == null || paths.isEmpty) await _unsubscribes();
     for (var path in (paths ?? _paths)) {
-      await _subscribe(path);
-      log("subscription[$path] created!");
+      if (_symmetricPaths.contains(path)) {
+        await _subscribe(path);
+      } else {
+        _subscribe(path);
+      }
+      log("stream subscription[$path] created!");
     }
   }
 
@@ -291,7 +324,7 @@ class Remote<T extends RemoteDelegate> extends ChangeNotifier {
       for (var subscription in _subscriptions.entries) {
         try {
           await subscription.value?.cancel();
-          log("subscription[${subscription.key}] canceled!");
+          log("stream subscription[${subscription.key}] canceled!");
         } catch (msg) {
           log(msg);
         }

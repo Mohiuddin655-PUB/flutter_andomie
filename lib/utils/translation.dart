@@ -47,12 +47,13 @@ class Translation extends Remote<TranslationDelegate> {
 
   static Future<void> init({
     String? name,
-    required bool connected,
     TranslationDelegate? delegate,
     TranslatorDelegate? translator,
     Set<String>? paths,
+    Set<String>? symmetricPaths,
+    bool connected = false,
     bool listening = true,
-    bool showLogs = false,
+    bool showLogs = true,
     bool autoTranslateMode = true,
     VoidCallback? onReady,
     String defaultPath = kDefaultTranslationPath,
@@ -61,8 +62,6 @@ class Translation extends Remote<TranslationDelegate> {
     Object? fallbackLocale,
     Iterable? supportedLocales,
   }) async {
-    paths ??= {};
-    paths.add(defaultPath);
     i._defaultPath = defaultPath;
     i.defaultLocaleOrNull = parseLocale(
       defaultLocale ?? await delegate?.defaultLocale,
@@ -75,7 +74,11 @@ class Translation extends Remote<TranslationDelegate> {
       name: name ?? kDefaultTranslationName,
       connected: connected,
       delegate: delegate,
-      paths: paths,
+      paths: {defaultPath, if (paths != null) ...paths},
+      symmetricPaths: {
+        defaultPath,
+        if (symmetricPaths != null) ...symmetricPaths,
+      },
       listening: listening,
       showLogs: showLogs,
       onReady: () {

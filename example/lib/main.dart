@@ -31,10 +31,7 @@ class Home extends StatelessWidget {
     var a = DateTime.timestamp();
     return Scaffold(
       body: SafeArea(
-        child: Text(a.toRealtime(
-          showRealtime: true,
-          whenShowNow: 10,
-        )),
+        child: Text(a.toRealtime()),
       ),
     );
   }
