@@ -1,7 +1,7 @@
 name: flutter_andomie
 description: Collection of utils with advanced style and controlling system.
-version: 0.6.45
-homepage: https://github.com/P-YMR/flutter_andomie.git
+version: 0.7.0
+homepage: https://github.com/Mohiuddin655-PUB/flutter_andomie
 
 environment:
   sdk: '>=3.0.0 <4.0.0'

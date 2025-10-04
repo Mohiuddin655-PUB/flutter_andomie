@@ -9,7 +9,6 @@ export 'extensions/iterator.dart';
 export 'extensions/list.dart';
 export 'extensions/map.dart';
 export 'extensions/num.dart';
-export 'extensions/object.dart';
 export 'extensions/scroll_controller.dart';
 export 'extensions/spacing.dart';
 export 'extensions/string.dart';

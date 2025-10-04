@@ -1,3 +1,14 @@
+## 0.7.0
+
+* Remove heavy utils and create as dart package
+    - Configs [package: in_app_configs]
+    - DataType [package: data_type_detector]
+    - ObjectHelper [package: object_parser]
+    - Remote [package: in_app_remote]
+    - Settings [package: in_app_settings]
+    - Translator [package: in_app_translator]
+    - Translation [package: in_app_translation]
+
 ## 0.6.45
 
 * Add realtime util to manage date and time
